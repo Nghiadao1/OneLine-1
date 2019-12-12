@@ -5,28 +5,55 @@ using UnityEngine;
 public class Tile : MonoBehaviour
 {
 
+    // Private atributes
     bool _pressed;
 
     GameObject colorSpr;
+    RectTransform rt;
+
+    float width;
+    float height; 
 
  
 
     // Start is called before the first frame update
     void Start()
     {
+        rt = (RectTransform)colorSpr.transform;
+
+        width = rt.rect.width;
+        height = rt.rect.height;
+
         _pressed = false;
 
         colorSpr.SetActive(false);
     }
 
-    public void setPressed(bool b)
+    public void SetPressed(bool b)
     {
         _pressed = b;
         colorSpr.SetActive(_pressed);
     }
 
-    public bool getPressed()
+    public bool GetPressed()
     {
         return _pressed;
     }
+
+    public float GetWidth()
+    {
+        return width;
+    }
+
+    public float GetHeight()
+    {
+        return height;
+    }
+
+    public void SetColor()
+    {
+
+    }
+
+
 }
