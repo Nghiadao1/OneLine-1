@@ -12,7 +12,7 @@ public class BoardManager : MonoBehaviour
     {
         public Tile[,] board;
 
-        public int width, height;
+        public int x, y, width, height;
     }
 
     Board board; // GameBoard of tiles
@@ -34,26 +34,28 @@ public class BoardManager : MonoBehaviour
     }
 
     /**
-     * Receives a possition were the screen is clicked.
-     * 
-     * @param x int X position of the cursor
-     * @param y int Y position of the cursor
-     */
+    * Receives a possition were the screen is clicked.
+    * 
+    * @param x int X position of the cursor
+    * @param y int Y position of the cursor
+    */
     public void BoardClicked(float x, float y)
     {
-        
+
     }
 
     /**
      * Initialize the board with the values. 
      */
-    public void SetBoundings(int x, int y)
+    public void SetBoundings(int x, int y, int width, int height)
     {
-        board = new Board();
+        //board = new Board();
 
-        board.board = new Tile[x, y];
-        board.width = x;
-        board.height = y; 
+        board.board = new Tile[width, height];
+        board.x = x;
+        board.y = y;
+        board.width = width;
+        board.height = height; 
     }
 
     void SetBoard()
