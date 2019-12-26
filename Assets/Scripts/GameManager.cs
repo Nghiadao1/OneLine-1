@@ -67,4 +67,16 @@ public class GameManager : MonoBehaviour
     }
 
    
+    //public int repositionX(int x)
+    //{
+    //    return (x * _can.getWidth()) / _refCan.getWidth();
+    //} // repositionX
+
+
+    //public int repositionY(int y)
+    //{
+    //    return (y * _can.getHeight()) / _refCan.getHeight();
+    //} // repositionY
+
+
 }
