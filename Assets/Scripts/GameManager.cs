@@ -8,11 +8,18 @@ public class GameManager : MonoBehaviour
 
     BoardManager boardManager;
 
+    public GameObject background;
+    public Canvas canvas;
+
     // Start is called before the first frame update
     void Start()
     {
         //Llamar primero a Escalate
         boardManager.SetBoundings(0, 0, 0, 0);
+
+        
+
+        background.transform.localScale = new Vector3(); // MODIFICAMOS ESTA CHINGADA
     }
 
     // Update is called once per frame
