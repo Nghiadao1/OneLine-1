@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         //Llamar primero a Escalate
-        boardManager.SetBoundings(0, 0, 0, 0);
+        //boardManager.SetBoundings(0, 0, 0, 0);
 
         _refResolution = canvas.GetReferenceResolution();
 
