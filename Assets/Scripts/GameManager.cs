@@ -9,7 +9,11 @@ public class GameManager : MonoBehaviour
     BoardManager boardManager;
 
     public GameObject background;
-    public Canvas canvas;
+    public CanvasManager canvas;
+
+    Vector2 _refResolution;       //Reference resolution
+    float _width;               //Screen width
+    float _height;              //Screen height
 
     // Start is called before the first frame update
     void Start()
@@ -17,9 +21,14 @@ public class GameManager : MonoBehaviour
         //Llamar primero a Escalate
         boardManager.SetBoundings(0, 0, 0, 0);
 
-        
+        _refResolution = canvas.GetReferenceResolution();
 
-        background.transform.localScale = new Vector3(); // MODIFICAMOS ESTA CHINGADA
+        _width = canvas.GetWidth();
+        _height = canvas.GetHeight();
+
+        Sprite bgSprite = background.GetComponent<Sprite>();
+
+        background.transform.localScale = Escalate(bgSprite.rect.width, bgSprite.rect.height);
     }
 
     // Update is called once per frame
@@ -35,55 +44,48 @@ public class GameManager : MonoBehaviour
 
     }
 
-    void Escalate ()
+    Vector3 Escalate (float spriteWidth, float spriteHeight)
     {
-        //Params -> Rect src, Rect dim
-        
-            //Rect temp; // Temporal rectangle for calculations
+        float actualWidth = spriteWidth;
+        float actualHeight = spriteHeight;
 
-            //int width = src.getWidth(); // Save the src width
-            //int height = src.getHeight(); // Save the src height
+        // If the src width is higher than the reference width
+        if (actualWidth > _width)
+        {
+            // Set the new width but resized proportionally
+            actualWidth = repositionX(actualWidth);
+            // Change height keeping proportions
+            actualHeight = (actualWidth * spriteHeight) / spriteWidth;
+        } // if
 
-            //// If the src width is higher than the reference width
-            //if (width > dim.getWidth())
-            //{
-            //    // Set the new width but resized proportionally
-            //    width = repositionX(width);
-            //    // Change height keeping proportions
-            //    height = (width * src.getHeight()) / src.getWidth();
-            //} // if
+        // If the src height (or the changed height) is bigger than the reference one
+        if (actualHeight > _height)
+        {
+            // Set the new height but resized proportionally
+            actualHeight = repositionY(actualHeight);
+            // Change width proportionally
+            actualWidth = (actualHeight * spriteWidth) / spriteHeight;
+        } // if
 
-            //// If the src height (or the changed height) is bigger than the reference one
-            //if (height > dim.getHeight())
-            //{
-            //    // Set the new height but resized proportionally
-            //    height = repositionY(height);
-            //    // Change width proportionally
-            //    width = (height * src.getWidth()) / src.getHeight();
-            //} // if
+        // Save the changes to the new Rectangle
+        Vector3 temp = new Vector3(actualWidth, actualHeight, 0);
 
-            //// Save the changes to the new Rectangle
-            //temp = new Rect(width, 0, 0, height);
-
-            //// Set the original position in canvas of the source Rectangle
-            //temp.setPosition(src.getX(), src.getY());
-
-            //// Return result
-            //return temp;
+        // Return result
+        return temp;
 
     }
 
-   
-    //public int repositionX(int x)
-    //{
-    //    return (x * _can.getWidth()) / _refCan.getWidth();
-    //} // repositionX
+
+    public float repositionX(float x)
+    {
+        return (x * _width) / _refResolution.x;
+    } // repositionX
 
 
-    //public int repositionY(int y)
-    //{
-    //    return (y * _can.getHeight()) / _refCan.getHeight();
-    //} // repositionY
+    public float repositionY(float y)
+    {
+        return (y * _height) / _refResolution.y;
+    } // repositionY
 
 
 }
