@@ -8,7 +8,7 @@ public class Tile : MonoBehaviour
     // Private atributes
     bool _pressed;
 
-    GameObject colorSpr;
+    public GameObject colorSpr;
     RectTransform rt;
 
     float width;

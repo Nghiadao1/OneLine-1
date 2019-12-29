@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
 {
     // Welcome to the GameManager script, enjoy the visit and left some comments below. 
 
-    BoardManager boardManager;
+    public BoardManager boardManager;
 
     public GameObject background;
     public CanvasManager canvas;
@@ -27,8 +27,6 @@ public class GameManager : MonoBehaviour
         Sprite bgSprite = background.GetComponent<SpriteRenderer>().sprite;
 
         background.transform.localScale = Escalate(bgSprite.rect.width, bgSprite.rect.height, background.transform.localScale);
-
-        boardManager = new BoardManager();
 
         boardManager.SetBoard(new Vector2(canvas.GetWidth(), canvas.GetHeight()), 6, 5, 0, 0);
     }
