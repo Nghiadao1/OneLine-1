@@ -19,8 +19,6 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         //Llamar primero a Escalate
-        //boardManager.SetBoundings(0, 0, 0, 0);
-
         _refResolution = canvas.GetReferenceResolution();
 
         _height = Camera.main.orthographicSize * 2;
@@ -67,23 +65,12 @@ public class GameManager : MonoBehaviour
             actualWidth = (actualHeight * spriteWidth) / spriteHeight;
         } // if*/
 
-
-        Debug.Log(actualHeight);
-        Debug.Log(actualWidth);
-
         // Transform pixels to unity units
         actualHeight = (actualHeight * prevScale.x) / (spriteHeight / 100);
         actualWidth = (actualWidth * prevScale.y)  / (spriteWidth / 100);
 
-
-        Debug.Log(actualHeight);
-        Debug.Log(actualWidth);
-
-
         // Save the changes to the new Rectangle
         Vector3 temp = new Vector3(actualWidth, actualHeight, 0);
-
-        Debug.Log(temp);
 
         // Return result
         return temp;

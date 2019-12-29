@@ -14,22 +14,23 @@ public class CanvasManager : MonoBehaviour
     float _height;
 
     // Paneles
-    public RectTransform canvas; 
-    public RectTransform panelUp;
-    public RectTransform panelDown; 
+    RectTransform canvas; 
+    RectTransform panelUp;
+    RectTransform panelDown; 
 
     void Awake()
     {
-        scaleRef = GetComponent<CanvasScaler>().referenceResolution;
+        canvas = this.gameObject.GetComponent<RectTransform>();
+        panelUp = this.gameObject.transform.GetChild(0).GetComponent<RectTransform>();
+        panelDown = this.gameObject.transform.GetChild(1).GetComponent<RectTransform>();
 
-        Debug.Log(scaleRef);
+
+        scaleRef = GetComponent<CanvasScaler>().referenceResolution;
 
         // Devolvemos el valor del ancho y el alto
         _width = canvas.rect.width;
 
-        _height = (canvas.rect.height - (panelUp.rect.height + panelDown.rect.height));
-
-        
+        _height = (canvas.rect.height - (panelUp.rect.height + panelDown.rect.height));        
     }
 
     //Getter of the screen width
