@@ -27,6 +27,10 @@ public class GameManager : MonoBehaviour
         Sprite bgSprite = background.GetComponent<SpriteRenderer>().sprite;
 
         background.transform.localScale = Escalate(bgSprite.rect.width, bgSprite.rect.height, background.transform.localScale);
+
+        boardManager = new BoardManager();
+
+        boardManager.SetBoard(new Vector2(canvas.GetWidth(), canvas.GetHeight()), 6, 5, 0, 0);
     }
 
     // Update is called once per frame

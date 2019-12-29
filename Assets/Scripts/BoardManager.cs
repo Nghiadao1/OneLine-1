@@ -4,34 +4,22 @@ using UnityEngine;
 
 public class BoardManager : MonoBehaviour
 {
+
+    public GameObject tilePrefab;
+
     // Private atributes
 
     // Board 
-
     struct Board
     {
-        public Tile[,] board;
+        public GameObject[,] board;
 
-        public int x, y, width, height;
+        public float x, y;
+
+        public Vector2 size;
     }
 
-    Board board; // GameBoard of tiles
-
-    // Board information
-    float avX; // This atributes will store the available size in pixels
-    float avY; 
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    Board brd; // GameBoard of tiles
 
     /**
     * Receives a possition were the screen is clicked.
@@ -44,39 +32,24 @@ public class BoardManager : MonoBehaviour
 
     }
 
-    /**
-     * Initialize the board with the values. 
-     */
-    public void SetBoundings(int x, int y, int width, int height)
+    public void SetBoard (Vector2 size, int sizeX, int sizeY, float posX, float posY)
     {
-        //board = new Board();
+        brd.board = new GameObject[sizeX, sizeY];
+        brd.size = size;
+        brd.x = posX;
+        brd.y = posY;
 
-        board.board = new Tile[width, height];
-        board.x = x;
-        board.y = y;
-        board.width = width;
-        board.height = height; 
-    }
-
-    void SetBoard()
-    {
-        for (int i = 0; i < board.width; i++)
+        for (int i = 0; i < sizeY; i++)
         {
-            for (int j = 0; j < board.height; j++)
+            for (int j = 0; j < sizeX; j++)
             {
+                Debug.Log(tilePrefab);
+                brd.board[i, j] = Instantiate(tilePrefab);
+                brd.board[i, j].transform.SetParent(transform);
+                brd.board[i, j].transform.position = new Vector3(transform.position.x * j, transform.position.y * i);
 
             }
         }
     }
 
-
-    /**
-     * Sets the size of the board. This will be used to 
-     * calculate and scalate all tiles in the board. 
-     */
-    public void SetAvailableSize(float x, float y)
-    {
-        avX = x;
-        avY = y;
-    }
 }
