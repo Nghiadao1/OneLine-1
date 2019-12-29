@@ -12,8 +12,8 @@ public class GameManager : MonoBehaviour
     public CanvasManager canvas;
 
     Vector2 _refResolution;       //Reference resolution
-    float _width;               //Screen width
-    float _height;              //Screen height
+    float _width;               // Available size
+    float _height;              // Available size
 
     // Start is called before the first frame update
     void Start()
@@ -23,12 +23,12 @@ public class GameManager : MonoBehaviour
 
         _refResolution = canvas.GetReferenceResolution();
 
-        _width = canvas.GetWidth();
-        _height = canvas.GetHeight();
+        _height = Camera.main.orthographicSize * 2;
+        _width = _height * Screen.width / Screen.height;
 
-        Sprite bgSprite = background.GetComponent<Sprite>();
+        Sprite bgSprite = background.GetComponent<SpriteRenderer>().sprite;
 
-        background.transform.localScale = Escalate(bgSprite.rect.width, bgSprite.rect.height);
+        background.transform.localScale = Escalate(bgSprite.rect.width, bgSprite.rect.height, background.transform.localScale);
     }
 
     // Update is called once per frame
@@ -44,7 +44,7 @@ public class GameManager : MonoBehaviour
 
     }
 
-    Vector3 Escalate (float spriteWidth, float spriteHeight)
+    Vector3 Escalate (float spriteWidth, float spriteHeight, Vector2 prevScale)
     {
         float actualWidth = spriteWidth;
         float actualHeight = spriteHeight;
@@ -58,17 +58,32 @@ public class GameManager : MonoBehaviour
             actualHeight = (actualWidth * spriteHeight) / spriteWidth;
         } // if
 
-        // If the src height (or the changed height) is bigger than the reference one
+        /*// If the src height (or the changed height) is bigger than the reference one
         if (actualHeight > _height)
         {
             // Set the new height but resized proportionally
             actualHeight = repositionY(actualHeight);
             // Change width proportionally
             actualWidth = (actualHeight * spriteWidth) / spriteHeight;
-        } // if
+        } // if*/
+
+
+        Debug.Log(actualHeight);
+        Debug.Log(actualWidth);
+
+        // Transform pixels to unity units
+        actualHeight = (actualHeight * prevScale.x) / (spriteHeight / 100);
+        actualWidth = (actualWidth * prevScale.y)  / (spriteWidth / 100);
+
+
+        Debug.Log(actualHeight);
+        Debug.Log(actualWidth);
+
 
         // Save the changes to the new Rectangle
         Vector3 temp = new Vector3(actualWidth, actualHeight, 0);
+
+        Debug.Log(temp);
 
         // Return result
         return temp;
