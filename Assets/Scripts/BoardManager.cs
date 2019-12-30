@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class BoardManager : MonoBehaviour
 {
-
     public GameObject tilePrefab;
 
     // Private atributes
@@ -20,6 +19,7 @@ public class BoardManager : MonoBehaviour
     }
 
     Board brd; // GameBoard of tiles
+
 
     /**
     * Receives a possition were the screen is clicked.
@@ -39,14 +39,14 @@ public class BoardManager : MonoBehaviour
         brd.x = posX;
         brd.y = posY;
 
-        for (int i = 0; i < sizeY; i++)
+        for (int i = 0; i < sizeX; i++)
         {
-            for (int j = 0; j < sizeX; j++)
+            for (int j = 0; j < sizeY; j++)
             {
-                Debug.Log(tilePrefab);
+               
                 brd.board[i, j] = Instantiate(tilePrefab);
                 brd.board[i, j].transform.SetParent(transform);
-                brd.board[i, j].transform.position = new Vector3(transform.position.x * j, transform.position.y * i);
+                brd.board[i, j].transform.position = new Vector3(transform.position.x * j, transform.position.y * i, 0);
 
             }
         }
