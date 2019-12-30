@@ -56,8 +56,9 @@ public class BoardManager : MonoBehaviour
                 //      Una vez hecho eso, es sumar la j o la i según sea necesario
                 //      Quizá deberíamos hacerlo en un método a parte. 
 
-                Vector3 position = new Vector3(transform.position.x * j, transform.position.y * i, -2);
-                Vector3 positionCol = new Vector3(transform.position.x * j, transform.position.y * i, -3);
+                Vector3 position = new Vector3(((transform.position.x  - (sizeX/2)) + 0.5f) + i, (transform.position.y  - (sizeY/2)) + j, -1);
+
+                Debug.Log(position);
 
                 // Instantiate GameObjects needed 
                 brd.board[i, j] = Instantiate(tilePrefab, position, Quaternion.identity); // Position
@@ -72,5 +73,10 @@ public class BoardManager : MonoBehaviour
 
             }
         }
+    }
+
+    void BoardEscalate()
+    {
+
     }
 }
