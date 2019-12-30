@@ -50,7 +50,9 @@ public class BoardManager : MonoBehaviour
             for (int j = 0; j < sizeY; j++)
             {
 
-                Vector3 position = new Vector3(transform.position.x * j, transform.position.y * i, -1);
+                Vector3 position = new Vector3(((transform.position.x  - (sizeX/2)) + 0.5f) + i, (transform.position.y  - (sizeY/2)) + j, -1);
+
+                Debug.Log(position);
 
                 // Instantiate GameObjects needed 
                 brd.board[i, j] = Instantiate(tilePrefab, position, Quaternion.identity); // Position
@@ -65,5 +67,10 @@ public class BoardManager : MonoBehaviour
 
             }
         }
+    }
+
+    void BoardEscalate()
+    {
+
     }
 }
