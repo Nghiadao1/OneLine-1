@@ -8,25 +8,21 @@ public class Tile : MonoBehaviour
     // Private atributes
     bool _pressed;
 
-    public GameObject colorSpr;
-    RectTransform rt;
+    // Sprites needed for representation
+    GameObject colorSpr;
+    GameObject baseSpr; 
 
-    float width;
-    float height; 
-
- 
+    // Calculos 
+    Vector2 rt;
 
     // Start is called before the first frame update
     void Start()
     {
-        rt = (RectTransform)colorSpr.transform;
+        baseSpr = transform.GetChild(0).gameObject;
 
-        width = rt.rect.width;
-        height = rt.rect.height;
-
+        rt = baseSpr.transform.localScale;
+        
         _pressed = false;
-
-        colorSpr.SetActive(false);
     }
 
     public void SetPressed(bool b)
@@ -40,20 +36,10 @@ public class Tile : MonoBehaviour
         return _pressed;
     }
 
-    public float GetWidth()
+    public void SetColor(GameObject c)
     {
-        return width;
+        colorSpr = c;
+
+        colorSpr.SetActive(false);
     }
-
-    public float GetHeight()
-    {
-        return height;
-    }
-
-    public void SetColor()
-    {
-
-    }
-
-
 }

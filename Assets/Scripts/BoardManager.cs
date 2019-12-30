@@ -7,6 +7,7 @@ public class BoardManager : MonoBehaviour
     public GameObject tilePrefab;
 
     // Private atributes
+    string path = "Prefabs/Game/Skins/Blocks/block_0";
 
     // Board 
     struct Board
@@ -34,6 +35,11 @@ public class BoardManager : MonoBehaviour
 
     public void SetBoard (Vector2 size, int sizeX, int sizeY, float posX, float posY)
     {
+        // Get a random number to decide which block is going to be used
+        int color = Random.Range(1, 8);
+
+        GameObject colour = Resources.Load(path + color) as GameObject;
+
         brd.board = new GameObject[sizeX, sizeY];
         brd.size = size;
         brd.x = posX;
@@ -43,10 +49,19 @@ public class BoardManager : MonoBehaviour
         {
             for (int j = 0; j < sizeY; j++)
             {
-               
-                brd.board[i, j] = Instantiate(tilePrefab);
+
+                Vector3 position = new Vector3(transform.position.x * j, transform.position.y * i, -1);
+
+                // Instantiate GameObjects needed 
+                brd.board[i, j] = Instantiate(tilePrefab, position, Quaternion.identity); // Position
+                GameObject colorSprite = Instantiate(colour, position, Quaternion.identity);
+
+                // Attacht them to parents
                 brd.board[i, j].transform.SetParent(transform);
-                brd.board[i, j].transform.position = new Vector3(transform.position.x * j, transform.position.y * i, 0);
+                colorSprite.transform.SetParent(brd.board[i, j].transform);
+
+                // Set the color sprite to Tile
+                brd.board[i, j].GetComponent<Tile>().SetColor(colorSprite);
 
             }
         }
