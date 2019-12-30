@@ -49,12 +49,19 @@ public class BoardManager : MonoBehaviour
         {
             for (int j = 0; j < sizeY; j++)
             {
+                // Aquí es donde entraría el cálculo de las posiciones, que es: 
+                //      Calcular con el espacio que tenemos dónde colocar los tiles (width / nº de tiles da cuánto ocuparía cada tile) y lo mismo para la altura 
+                //      Una vez esto, hay que saber el nº de Unidades de Unity que ocupa el tablero, sabiendo que está en la pos (0, 0)
+                //      Aquí hay que calcular de nuevo dónde irían los tiles, ya que empezarían a colocarse en (-X, 0) (Quitando el espacio necesario para que encuadren etc.)
+                //      Una vez hecho eso, es sumar la j o la i según sea necesario
+                //      Quizá deberíamos hacerlo en un método a parte. 
 
-                Vector3 position = new Vector3(transform.position.x * j, transform.position.y * i, -1);
+                Vector3 position = new Vector3(transform.position.x * j, transform.position.y * i, -2);
+                Vector3 positionCol = new Vector3(transform.position.x * j, transform.position.y * i, -3);
 
                 // Instantiate GameObjects needed 
                 brd.board[i, j] = Instantiate(tilePrefab, position, Quaternion.identity); // Position
-                GameObject colorSprite = Instantiate(colour, position, Quaternion.identity);
+                GameObject colorSprite = Instantiate(colour, positionCol, Quaternion.identity);
 
                 // Attacht them to parents
                 brd.board[i, j].transform.SetParent(transform);
