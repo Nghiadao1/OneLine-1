@@ -28,7 +28,7 @@ public class CanvasManager : MonoBehaviour
         scaleRef = GetComponent<CanvasScaler>().referenceResolution;
 
         // Devolvemos el valor del ancho y el alto
-        _width = canvas.rect.width - ((canvas.rect.width * 80) / scaleRef.x); // Quitamos 80 porque puntitos
+        _width = canvas.rect.width - ((canvas.rect.width * 40) / scaleRef.x); // Quitamos 80 porque puntitos
 
         _height = (canvas.rect.height - (panelUp.rect.height + panelDown.rect.height));        
     }

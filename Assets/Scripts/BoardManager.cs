@@ -41,8 +41,10 @@ public class BoardManager : MonoBehaviour
 
         GameObject colour = Resources.Load(path + color) as GameObject;
 
+        Vector2 scale = transform.localScale;
+
         brd.board = new GameObject[sizeX, sizeY];
-        brd.size = DefinePlayZone(camSize, sizeX, sizeY);
+        brd.size = DefinePlayZone(size, sizeX, sizeY, ref scale);
         brd.x = 0;
         brd.y = 0;
 
@@ -70,16 +72,16 @@ public class BoardManager : MonoBehaviour
         Debug.Log(brd.size);
 
         // Escalate all board
-        transform.localScale = BoardEscalate(brd.size, camSize, transform.localScale);
+        transform.localScale = BoardEscalate(brd.size, camSize, scale);
     }
 
-    Vector2 DefinePlayZone(Vector2 size, int x, int y)
+    Vector2 DefinePlayZone(Vector2 size, int x, int y, ref Vector2 scale)
     { // TODOS LOS CALCULOS EN PIXELES
         float width = 0.0f;
         float height = 0.0f;
 
         float defWidth;
-        float defHeight; 
+        float defHeight;
 
         if(y <= 5)
         {
@@ -92,9 +94,7 @@ public class BoardManager : MonoBehaviour
             width = 6 * 120;
             height = 8 * 120;
         }
-
-        width = width / 100;
-        height = height / 100;
+        
 
         defWidth = width;
         defHeight = height;
@@ -102,17 +102,20 @@ public class BoardManager : MonoBehaviour
         // Recolocar
         if (defWidth > size.x)
         {
-            defWidth = (size.x * width) / 7.20f;
+            defWidth = (size.x * width) / 720f;
 
-            defHeight = (defWidth * height) / width;  
+            defHeight = (defWidth * height) / width;
         }
 
         if(defHeight > size.y)
         {
-            defHeight = (size.y * height) / 12.80f;
+            defHeight = (size.y * height) / 1280f;
 
             defWidth = (defHeight * width) / height;
         }
+
+        scale.x = (scale.x * defWidth) / width;
+        scale.y = (scale.y * defHeight) / height;
 
         return new Vector2(defWidth, defHeight);
     }
@@ -140,7 +143,7 @@ public class BoardManager : MonoBehaviour
         if (unityHeight > cam.y - notAvailable)
         {
             // Set the new width but resized proportionally
-            scaleY = (prevScale.y * cam.y) / unityHeight;
+            scaleY = (prevScale.y * (cam.y - notAvailable)) / unityHeight;
 
             // Change height keeping proportions
             scaleX = scaleY;
