@@ -12,8 +12,8 @@ public class GameManager : MonoBehaviour
     public CanvasManager canvas;
 
     Vector2 _refResolution;       //Reference resolution
-    float _width;               // Available size
-    float _height;              // Available size
+    float _cameraWidth;               // Available size
+    float _cameraHeight;              // Available size
 
     // Start is called before the first frame update
     void Start()
@@ -21,14 +21,14 @@ public class GameManager : MonoBehaviour
         //Llamar primero a Escalate
         _refResolution = canvas.GetReferenceResolution();
 
-        _height = Camera.main.orthographicSize * 2;
-        _width = _height * Screen.width / Screen.height;
+        _cameraHeight = Camera.main.orthographicSize * 2;
+        _cameraWidth = _cameraHeight * Screen.width / Screen.height;
 
         Sprite bgSprite = background.GetComponent<SpriteRenderer>().sprite;
 
         background.transform.localScale = Escalate(bgSprite.rect.width, bgSprite.rect.height, background.transform.localScale);
-       
-        bm.SetBoard(new Vector2(canvas.GetWidth(), canvas.GetHeight()), 6, 5, 0, 0);
+
+        bm.SetBoard(new Vector2(canvas.GetWidth(), canvas.GetHeight()), new Vector2(_cameraWidth, _cameraHeight),  6, 5);
     }
 
     // Update is called once per frame
@@ -50,23 +50,14 @@ public class GameManager : MonoBehaviour
         float actualHeight = spriteHeight;
 
         // If the src width is higher than the reference width
-        if (actualWidth > _width)
+        if (actualWidth > _cameraWidth)
         {
             // Set the new width but resized proportionally
             actualWidth = repositionX(actualWidth);
             // Change height keeping proportions
             actualHeight = (actualWidth * spriteHeight) / spriteWidth;
         } // if
-
-        /*// If the src height (or the changed height) is bigger than the reference one
-        if (actualHeight > _height)
-        {
-            // Set the new height but resized proportionally
-            actualHeight = repositionY(actualHeight);
-            // Change width proportionally
-            actualWidth = (actualHeight * spriteWidth) / spriteHeight;
-        } // if*/
-
+       
         // Transform pixels to unity units
         actualHeight = (actualHeight * prevScale.x) / (spriteHeight / 100);
         actualWidth = (actualWidth * prevScale.y)  / (spriteWidth / 100);
@@ -79,16 +70,15 @@ public class GameManager : MonoBehaviour
 
     }
 
-
     public float repositionX(float x)
     {
-        return (x * _width) / _refResolution.x;
+        return (x * _cameraWidth) / _refResolution.x;
     } // repositionX
 
 
     public float repositionY(float y)
     {
-        return (y * _height) / _refResolution.y;
+        return (y * _cameraHeight) / _refResolution.y;
     } // repositionY
 
 
