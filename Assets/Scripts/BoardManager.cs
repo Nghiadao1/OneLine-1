@@ -53,7 +53,7 @@ public class BoardManager : MonoBehaviour
             for (int j = 0; j < sizeY; j++)
             {
 
-                Vector3 position = new Vector3(((transform.position.x  - (sizeX/2)) + 0.5f) + i, (transform.position.y  - (sizeY/2)) + j, -1);
+                Vector3 position = new Vector3(((transform.position.x  - (sizeX/2)) + 0.5f) + i, (transform.position.y  - (sizeY/2))  + j, -1);
                 
                 // Instantiate GameObjects needed 
                 brd.board[i, j] = Instantiate(tilePrefab, position, Quaternion.identity); // Position
@@ -123,32 +123,60 @@ public class BoardManager : MonoBehaviour
     Vector3 BoardEscalate(Vector2 dim, Vector2 cam, Vector2 prevScale)
     {
         // Transform width and height to unity units
-        float unityWidth = dim.x / 100;
-        float unityHeight = dim.y / 100;
+        float unityWidth = dim.x;
+        float unityHeight = dim.y;
 
         float notAvailable = cam.y - unityHeight;
 
-        float scaleX = prevScale.x;
-        float scaleY = prevScale.y;
+        //float scaleX = prevScale.x;
+        //float scaleY = prevScale.y;
+
+        //if (unityWidth > cam.x)
+        //{
+        //    // Set the new width but resized proportionally
+        //    scaleX = (prevScale.x * cam.x) / unityWidth;
+
+        //    // Change height keeping proportions
+        //    scaleY = scaleX;
+        //}
+
+        //if (unityHeight > cam.y - notAvailable)
+        //{
+        //    // Set the new width but resized proportionally
+        //    scaleY = (prevScale.y * (cam.y - notAvailable)) / unityHeight;
+
+        //    // Change height keeping proportions
+        //    scaleX = scaleY;
+        //}
+
+        //return new Vector3(scaleX, scaleY, 0);
 
         if (unityWidth > cam.x)
         {
             // Set the new width but resized proportionally
-            scaleX = (prevScale.x * cam.x) / unityWidth;
+            unityWidth = (unityWidth * cam.x) / 720;
 
             // Change height keeping proportions
-            scaleY = scaleX;
-        }
+           unityHeight = (unityWidth * dim.y) / dim.x;
+        } // if
 
         if (unityHeight > cam.y - notAvailable)
         {
             // Set the new width but resized proportionally
-            scaleY = (prevScale.y * (cam.y - notAvailable)) / unityHeight;
+            unityHeight = (unityHeight * cam.y) / 1280;
 
             // Change height keeping proportions
-            scaleX = scaleY;
-        }
+            unityWidth = (unityHeight * dim.x) / dim.y;
+        } // if
 
-        return new Vector3(scaleX, scaleY, 0);
+        // Transform pixels to unity units
+        unityHeight = (unityHeight * prevScale.x) / (dim.y / 100);
+        unityWidth = (unityWidth * prevScale.y) / (dim.x / 100);
+
+        // Save the changes to the new Rectangle
+        Vector3 temp = new Vector3(unityWidth, unityHeight, 0);
+
+        // Return result
+        return temp;
     }
 }
