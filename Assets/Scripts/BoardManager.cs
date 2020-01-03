@@ -14,7 +14,7 @@ public class BoardManager : MonoBehaviour
     {
         public GameObject[,] board;
 
-        public float x, y;
+        public float sizeX, sizeY;
 
         public Vector2 size;
     }
@@ -30,7 +30,14 @@ public class BoardManager : MonoBehaviour
     */
     public void BoardClicked(float x, float y)
     {
-
+        //Bucle para revisar qué tile ha sido pulsado
+        for (int i = 0; i < brd.sizeX; i++)
+        {
+            for (int j = 0; j < brd.sizeY; j++)
+            {
+                //if (x < brd.board[i, j])
+            }
+        }
     }
 
     public void SetBoard (Vector2 size, Vector2 camSize, int sizeX, int sizeY)
@@ -45,8 +52,8 @@ public class BoardManager : MonoBehaviour
 
         brd.board = new GameObject[sizeX, sizeY];
         brd.size = DefinePlayZone(size, sizeX, sizeY, ref scale);
-        brd.x = 0;
-        brd.y = 0;
+        brd.sizeX = sizeX;
+        brd.sizeY = sizeY;
 
         for (int i = 0; i < sizeX; i++)
         {
@@ -178,5 +185,10 @@ public class BoardManager : MonoBehaviour
 
         // Return result
         return temp;
+    }
+
+    public Vector2 GetSize ()
+    {
+        return brd.size;
     }
 }

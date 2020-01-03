@@ -39,7 +39,19 @@ public class GameManager : MonoBehaviour
 
     public void ScreenClicked(float x, float y)
     {
-        
+        if (x > 0 && x < _cameraWidth && y > 0 && y < _cameraHeight)
+        {
+            //Revisar si la pulsación es en el panel superior del canvas
+
+            //Revisar si la pulsación es en el panel inferior del canvas
+
+            //Revisar si la pulsación es en el tablero
+            if (x > 100 && x < bm.GetSize().x && y > canvas.GetPanelDownHeight() && y < bm.GetSize().y)
+            {
+                bm.BoardClicked(x, y);
+            }
+
+        }
 
 
     }

@@ -51,4 +51,14 @@ public class CanvasManager : MonoBehaviour
         return scaleRef;
     }
 
+    public float GetPanelUpHeight ()
+    {
+        return panelUp.rect.height;
+    }
+
+    public float GetPanelDownHeight()
+    {
+        return panelDown.rect.height;
+    }
+
 }
