@@ -5,7 +5,13 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/TestScenes/TileTest.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/Level.unity
+    guid: 861d24358079abe4790be62c21f55b1b
+  - enabled: 1
+    path: Assets/Scenes/PRUEBA GAMEMANAGER.unity
+    guid: d14e692a941857a408de4a22e8bc1a00
   m_configObjects: {}

@@ -16,7 +16,11 @@ public class CanvasManager : MonoBehaviour
     // Paneles
     RectTransform canvas; 
     RectTransform panelUp;
-    RectTransform panelDown; 
+    RectTransform panelDown;
+
+    // Texts 
+    public Text titleText;
+    public Text coins;
 
     void Awake()
     {
@@ -31,6 +35,17 @@ public class CanvasManager : MonoBehaviour
         _width = canvas.rect.width - ((canvas.rect.width * 40) / scaleRef.x); // Quitamos 80 porque puntitos
 
         _height = (canvas.rect.height - (panelUp.rect.height + panelDown.rect.height));        
+    }
+
+    public void SetTitleText(string title)
+    {
+        titleText.text = title;
+    }
+
+    public void SetCoinsNum(int coinsNum)
+    {
+        
+        coins.text = coinsNum.ToString();
     }
 
     //Getter of the screen width

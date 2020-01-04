@@ -27,10 +27,9 @@ public class BoardManager : MonoBehaviour
         public Vector2 boundingBottomRight; 
     }
 
-    void Start()
+    void Awake()
     {
         playerPath = new Stack<GameObject>();
-
     }
 
     Board brd; // GameBoard of tiles
