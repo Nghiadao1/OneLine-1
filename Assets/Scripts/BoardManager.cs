@@ -102,6 +102,8 @@ public class BoardManager : MonoBehaviour
         brd.board[0, 0].GetComponent<Tile>().CreatePath(0.0f, false);
         playerPath.Push(brd.board[0, 0]);
 
+        Debug.Log(color);
+
         // Escalate all board
         transform.localScale = BoardEscalate(brd.size, camSize, scale);
     }

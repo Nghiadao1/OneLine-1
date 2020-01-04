@@ -41,3 +41,18 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Background
+    uniqueID: 2424132955
+    locked: 0
+  - name: GreyBlocks
+    uniqueID: 820622201
+    locked: 0
+  - name: Hints
+    uniqueID: 1521936087
+    locked: 0
+  - name: Color
+    uniqueID: 3972928689
+    locked: 0
+  - name: Path
+    uniqueID: 3849962697
+    locked: 0
