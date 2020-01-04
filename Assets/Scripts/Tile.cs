@@ -12,11 +12,13 @@ public class Tile : MonoBehaviour
     GameObject colorSpr;
     GameObject baseSpr;
     GameObject pathSpr;
+    GameObject hintSpr;
 
     // Calculos 
     Vector2 rt;
     Vector2 posInBoard;
     int id; // Stores position of this tile in the board
+    float actDegrees; // Grados girados el coso este
 
     // Start is called before the first frame update
     void Start()
@@ -30,12 +32,21 @@ public class Tile : MonoBehaviour
     {
         _pressed = b;
         colorSpr.SetActive(_pressed);
-        CreatePath(degrees, _pressed);
+
+        if (b)
+        {
+            CreatePath(degrees, _pressed);
+        }
+        else
+        {
+            CreatePath(-actDegrees, _pressed);
+        }
     }
 
     public void CreatePath(float degrees, bool activate)
     {
         pathSpr.transform.Rotate(new Vector3(0, 0, degrees));
+        actDegrees = degrees;
         pathSpr.SetActive(activate);
     }
 
@@ -69,6 +80,12 @@ public class Tile : MonoBehaviour
     public void SetPathSpr(GameObject p)
     {
         pathSpr = p;
+        p.SetActive(false);
+    }
+
+    public void SetHintSpr(GameObject p)
+    {
+        hintSpr = p;
         p.SetActive(false);
     }
 

@@ -8,7 +8,7 @@ public class BoardManager : MonoBehaviour
     public GameObject pathPrefab;
 
     // Private atributes
-    string path = "Prefabs/Game/Skins/Blocks/block_0";
+    string path = "Prefabs/Game/Skins";
 
     Stack<GameObject> playerPath;
     List<GameObject> hintPath;
@@ -58,8 +58,8 @@ public class BoardManager : MonoBehaviour
         // Get a random number to decide which block is going to be used
         int color = Random.Range(1, 8);
 
-        GameObject colour = Resources.Load(path + color) as GameObject;
-        GameObject camino;
+        GameObject colour = Resources.Load(path + "/Blocks/block_0" + color) as GameObject;
+        GameObject pathColor = Resources.Load(path + "/Hints/block_0" + color + "_hint") as GameObject;
 
         Vector2 scale = transform.localScale;
 
@@ -78,19 +78,24 @@ public class BoardManager : MonoBehaviour
                 
                 // Instantiate GameObjects needed 
                 brd.board[i, j] = Instantiate(tilePrefab, position, Quaternion.identity); // Position
-                position.z = -10;
                 GameObject colorSprite = Instantiate(colour, position, Quaternion.identity);
-                position.z = -5;
-                camino = Instantiate(pathPrefab, position, Quaternion.identity);
+                GameObject camino = Instantiate(pathPrefab, position, Quaternion.identity);
+                GameObject hintPivot = new GameObject("HintPivot");
+                GameObject pathSpr = Instantiate(pathColor, position, Quaternion.identity);
 
                 // Attacht them to parents
                 brd.board[i, j].transform.SetParent(transform);
                 colorSprite.transform.SetParent(brd.board[i, j].transform);
                 camino.transform.SetParent(brd.board[i, j].transform);
+                hintPivot.transform.SetParent(brd.board[i, j].transform);
+                pathSpr.transform.SetParent(hintPivot.transform);
+                pathSpr.transform.SetPositionAndRotation(camino.transform.GetChild(0).transform.position, camino.transform.GetChild(0).transform.rotation);
+
 
                 // Set the color sprite to Tile
                 brd.board[i, j].GetComponent<Tile>().SetColor(colorSprite);
                 brd.board[i, j].GetComponent<Tile>().SetPathSpr(camino);
+                brd.board[i, j].GetComponent<Tile>().SetHintSpr(hintPivot);
                 brd.board[i, j].GetComponent<Tile>().SetPressed(false, 0.0f);
                 brd.board[i, j].GetComponent<Tile>().SetPosBoard(i, j);
                 brd.board[i, j].GetComponent<Tile>().SetID(identification);
