@@ -10,7 +10,7 @@ public class Levels
     /// of Levels to retrieve their information later. 
     /// </summary>
     [System.Serializable]
-    struct Level
+    public struct Level
     {
         int _id; // Level number or index
         string[] _map; // Map of the level 
@@ -22,6 +22,12 @@ public class Levels
 
     public Levels(string filePath, string difficulty)
     {
-        _levels = JsonUtility.FromJson<Level[]>(filePath); 
+        _levels = JsonUtility.FromJson<Level[]>(filePath);
+        _difficulty = difficulty;
+    }
+
+    public Level GetLevel(int level)
+    {
+        return _levels[level];
     }
 }
