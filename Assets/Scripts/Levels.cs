@@ -9,12 +9,19 @@ public class Levels
     /// different levels from the JSON file "levels" and save them in an array
     /// of Levels to retrieve their information later. 
     /// </summary>
+    [System.Serializable]
     struct Level
     {
         int _id; // Level number or index
-        string[] map; // Map of the level 
-        int[,] path; // Solution
+        string[] _map; // Map of the level 
+        int[,] _path; // Solution
     }
 
+    string _difficulty;
+    Level[] _levels;
 
+    public Levels(string filePath, string difficulty)
+    {
+        _levels = JsonUtility.FromJson<Level[]>(filePath); 
+    }
 }
