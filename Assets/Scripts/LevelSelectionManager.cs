@@ -34,25 +34,29 @@ public class LevelSelectionManager : MonoBehaviour
     {
 
         GameObject panel = canvas.gameObject.transform.GetChild(0).gameObject;
+     
         int cont = 0;
         int completeLevels = 25;
 
-        for (int i = 0; i < sizeX; i++)
+        for (int j = 0; j < sizeY; j++)
         {
-            for (int j = 0; j < (sizeY); j++)
+            for (int i = 0; i < sizeX; i++)
             {
-                Vector3 position = new Vector3(((panel.transform.position.x - (sizeX / 2)) + 0.5f) + i,
-                    (panel.transform.position.y - (sizeY / 2)) + j, -1);
+                Vector3 position = new Vector3((panel.transform.position.x - ((sizeX / 2)*110)) + (i*110),
+                    ((panel.transform.position.y + ((sizeY / 2)*110)) - (j*110)), -1);
+
 
                 // Instantiate GameObjects
-                levels[i, j] = Instantiate(levelButton, position, Quaternion.identity);
+                levels[i, j] = Instantiate(levelButton, new Vector3(0, 0, 0), Quaternion.identity);
 
                 // Attacht them to parents
                 levels[i, j].transform.SetParent(panel.transform);
 
+                levels[i, j].transform.position = position;
+
                 string number = "";
-                if (cont < 10) number = "00" + cont.ToString();
-                else if (cont >= 10 && cont < 100) number = "0" + cont.ToString();
+                if (cont < 10) number = "00" + (cont + 1).ToString();
+                else if (cont >= 10 && cont < 100) number = "0" + (cont + 1).ToString();
 
                 levels[i, j].transform.GetChild(1).GetComponent<Text>().text = number;
 
@@ -63,10 +67,13 @@ public class LevelSelectionManager : MonoBehaviour
                     levels[i, j].transform.GetChild(1).gameObject.SetActive(false);
                 }
 
+                cont++;
+
             }
         }
 
-        int extra = numLevels % sizeX;
+       
+
     }
 
 }
