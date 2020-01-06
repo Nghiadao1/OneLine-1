@@ -173,6 +173,8 @@ public class GameManager : MonoBehaviour
             currentDifficulty = difficulty;
         }
 
+        Debug.Log(Application.dataPath + "/Levels/" + currentDifficulty + ".json");
+
         levels = new Levels(Application.dataPath + "/Levels/" + currentDifficulty + ".json", currentDifficulty);
 
         SceneManager.LoadScene("LevelSelection");

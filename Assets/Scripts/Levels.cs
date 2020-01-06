@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class Levels
@@ -22,8 +23,17 @@ public class Levels
 
     public Levels(string filePath, string difficulty)
     {
-        _levels = JsonUtility.FromJson<Level[]>(filePath);
-        _difficulty = difficulty;
+        if (File.Exists(filePath))
+        {
+            string data = File.ReadAllText(filePath);
+
+            _levels = JsonUtility.FromJson<Level[]>(data);
+            _difficulty = difficulty;
+        }
+        else
+        {
+            Debug.LogError("Cannot find data");
+        }
     }
 
     public Level GetLevel(int level)
