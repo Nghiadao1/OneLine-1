@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class LevelSelectionManager : MonoBehaviour
 {
+    #region Atributes
     public GameManager instance;
     public CanvasManager canvas;
 
@@ -13,20 +14,23 @@ public class LevelSelectionManager : MonoBehaviour
     Button [,] levels;
 
     string title;
-    int numLevels = 100;
+    int numLevels;
     int sizeX = 5;
     int sizeY;
+    #endregion
 
     // Start is called before the first frame update
     void Start()
     {
+        numLevels = instance.GetTotalLevels();
+
         sizeY = numLevels / sizeX;
 
         levels = new Button[sizeX, sizeY];
 
         LoadLevelsSelector();
 
-        title = instance.GetCurrentDifficulty();
+        title = instance.GetCurrentDifficultyText();
         canvas.SetTitleText(title);
     }
 
@@ -36,7 +40,7 @@ public class LevelSelectionManager : MonoBehaviour
         GameObject panel = canvas.gameObject.transform.GetChild(0).gameObject;
      
         int cont = 0;
-        int completeLevels = 25;
+        int completeLevels = instance.GetCurrentCompletedLevels();
 
         for (int j = 0; j < sizeY; j++)
         {
@@ -71,9 +75,5 @@ public class LevelSelectionManager : MonoBehaviour
 
             }
         }
-
-       
-
     }
-
 }

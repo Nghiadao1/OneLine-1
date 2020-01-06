@@ -37,7 +37,7 @@ public class LevelManager : MonoBehaviour
 
         canvas.SetCoinsNum(instance.GetCoins());
 
-        title = instance.GetCurrentDifficulty() + " " + actualLevel;
+        title = instance.GetCurrentDifficultyText() + " " + actualLevel;
         canvas.SetTitleText(title);
     }
 

@@ -12,9 +12,10 @@ public class GameManager : MonoBehaviour
 
     #region Atributes
     int coins;
-    Levels levels;
+    LevelReader levels;
     int actLevel;
     string currentDifficulty;
+    int numDifficulty;
     int[] completedLevels;
     int numDifficulties = 5;
     bool paid; // This is for the ads
@@ -44,6 +45,10 @@ public class GameManager : MonoBehaviour
 
             completedLevels[i] = numLevelsCompleted;
         }
+
+        currentDifficulty = "";
+
+        levels = null;
 
         coins = 0;
     }
@@ -90,7 +95,7 @@ public class GameManager : MonoBehaviour
     /// Search for a specific level in the levels array and returns it as a struct. 
     /// </summary>
     /// <returns> Struct of the level with a specific index. </returns>
-    public Levels.Level InitActualLevel()
+    public Levels InitActualLevel()
     {
         return levels.GetLevel(actLevel);
     }
@@ -100,32 +105,43 @@ public class GameManager : MonoBehaviour
     /// canvas. 
     /// </summary>
     /// <returns> string: Difficulty selected </returns>
-    public string GetCurrentDifficulty()
+    public string GetCurrentDifficultyText()
     {
         return currentDifficulty;
     }
 
+    /// <summary>
+    /// Returns the number of difficulty to use it for calculations, etc. 
+    /// </summary>
+    /// <returns> Current number difficulty </returns>
+    public int GetCurrentNumDifficulty()
+    {
+        return numDifficulty;
+    }
+
+    /// <summary>
+    /// Adds one to the completed levels when the player gets to complete one of
+    /// them. 
+    /// </summary>
     public void CompleteLevel()
-    { // TODO: Repensar esto m8
-        switch (currentDifficulty)
+    {
+        completedLevels[numDifficulty]++;
+    }
+
+    /// <summary>
+    /// Returns the number of levels in the current difficulty.
+    /// </summary>
+    /// <returns> int: number of levels/ -1 if there are no levels loaded</returns>
+    public int GetTotalLevels()
+    {
+        if (levels != null)
         {
-            case "Beginner":
-                completedLevels[0]++;
-                break;
-            case "Regular":
-                completedLevels[1]++;
-                break;
-            case "Advanced":
-                completedLevels[2]++;
-                break;
-            case "Expert":
-                completedLevels[3]++;
-                break;
-            case "Master":
-                completedLevels[4]++;
-                break;
-            default:
-                break;
+            return levels.GetNumLevels();
+        }
+        else
+        {
+            Debug.LogError("Levels not loaded");
+            return -1;
         }
     }
 
@@ -133,10 +149,20 @@ public class GameManager : MonoBehaviour
     /// Access to the list of completed levels. Needed to represent them in the
     /// main Menu and to represent them in the Level Selection. 
     /// </summary>
-    /// <returns> int[] number of levels completed per difficulty </returns>
+    /// <returns> int number of levels completed in current difficulty </returns>
     public int[] GetCompletedLevels()
     {
         return completedLevels;
+    }
+
+    /// <summary>
+    /// Access to the list of completed levels. Needed to represent them in the
+    /// main Menu and to represent them in the Level Selection. 
+    /// </summary>
+    /// <returns> int number of levels completed in current difficulty </returns>
+    public int GetCurrentCompletedLevels()
+    {
+        return completedLevels[numDifficulty];
     }
     #endregion
 
@@ -155,8 +181,9 @@ public class GameManager : MonoBehaviour
     /// Changes to the Level scene. Then, the LevelManager will handle the creation and
     /// setup of the whole scene (Board creation and everything else).
     /// </summary>
-    public void ChangeLevelScene()
+    public void ChangeLevelScene(int level)
     {
+        actLevel = level;
         SceneManager.LoadScene("Level");
     }
 
@@ -175,9 +202,16 @@ public class GameManager : MonoBehaviour
 
         Debug.Log(Application.dataPath + "/Levels/" + currentDifficulty + ".json");
 
-        levels = new Levels(Application.dataPath + "/Levels/" + currentDifficulty + ".json", currentDifficulty);
+        levels = new LevelReader(Application.dataPath + "/Levels/" + currentDifficulty + ".json", currentDifficulty);
+
+        Debug.Log(levels);
 
         SceneManager.LoadScene("LevelSelection");
+    }
+
+    public void SetDifficultyNumber(int diff)
+    {
+        numDifficulty = diff;
     }
     #endregion
 
