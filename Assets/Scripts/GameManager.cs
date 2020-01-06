@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     int actLevel;
     string currentDifficulty;
     int[] completedLevels;
+    int numDifficulties = 5;
     bool paid; // This is for the ads
     #endregion
 
@@ -31,6 +32,17 @@ public class GameManager : MonoBehaviour
         else if(instance != this)
         {
             Destroy(gameObject);
+        }
+
+        //TODO: INICIAR CON LOS DATOS GUARDADOS
+        completedLevels = new int[numDifficulties];
+
+        int numLevelsCompleted;
+        for (int i = 0; i < numDifficulties; i++)
+        {
+            numLevelsCompleted = 0; //Lectura
+
+            completedLevels[i] = numLevelsCompleted;
         }
 
         coins = 0;
@@ -135,7 +147,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void ReturnToMainMenu()
     {
-        currentDifficulty = null; // No current scene
+        currentDifficulty = ""; // No current scene
         SceneManager.LoadScene("MainMenu");
     }
 
@@ -155,8 +167,14 @@ public class GameManager : MonoBehaviour
     /// <param name="difficulty"> String difficulty text name. </param>
     public void ChangeLevelSelectionScreen(string difficulty)
     {
-        levels = new Levels(Application.dataPath + "/Levels/" + difficulty + ".json", difficulty);
-        currentDifficulty = difficulty;
+        
+        if (currentDifficulty == "")
+        {
+            currentDifficulty = difficulty;
+        }
+
+        levels = new Levels(Application.dataPath + "/Levels/" + currentDifficulty + ".json", currentDifficulty);
+
         SceneManager.LoadScene("LevelSelection");
     }
     #endregion

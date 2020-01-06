@@ -8,10 +8,16 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/TestScenes/TileTest.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 0
+    path: Assets/Scenes/PRUEBA GAMEMANAGER.unity
+    guid: d14e692a941857a408de4a22e8bc1a00
+  - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: e04b0d0684600fc47860dd4a894d7caf
+  - enabled: 1
+    path: Assets/Scenes/LevelSelection.unity
+    guid: ecb642516a738ef40bf4a8500598ea0d
   - enabled: 1
     path: Assets/Scenes/Level.unity
     guid: 861d24358079abe4790be62c21f55b1b
-  - enabled: 1
-    path: Assets/Scenes/PRUEBA GAMEMANAGER.unity
-    guid: d14e692a941857a408de4a22e8bc1a00
   m_configObjects: {}

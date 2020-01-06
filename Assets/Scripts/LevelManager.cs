@@ -16,6 +16,9 @@ public class LevelManager : MonoBehaviour
 
     Escalate escale;
 
+    string title;
+    int actualLevel = 0;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -32,7 +35,10 @@ public class LevelManager : MonoBehaviour
 
         background.transform.localScale = escale.EscaleToCamWidth(bgSprite.rect.width, bgSprite.rect.height, background.transform.localScale);
 
-        canvas.SetCoinsNum(0);
+        canvas.SetCoinsNum(instance.GetCoins());
+
+        title = instance.GetCurrentDifficulty() + " " + actualLevel;
+        canvas.SetTitleText(title);
     }
 
     // Update is called once per frame

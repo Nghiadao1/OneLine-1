@@ -18,7 +18,7 @@ public class MainMenuManager : MonoBehaviour
 
         for (int i = 0; i < texts.Length; i++)
         {
-            texts[i].text = completed[i] + "/100";
+            texts[i].text = (completed[i] + 1) + "/100";
         }
     }
 }
