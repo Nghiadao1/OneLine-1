@@ -10,10 +10,14 @@ public class GameManager : MonoBehaviour
 {
     // Welcome to the GameManager script, enjoy the visit and left some comments below. 
 
+    #region Atributes
     int coins;
     Levels levels;
     int actLevel;
     string currentDifficulty;
+    int[] completedLevels;
+    bool paid; // This is for the ads
+    #endregion
 
     #region SingletonInstance
     public static GameManager instance;
@@ -37,12 +41,19 @@ public class GameManager : MonoBehaviour
     // Information and management of game information, varibles, etc.
 
     /// <summary>
+    /// Loads the information of the player saved in the computer/phone. 
+    /// </summary>
+    private void LoadGameInfo()
+    {
+
+    }
+
+    /// <summary>
     /// Adds coins to the player's wallet. Can be personalized on the Editor.
     /// </summary>
     /// <param name="sum"> Number of coins added </param>
     public void AddCoins(int sum)
     {
-        Debug.Log("LO ACTUALISAMOS");
         coins += sum;
     }
 
@@ -52,7 +63,6 @@ public class GameManager : MonoBehaviour
     /// <returns> Current number of coins in Player's wallet </returns>
     public int GetCoins()
     {
-        Debug.Log(coins);
         return coins;
     }
 
@@ -82,9 +92,53 @@ public class GameManager : MonoBehaviour
     {
         return currentDifficulty;
     }
+
+    public void CompleteLevel()
+    { // TODO: Repensar esto m8
+        switch (currentDifficulty)
+        {
+            case "Beginner":
+                completedLevels[0]++;
+                break;
+            case "Regular":
+                completedLevels[1]++;
+                break;
+            case "Advanced":
+                completedLevels[2]++;
+                break;
+            case "Expert":
+                completedLevels[3]++;
+                break;
+            case "Master":
+                completedLevels[4]++;
+                break;
+            default:
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Access to the list of completed levels. Needed to represent them in the
+    /// main Menu and to represent them in the Level Selection. 
+    /// </summary>
+    /// <returns> int[] number of levels completed per difficulty </returns>
+    public int[] GetCompletedLevels()
+    {
+        return completedLevels;
+    }
     #endregion
 
     #region SceneChangeManagement
+    /// <summary>
+    /// Used to return to the Main Menu Scene. Restablishes the variables and sets
+    /// the values to the original. 
+    /// </summary>
+    public void ReturnToMainMenu()
+    {
+        currentDifficulty = null; // No current scene
+        SceneManager.LoadScene("MainMenu");
+    }
+
     /// <summary>
     /// Changes to the Level scene. Then, the LevelManager will handle the creation and
     /// setup of the whole scene (Board creation and everything else).
@@ -102,6 +156,7 @@ public class GameManager : MonoBehaviour
     public void ChangeLevelSelectionScreen(string difficulty)
     {
         levels = new Levels(Application.dataPath + "/Levels/" + difficulty + ".json", difficulty);
+        currentDifficulty = difficulty;
         SceneManager.LoadScene("LevelSelection");
     }
     #endregion
