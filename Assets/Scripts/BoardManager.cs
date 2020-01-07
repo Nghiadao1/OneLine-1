@@ -13,6 +13,10 @@ public class BoardManager : MonoBehaviour
     Stack<TilePosition> playerPath;
     List<TilePosition> hintPath;
 
+    TilePosition origin;
+
+    int currentHint;
+
     // Board 
     struct Board
     {
@@ -35,12 +39,18 @@ public class BoardManager : MonoBehaviour
     {
         for (int i = 0; i < path.Length; i++)
         {
-            hintPath.Add(path[i]);
+            TilePosition temp = new TilePosition();
+            temp.x = path[i].y;
+            temp.y = path[i].x;
+
+            hintPath.Add(temp);
         }    
     }
 
     public void SetBoard (Vector2 size, Vector2 camSize)
     {
+        currentHint = 0;
+
         Levels level = GameManager.instance.InitActualLevel();
 
         SavePath(level.path);
@@ -69,8 +79,16 @@ public class BoardManager : MonoBehaviour
         {
             for (int j = 0; j < sizeX; j++)
             {
+                Vector3 position;
 
-                Vector3 position = new Vector3(((transform.position.x  - (sizeX/2)) + 0.5f) + j, (transform.position.y  - (sizeY/2))  + i, -1);
+                if (sizeX%2 == 0)
+                {
+                    position = new Vector3(((transform.position.x - (sizeX / 2)) + 0.5f) + j, (transform.position.y + (sizeY / 2)) - i, -1);
+                }
+                else
+                {
+                    position = new Vector3(((transform.position.x - (sizeX / 2))) + j, (transform.position.y + (sizeY / 2)) - i, -1);
+                }
 
                 if(level.layout[i][j] != '0')
                 {
@@ -79,6 +97,7 @@ public class BoardManager : MonoBehaviour
                     GameObject colorSprite = Instantiate(colour, position, Quaternion.identity);
                     GameObject camino = Instantiate(pathPrefab, position, Quaternion.identity);
                     GameObject hintPivot = new GameObject("HintPivot");
+                    hintPivot.transform.SetPositionAndRotation(position, camino.transform.rotation);
                     GameObject pathSpr = Instantiate(pathColor, position, Quaternion.identity);
 
                     // Attacht them to parents
@@ -105,6 +124,7 @@ public class BoardManager : MonoBehaviour
                         brd.board[i, j].GetComponent<Tile>().SetPressed(true, 0.0f);
                         brd.board[i, j].GetComponent<Tile>().CreatePath(0.0f, false);
                         playerPath.Push(brd.board[i, j].GetComponent<Tile>().GetPosition());
+                        origin = playerPath.Peek();
                     }
                 }
             }
@@ -224,12 +244,19 @@ public class BoardManager : MonoBehaviour
     #region Gestion de Tiles
     bool CheckTile(TilePosition pos, int x, int y)
     {
-        GameObject t = brd.board[y, x];
-
-        if (t.GetComponent<Tile>().GetPressed() && (playerPath.Peek() == t.GetComponent<Tile>().GetPosition()))
+        if (brd.board[y, x] != null)
         {
-            playerPath.Push(pos);
-            return true;
+            GameObject t = brd.board[y, x];
+
+            if (t.GetComponent<Tile>().GetPressed() && (playerPath.Peek() == t.GetComponent<Tile>().GetPosition()))
+            {
+                playerPath.Push(pos);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         else
         {
@@ -239,61 +266,89 @@ public class BoardManager : MonoBehaviour
 
     public bool TileClicked(int id, TilePosition pos, bool isClicked, ref float degrees)
     {
-        if (!isClicked)
+        if (pos != origin)
         {
-            bool activate = false;
-
-            if(!activate && pos.x - 1 >= 0)
+            if (!isClicked)
             {
-                activate = CheckTile(pos, (int)pos.x - 1, (int)pos.y);
-                if (activate)
-                {
-                    degrees = 180.0f;
-                }
-            }
+                bool activate = false;
 
-            if (!activate && pos.x + 1 < brd.sizeX)
-            {
-                activate = CheckTile(pos, (int)pos.x + 1, (int)pos.y);
-                if (activate)
+                if (!activate && pos.x - 1 >= 0)
                 {
-                    degrees = 0.0f;
+                    activate = CheckTile(pos, (int)pos.x - 1, (int)pos.y);
+                    if (activate)
+                    {
+                        degrees = 180.0f;
+                    }
                 }
-            }
 
-            if(!activate && pos.y - 1 >= 0)
-            {
-                activate = CheckTile(pos, (int)pos.x, (int)pos.y - 1);
-                if (activate)
+                if (!activate && pos.x + 1 < brd.sizeX)
                 {
-                    degrees = -90.0f;
+                    activate = CheckTile(pos, (int)pos.x + 1, (int)pos.y);
+                    if (activate)
+                    {
+                        degrees = 0.0f;
+                    }
                 }
-            }
 
-            if(!activate && pos.y + 1 < brd.sizeY)
-            {
-                activate = CheckTile(pos, (int)pos.x, (int)pos.y + 1);
-                if (activate)
+                if (!activate && pos.y - 1 >= 0)
                 {
-                    degrees = 90.0f;
+                    activate = CheckTile(pos, (int)pos.x, (int)pos.y - 1);
+                    if (activate)
+                    {
+                        degrees = 90.0f;
+                    }
                 }
+
+                if (!activate && pos.y + 1 < brd.sizeY)
+                {
+                    activate = CheckTile(pos, (int)pos.x, (int)pos.y + 1);
+                    if (activate)
+                    {
+                        degrees = -90.0f;
+                    }
+                }
+                return activate;
             }
-            return activate;
+            else
+            {
+                while (playerPath.Peek() != pos)
+                {
+                    brd.board[playerPath.Peek().y, playerPath.Peek().x].GetComponent<Tile>().SetPressed(false, 0.0f);
+                    playerPath.Pop();
+                }
+                return false;
+            }
         }
         else
         {
-            while (playerPath.Peek() != pos)
-            {
-                brd.board[pos.x, pos.y].GetComponent<Tile>().SetPressed(false, 0.0f);
-                playerPath.Pop();
-            }
-            return false; 
+            ResetLevel();
+            return false;
         }
     }
 
     public bool Ended()
     {
-        return true;
+        if (playerPath.ToArray().Length == hintPath.ToArray().Length) {
+
+            int i = hintPath.Count - 1;
+
+            foreach (var pos in playerPath)
+            {
+                if((pos.x == hintPath[i].x) && (pos.y == hintPath[i].y))
+                {
+                    i--;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     public Vector2 GetSize ()
@@ -301,4 +356,66 @@ public class BoardManager : MonoBehaviour
         return brd.size;
     }
     #endregion
+
+    public void ResetLevel()
+    {
+        while(playerPath.Peek() != origin)
+        {
+            brd.board[playerPath.Peek().y, playerPath.Peek().x].GetComponent<Tile>().SetPressed(false, 0.0f);
+            playerPath.Pop();
+        }
+    }
+
+    public void ActivateTileHint(TilePosition hint, int actualHint)
+    {
+        float degrees = 0.0f;
+        
+            TilePosition ant = hint;
+
+            if (hintPath[actualHint].x > ant.x)
+            {
+                degrees = 180.0f;
+                brd.board[hintPath[actualHint].y, hintPath[actualHint].x].GetComponent<Tile>().SetHinted(degrees, true);
+            }
+            if (hintPath[actualHint].x < ant.x)
+            {
+                degrees = 0.0f;
+                brd.board[hintPath[actualHint].y, hintPath[actualHint].x].GetComponent<Tile>().SetHinted(degrees, true);
+            }
+            if (hintPath[actualHint].y > ant.y)
+            {
+                degrees = 90.0f;
+                brd.board[hintPath[actualHint].y, hintPath[actualHint].x].GetComponent<Tile>().SetHinted(degrees, true);
+            }
+            if (hintPath[actualHint].y < ant.y)
+            {
+                degrees = -90.0f;
+                brd.board[hintPath[actualHint].y, hintPath[actualHint].x].GetComponent<Tile>().SetHinted(degrees, true);
+            }
+    }
+
+    public void HintGiven()
+    {
+        // Reseteamos el nivel
+        ResetLevel();
+
+        int lastHint = currentHint;
+
+        if(lastHint == 0)
+        {
+            lastHint++;
+        }
+
+        currentHint += 6;
+
+        if (hintPath.ToArray().Length < 5 || currentHint >= hintPath.ToArray().Length)
+        {
+            currentHint = hintPath.ToArray().Length;
+        }
+
+        for (int i = lastHint; i < currentHint; i++)
+        {
+            ActivateTileHint(hintPath[i - 1], i);
+        }
+    }
 }

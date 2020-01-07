@@ -50,6 +50,13 @@ public class Tile : MonoBehaviour
         pathSpr.SetActive(activate);
     }
 
+    public void SetHinted(float degrees, bool activate)
+    {
+        hintSpr.transform.Rotate(new Vector3(0, 0, degrees));
+        actDegrees = degrees;
+        hintSpr.SetActive(activate);
+    }
+
     public bool GetPressed()
     {
         return _pressed;
@@ -70,8 +77,8 @@ public class Tile : MonoBehaviour
     public void SetPosBoard(int i, int j)
     {
         posInBoard = new TilePosition();
-        posInBoard.x = i;
-        posInBoard.y = j; 
+        posInBoard.y = i;
+        posInBoard.x = j; 
     }
 
     public void SetID(int i)

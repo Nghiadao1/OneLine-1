@@ -6,8 +6,8 @@ using UnityEngine;
 [System.Serializable]
 public class TilePosition
 {
-    public int x;
     public int y;
+    public int x;
 }
 
 /// <summary>

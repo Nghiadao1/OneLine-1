@@ -15,7 +15,7 @@ public class LevelManager : MonoBehaviour
     Escalate escale;
 
     string title;
-    int actualLevel = 0;
+    int actualLevel;
 
     // Start is called before the first frame update
     void Start()
@@ -35,15 +35,43 @@ public class LevelManager : MonoBehaviour
 
         canvas.SetCoinsNum(GameManager.instance.GetCoins());
 
-        actualLevel = GameManager.instance.GetActualLevel();
+        actualLevel = GameManager.instance.GetActualLevel() + 1;
 
         title = GameManager.instance.GetCurrentDifficultyText() + " " + actualLevel;
         canvas.SetTitleText(title);
+        title = GameManager.instance.GetCurrentDifficultyText() + "\n" + actualLevel;
+        canvas.SetEndText(title);
     }
 
     // Update is called once per frame
     void Update()
     {
         canvas.SetCoinsNum(GameManager.instance.GetCoins());
+    }
+
+    public void RestartLevel()
+    {
+        bm.ResetLevel();
+    }
+
+    public bool CheckCompleted()
+    {
+        if (bm.Ended())
+        {
+            canvas.LevelCompleted();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public void Hint()
+    {
+        if(GameManager.instance.GetCoins() >= 25)
+        {
+            bm.HintGiven();
+        }
     }
 }

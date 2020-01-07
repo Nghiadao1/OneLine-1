@@ -424,17 +424,6 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1625599092450889151, guid: b5b3de9e29c58e7499f18cb05c419ea7,
           type: 3}
-        m_MethodName: ChangeLevelSelectionScreen
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: Expert
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 563530640}
         m_MethodName: SetDifficultyNumber
         m_Mode: 3
         m_Arguments:
@@ -442,7 +431,19 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 3
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: Expert
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1625599092450889151, guid: b5b3de9e29c58e7499f18cb05c419ea7,
+          type: 3}
+        m_MethodName: ChangeLevelSelectionScreen
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 3
+          m_FloatArgument: 0
+          m_StringArgument: Expert
           m_BoolArgument: 0
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
@@ -857,8 +858,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 181.79999, y: -1}
-  m_SizeDelta: {x: 254.8, y: 113.9}
+  m_AnchoredPosition: {x: 130, y: -1}
+  m_SizeDelta: {x: 484.9, y: 113.9}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &439535528
 CanvasRenderer:
@@ -895,7 +896,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 1
     m_MaxSize: 100
-    m_Alignment: 0
+    m_Alignment: 2
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -1151,17 +1152,6 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1625599092450889151, guid: b5b3de9e29c58e7499f18cb05c419ea7,
           type: 3}
-        m_MethodName: ChangeLevelSelectionScreen
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: Regular
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 563530640}
         m_MethodName: SetDifficultyNumber
         m_Mode: 3
         m_Arguments:
@@ -1169,7 +1159,19 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 1
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: Regular
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1625599092450889151, guid: b5b3de9e29c58e7499f18cb05c419ea7,
+          type: 3}
+        m_MethodName: ChangeLevelSelectionScreen
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: Regular
           m_BoolArgument: 0
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
@@ -1307,7 +1309,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 1
     m_MaxSize: 100
-    m_Alignment: 0
+    m_Alignment: 2
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -1340,8 +1342,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 181.79999, y: 2}
-  m_SizeDelta: {x: 254.8, y: 113.9}
+  m_AnchoredPosition: {x: 119.57, y: 2}
+  m_SizeDelta: {x: 531.4, y: 113.9}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1339591403
 GameObject:
@@ -1626,8 +1628,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 181.79999, y: -0}
-  m_SizeDelta: {x: 254.8, y: 113.9}
+  m_AnchoredPosition: {x: 120.07, y: -0}
+  m_SizeDelta: {x: 529.18, y: 113.9}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1562347156
 CanvasRenderer:
@@ -1664,7 +1666,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 1
     m_MaxSize: 100
-    m_Alignment: 0
+    m_Alignment: 2
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -1758,8 +1760,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1625599092450889151, guid: b5b3de9e29c58e7499f18cb05c419ea7,
           type: 3}
-        m_MethodName: ChangeLevelSelectionScreen
-        m_Mode: 5
+        m_MethodName: SetDifficultyNumber
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1770,14 +1772,14 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 1625599092450889151, guid: b5b3de9e29c58e7499f18cb05c419ea7,
           type: 3}
-        m_MethodName: SetDifficultyNumber
-        m_Mode: 3
+        m_MethodName: ChangeLevelSelectionScreen
+        m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: Beginner
           m_BoolArgument: 0
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
@@ -1905,17 +1907,6 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1625599092450889151, guid: b5b3de9e29c58e7499f18cb05c419ea7,
           type: 3}
-        m_MethodName: ChangeLevelSelectionScreen
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: Advanced
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 563530640}
         m_MethodName: SetDifficultyNumber
         m_Mode: 3
         m_Arguments:
@@ -1923,7 +1914,19 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 2
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: Advanced
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1625599092450889151, guid: b5b3de9e29c58e7499f18cb05c419ea7,
+          type: 3}
+        m_MethodName: ChangeLevelSelectionScreen
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 2
+          m_FloatArgument: 0
+          m_StringArgument: Advanced
           m_BoolArgument: 0
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
@@ -2151,8 +2154,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 181.79999, y: -1}
-  m_SizeDelta: {x: 254.8, y: 113.9}
+  m_AnchoredPosition: {x: 130, y: -1}
+  m_SizeDelta: {x: 484.9, y: 113.9}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2050287636
 CanvasRenderer:
@@ -2189,7 +2192,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 1
     m_MaxSize: 100
-    m_Alignment: 0
+    m_Alignment: 2
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -2283,17 +2286,6 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1625599092450889151, guid: b5b3de9e29c58e7499f18cb05c419ea7,
           type: 3}
-        m_MethodName: ChangeLevelSelectionScreen
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: Master
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 563530640}
         m_MethodName: SetDifficultyNumber
         m_Mode: 3
         m_Arguments:
@@ -2301,7 +2293,19 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 4
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: Master
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1625599092450889151, guid: b5b3de9e29c58e7499f18cb05c419ea7,
+          type: 3}
+        m_MethodName: ChangeLevelSelectionScreen
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 4
+          m_FloatArgument: 0
+          m_StringArgument: Master
           m_BoolArgument: 0
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
@@ -2378,8 +2382,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 181.8, y: -0.7}
-  m_SizeDelta: {x: 254.8, y: 113.9}
+  m_AnchoredPosition: {x: 127.4, y: -0.7}
+  m_SizeDelta: {x: 496.4, y: 113.9}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2108252396
 CanvasRenderer:
@@ -2416,7 +2420,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 1
     m_MaxSize: 100
-    m_Alignment: 0
+    m_Alignment: 2
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -2754,6 +2758,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   titleText: {fileID: 0}
   coins: {fileID: 450334313431044805}
+  endText: {fileID: 0}
 --- !u!1 &4924958085985441402
 GameObject:
   m_ObjectHideFlags: 0
@@ -3443,6 +3448,75 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5915181230915569297}
   m_CullTransparentMesh: 0
+--- !u!1001 &6367210330020255523
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 7732298797423887479, guid: f48939f7fa5776d4e9634ea27e3207a5,
+        type: 3}
+      propertyPath: m_Name
+      value: AdsManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 7468278191294586714, guid: f48939f7fa5776d4e9634ea27e3207a5,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 429.00586
+      objectReference: {fileID: 0}
+    - target: {fileID: 7468278191294586714, guid: f48939f7fa5776d4e9634ea27e3207a5,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 675.5748
+      objectReference: {fileID: 0}
+    - target: {fileID: 7468278191294586714, guid: f48939f7fa5776d4e9634ea27e3207a5,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -5329.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7468278191294586714, guid: f48939f7fa5776d4e9634ea27e3207a5,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7468278191294586714, guid: f48939f7fa5776d4e9634ea27e3207a5,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7468278191294586714, guid: f48939f7fa5776d4e9634ea27e3207a5,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7468278191294586714, guid: f48939f7fa5776d4e9634ea27e3207a5,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7468278191294586714, guid: f48939f7fa5776d4e9634ea27e3207a5,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7468278191294586714, guid: f48939f7fa5776d4e9634ea27e3207a5,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7468278191294586714, guid: f48939f7fa5776d4e9634ea27e3207a5,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7468278191294586714, guid: f48939f7fa5776d4e9634ea27e3207a5,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f48939f7fa5776d4e9634ea27e3207a5, type: 3}
 --- !u!1 &7980804068184796225
 GameObject:
   m_ObjectHideFlags: 0

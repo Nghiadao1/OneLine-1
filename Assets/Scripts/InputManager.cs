@@ -7,6 +7,8 @@ public class InputManager : MonoBehaviour
 
     GameManager gm;
 
+    LevelManager lm;
+
     void Update()
     {
         CheckInput();
@@ -43,12 +45,13 @@ public class InputManager : MonoBehaviour
         else if (Input.GetMouseButtonDown(0))
         {
             Vector3 posDown = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-
         } // else if
         else if (Input.GetMouseButtonUp(0))
         {
-
+            if (GameManager.instance.IsInLevel())
+            {
+                GameManager.instance.CompleteLevel();
+            }
         } // else if
 #endif
     } // CheckInput

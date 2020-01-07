@@ -3,22 +3,44 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+// Saving information
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
+
 
 // Auí hay ue meter lo de los anunsios para los dineros
 // Tambien la lectura de niveles y el paso de escenas
 public class GameManager : MonoBehaviour
 {
+
     // Welcome to the GameManager script, enjoy the visit and left some comments below. 
+    [System.Serializable]
+    private struct PlayerData
+    {
+        public int coins;
+        public bool[][] completedLevels;
+        public bool paid;
+
+        public PlayerData(int c, bool[][] lev, bool p)
+        {
+            coins = c;
+            completedLevels = lev;
+            paid = p;
+        }
+    }
 
     #region Atributes
+    // Variables generales del juego 
     int coins;
+    bool[][] completedLevels;
+    bool paid; // This is for the ads
+
+
+    // Variables con el estado actual del juego
     LevelReader levels;
     int actLevel;
     string currentDifficulty;
-    int numDifficulty;
-    int[] completedLevels;
-    int numDifficulties = 5;
-    bool paid; // This is for the ads
+    int numCurrDiff = 0;
     #endregion
 
     #region SingletonInstance
@@ -28,27 +50,96 @@ public class GameManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
+
             DontDestroyOnLoad(gameObject);
+
+            PlayerData dat = LoadState();
+
+            instance.coins = dat.coins;
+            instance.completedLevels = dat.completedLevels;
+            instance.paid = dat.paid;
+
+            instance.currentDifficulty = "";
         }
         else if(instance != this)
         {
             Destroy(gameObject);
         }
+    }
 
-        //TODO: INICIAR CON LOS DATOS GUARDADOS
-        completedLevels = new int[numDifficulties];
+    private void SaveState()
+    {
+        BinaryFormatter bf = new BinaryFormatter();
+        // The name of the file is random selected from a book
+        FileStream file = File.Create(Application.persistentDataPath + "/pehmea.dat");
 
-        int numLevelsCompleted;
-        for (int i = 0; i < numDifficulties; i++)
+        PlayerData pd = new PlayerData(instance.coins, instance.completedLevels, instance.paid);
+
+        bf.Serialize(file, pd);
+
+        file.Close();
+    }
+
+    private PlayerData LoadState()
+    {
+        Debug.Log(Application.persistentDataPath + "/pehmea.dat");
+
+        if (File.Exists(Application.persistentDataPath + "/pehmea.dat"))
         {
-            numLevelsCompleted = 0; //Lectura
+            BinaryFormatter bf = new BinaryFormatter();
+            FileStream file = File.Open(Application.persistentDataPath + "/pehmea.dat", FileMode.Open);
 
-            completedLevels[i] = numLevelsCompleted;
+            PlayerData data = (PlayerData)bf.Deserialize(file);
+            file.Close();
+
+            return data;
         }
+        else
+        {
+            PlayerData newPLayer = new PlayerData();
 
-        currentDifficulty = "";
+            newPLayer.coins = 0;
+            newPLayer.paid = false;
 
-        coins = 0;
+            newPLayer.completedLevels = new bool [5][];
+
+            for (int i = 0; i < 5; i++)
+            {
+                string diff = "";
+
+                if(i == 0)
+                {
+                    diff = "Beginner";
+                }
+                else if (i == 1)
+                {
+                    diff = "Regular";
+                } 
+                else if (i == 2)
+                {
+                    diff = "Advanced";
+                }
+                else if (i == 3)
+                {
+                    diff = "Expert";
+                }
+                else if (i == 4)
+                {
+                    diff = "Master";
+                }
+
+                instance.levels = new LevelReader(Application.dataPath + "/Levels/" + diff + ".json", diff);
+
+                newPLayer.completedLevels[i] = new bool[instance.levels.GetNumLevels()];
+
+                for (int j = 0; j < instance.levels.GetNumLevels(); j++)
+                {
+                    newPLayer.completedLevels[i][j] = false;
+                }
+            }
+
+            return newPLayer;
+        }
     }
 
     /// <summary>
@@ -95,7 +186,10 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void Hint()
     {
-        instance.coins -= 25;
+        if (instance.coins >= 25)
+        {
+            instance.coins -= 25;
+        }
     }
 
     /// <summary>
@@ -109,7 +203,7 @@ public class GameManager : MonoBehaviour
 
     public int GetActualLevel()
     {
-        return actLevel;
+        return instance.actLevel;
     }
 
     /// <summary>
@@ -126,9 +220,9 @@ public class GameManager : MonoBehaviour
     /// Returns the number of difficulty to use it for calculations, etc. 
     /// </summary>
     /// <returns> Current number difficulty </returns>
-    public int GetCurrentNumDifficulty()
+    public int GetCurrentnumCurrDiff()
     {
-        return instance.numDifficulty;
+        return instance.numCurrDiff;
     }
 
     /// <summary>
@@ -137,7 +231,10 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void CompleteLevel()
     {
-        instance.completedLevels[numDifficulty]++;
+        if (SceneManager.GetActiveScene().GetRootGameObjects()[0].GetComponent<LevelManager>().CheckCompleted())
+        {
+            instance.completedLevels[numCurrDiff][actLevel] = true;
+        }
     }
 
     /// <summary>
@@ -164,7 +261,17 @@ public class GameManager : MonoBehaviour
     /// <returns> int number of levels completed in current difficulty </returns>
     public int[] GetCompletedLevels()
     {
-        return instance.completedLevels;
+        int[] completedTotal = new int[5];
+
+        for (int i = 0; i < instance.completedLevels.Length; i++)
+        {
+            instance.numCurrDiff = i;
+            completedTotal[i] = GetCurrentCompletedLevels();
+        }
+
+        instance.numCurrDiff = 0;
+
+        return completedTotal;
     }
 
     /// <summary>
@@ -174,7 +281,19 @@ public class GameManager : MonoBehaviour
     /// <returns> int number of levels completed in current difficulty </returns>
     public int GetCurrentCompletedLevels()
     {
-        return instance.completedLevels[numDifficulty];
+        bool completed = true;
+        int i = 0;
+
+        while (completed && i < instance.completedLevels[instance.numCurrDiff].Length)
+        {
+            completed = instance.completedLevels[instance.numCurrDiff][i];
+            if (completed)
+            {
+                i++;
+            }
+        }
+
+        return i;
     }
     #endregion
 
@@ -185,8 +304,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void ReturnToMainMenu()
     {
-        instance.currentDifficulty = ""; // No current scene
-        instance.numDifficulty = 0;
+        instance.currentDifficulty = ""; // No current difficulty
+        instance.numCurrDiff = 0;
         SceneManager.LoadScene("MainMenu");
     }
 
@@ -198,6 +317,21 @@ public class GameManager : MonoBehaviour
     {
         instance.actLevel = level;
         SceneManager.LoadScene("Level");
+    }
+
+    public void NextLevel()
+    {
+        ChangeLevelScene(instance.actLevel + 1);
+    }
+
+    public void ReplayLevel()
+    {
+        SceneManager.LoadScene("Level");
+    }
+
+    public bool IsInLevel()
+    {
+        return SceneManager.GetActiveScene().name == "Level";
     }
 
     /// <summary>
@@ -220,7 +354,7 @@ public class GameManager : MonoBehaviour
 
     public void SetDifficultyNumber(int diff)
     {
-        instance.numDifficulty = diff;
+        instance.numCurrDiff = diff;
     }
     #endregion
 
@@ -228,11 +362,6 @@ public class GameManager : MonoBehaviour
     public void ExitGame()
     {
         Application.Quit();
-    }
-
-    void SaveState()
-    {
-        // Pásalo todo a JASON amego
     }
 
     private void OnApplicationQuit()

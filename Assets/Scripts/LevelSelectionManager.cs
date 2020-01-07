@@ -27,8 +27,16 @@ public class LevelSelectionManager : MonoBehaviour
         sizeY = numLevels / sizeX;
 
         levels = new Button[sizeX, sizeY];
+        
+
 
         LoadLevelsSelector();
+
+        RectTransform rectAngulo = canvas.gameObject.transform.GetChild(0).GetChild(0).GetComponent<RectTransform>();
+
+        canvas.gameObject.transform.GetChild(0).GetChild(0).GetComponent<RectTransform>().SetPositionAndRotation(
+            new Vector3(rectAngulo.position.x, -1330f, rectAngulo.position.z), rectAngulo.rotation);
+        canvas.gameObject.transform.GetChild(0).GetChild(0).GetComponent<RectTransform>().sizeDelta = new Vector2(rectAngulo.rect.width, sizeY * 115);
 
         title = instance.GetCurrentDifficultyText();
         canvas.SetTitleText(title);
@@ -37,7 +45,7 @@ public class LevelSelectionManager : MonoBehaviour
     void LoadLevelsSelector()
     {
 
-        GameObject panel = canvas.gameObject.transform.GetChild(0).gameObject;
+        GameObject panel = canvas.gameObject.transform.GetChild(0).GetChild(0).gameObject;
      
         int cont = 0;
         int completeLevels = instance.GetCurrentCompletedLevels();
