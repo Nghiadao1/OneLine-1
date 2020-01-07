@@ -16,7 +16,7 @@ public class Tile : MonoBehaviour
 
     // Calculos 
     Vector2 rt;
-    Vector2 posInBoard;
+    TilePosition posInBoard;
     int id; // Stores position of this tile in the board
     float actDegrees; // Grados girados el coso este
 
@@ -69,7 +69,9 @@ public class Tile : MonoBehaviour
 
     public void SetPosBoard(int i, int j)
     {
-        posInBoard = new Vector2(i, j);
+        posInBoard = new TilePosition();
+        posInBoard.x = i;
+        posInBoard.y = j; 
     }
 
     public void SetID(int i)
@@ -87,6 +89,11 @@ public class Tile : MonoBehaviour
     {
         hintSpr = p;
         p.SetActive(false);
+    }
+
+    public TilePosition GetPosition()
+    {
+        return posInBoard;
     }
 
     public void OnClick()

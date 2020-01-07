@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
-    public GameManager instance;
-
     public BoardManager bm;
     public GameObject background;
     public CanvasManager canvas;
@@ -29,21 +27,23 @@ public class LevelManager : MonoBehaviour
 
         Sprite bgSprite = background.GetComponent<SpriteRenderer>().sprite;
 
-        bm.SetBoard(new Vector2(canvas.GetWidth(), canvas.GetHeight()), new Vector2(_cameraWidth, _cameraHeight), 6, 5);
+        bm.SetBoard(new Vector2(canvas.GetWidth(), canvas.GetHeight()), new Vector2(_cameraWidth, _cameraHeight));
 
         escale = new Escalate(_cameraWidth, _cameraHeight, _refResolution);
 
         background.transform.localScale = escale.EscaleToCamWidth(bgSprite.rect.width, bgSprite.rect.height, background.transform.localScale);
 
-        canvas.SetCoinsNum(instance.GetCoins());
+        canvas.SetCoinsNum(GameManager.instance.GetCoins());
 
-        title = instance.GetCurrentDifficultyText() + " " + actualLevel;
+        actualLevel = GameManager.instance.GetActualLevel();
+
+        title = GameManager.instance.GetCurrentDifficultyText() + " " + actualLevel;
         canvas.SetTitleText(title);
     }
 
     // Update is called once per frame
     void Update()
     {
-        canvas.SetCoinsNum(instance.GetCoins());
+        canvas.SetCoinsNum(GameManager.instance.GetCoins());
     }
 }

@@ -63,6 +63,7 @@ public class LevelSelectionManager : MonoBehaviour
                 else if (cont >= 10 && cont < 100) number = "0" + (cont + 1).ToString();
 
                 levels[i, j].transform.GetChild(1).GetComponent<Text>().text = number;
+                levels[i, j].GetComponent<LevelSelectionButton>().SetLevel(cont);
 
                 if ( cont > completeLevels)
                 {

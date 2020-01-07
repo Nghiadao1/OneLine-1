@@ -48,9 +48,16 @@ public class GameManager : MonoBehaviour
 
         currentDifficulty = "";
 
-        levels = null;
-
         coins = 0;
+    }
+
+    /// <summary>
+    /// This method will initialize all values of the GameManager with the information
+    /// stored in the JSON archive that contains it. (Maybe we should hash it later?)
+    /// </summary>
+    private void InitGame()
+    {
+
     }
     #endregion
 
@@ -71,7 +78,7 @@ public class GameManager : MonoBehaviour
     /// <param name="sum"> Number of coins added </param>
     public void AddCoins(int sum)
     {
-        coins += sum;
+        instance.coins += sum;
     }
 
     /// <summary>
@@ -80,7 +87,7 @@ public class GameManager : MonoBehaviour
     /// <returns> Current number of coins in Player's wallet </returns>
     public int GetCoins()
     {
-        return coins;
+        return instance.coins;
     }
 
     /// <summary>
@@ -88,7 +95,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void Hint()
     {
-        coins -= 25;
+        instance.coins -= 25;
     }
 
     /// <summary>
@@ -97,7 +104,12 @@ public class GameManager : MonoBehaviour
     /// <returns> Struct of the level with a specific index. </returns>
     public Levels InitActualLevel()
     {
-        return levels.GetLevel(actLevel);
+        return instance.levels.GetLevel(actLevel);
+    }
+
+    public int GetActualLevel()
+    {
+        return actLevel;
     }
 
     /// <summary>
@@ -107,7 +119,7 @@ public class GameManager : MonoBehaviour
     /// <returns> string: Difficulty selected </returns>
     public string GetCurrentDifficultyText()
     {
-        return currentDifficulty;
+        return instance.currentDifficulty;
     }
 
     /// <summary>
@@ -116,7 +128,7 @@ public class GameManager : MonoBehaviour
     /// <returns> Current number difficulty </returns>
     public int GetCurrentNumDifficulty()
     {
-        return numDifficulty;
+        return instance.numDifficulty;
     }
 
     /// <summary>
@@ -125,7 +137,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void CompleteLevel()
     {
-        completedLevels[numDifficulty]++;
+        instance.completedLevels[numDifficulty]++;
     }
 
     /// <summary>
@@ -134,9 +146,9 @@ public class GameManager : MonoBehaviour
     /// <returns> int: number of levels/ -1 if there are no levels loaded</returns>
     public int GetTotalLevels()
     {
-        if (levels != null)
+        if (instance.levels != null)
         {
-            return levels.GetNumLevels();
+            return instance.levels.GetNumLevels();
         }
         else
         {
@@ -152,7 +164,7 @@ public class GameManager : MonoBehaviour
     /// <returns> int number of levels completed in current difficulty </returns>
     public int[] GetCompletedLevels()
     {
-        return completedLevels;
+        return instance.completedLevels;
     }
 
     /// <summary>
@@ -162,7 +174,7 @@ public class GameManager : MonoBehaviour
     /// <returns> int number of levels completed in current difficulty </returns>
     public int GetCurrentCompletedLevels()
     {
-        return completedLevels[numDifficulty];
+        return instance.completedLevels[numDifficulty];
     }
     #endregion
 
@@ -173,7 +185,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void ReturnToMainMenu()
     {
-        currentDifficulty = ""; // No current scene
+        instance.currentDifficulty = ""; // No current scene
+        instance.numDifficulty = 0;
         SceneManager.LoadScene("MainMenu");
     }
 
@@ -183,7 +196,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void ChangeLevelScene(int level)
     {
-        actLevel = level;
+        instance.actLevel = level;
         SceneManager.LoadScene("Level");
     }
 
@@ -195,23 +208,19 @@ public class GameManager : MonoBehaviour
     public void ChangeLevelSelectionScreen(string difficulty)
     {
         
-        if (currentDifficulty == "")
+        if (instance.currentDifficulty == "")
         {
-            currentDifficulty = difficulty;
+            instance.currentDifficulty = difficulty;
         }
-
-        Debug.Log(Application.dataPath + "/Levels/" + currentDifficulty + ".json");
-
-        levels = new LevelReader(Application.dataPath + "/Levels/" + currentDifficulty + ".json", currentDifficulty);
-
-        Debug.Log(levels);
+        
+        instance.levels = new LevelReader(Application.dataPath + "/Levels/" + instance.currentDifficulty + ".json", instance.currentDifficulty);
 
         SceneManager.LoadScene("LevelSelection");
     }
 
     public void SetDifficultyNumber(int diff)
     {
-        numDifficulty = diff;
+        instance.numDifficulty = diff;
     }
     #endregion
 

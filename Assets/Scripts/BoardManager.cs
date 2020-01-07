@@ -10,8 +10,8 @@ public class BoardManager : MonoBehaviour
     // Private atributes
     string path = "Prefabs/Game/Skins";
 
-    Stack<GameObject> playerPath;
-    List<GameObject> hintPath;
+    Stack<TilePosition> playerPath;
+    List<TilePosition> hintPath;
 
     // Board 
     struct Board
@@ -21,39 +21,35 @@ public class BoardManager : MonoBehaviour
         public float sizeX, sizeY;
 
         public Vector2 size;
-
-        // Set the boundings for easier calculations
-        public Vector2 boundingTopLeft;
-        public Vector2 boundingBottomRight; 
     }
 
     void Awake()
     {
-        playerPath = new Stack<GameObject>();
+        playerPath = new Stack<TilePosition>();
+        hintPath = new List<TilePosition>();
     }
 
     Board brd; // GameBoard of tiles
 
-    /**
-    * Receives a possition were the screen is clicked.
-    * 
-    * @param x int X position of the cursor
-    * @param y int Y position of the cursor
-    */
-    public void BoardClicked(float x, float y)
+    public void SavePath(TilePosition[] path)
     {
-        //Bucle para revisar qué tile ha sido pulsado
-        for (int i = 0; i < brd.sizeX; i++)
+        for (int i = 0; i < path.Length; i++)
         {
-            for (int j = 0; j < brd.sizeY; j++)
-            {
-                //if (x < brd.board[i, j])
-            }
-        }
+            hintPath.Add(path[i]);
+        }    
     }
 
-    public void SetBoard (Vector2 size, Vector2 camSize, int sizeX, int sizeY)
+    public void SetBoard (Vector2 size, Vector2 camSize)
     {
+        Levels level = GameManager.instance.InitActualLevel();
+
+        SavePath(level.path);
+
+        int sizeX, sizeY;
+
+        sizeX = level.layout[0].Length;
+        sizeY = level.layout.Length;
+
         // Get a random number to decide which block is going to be used
         int color = Random.Range(1, 8);
 
@@ -62,55 +58,62 @@ public class BoardManager : MonoBehaviour
 
         Vector2 scale = transform.localScale;
 
-        brd.board = new GameObject[sizeX, sizeY];
+        brd.board = new GameObject[sizeY, sizeX];
         brd.size = DefinePlayZone(size, sizeX, sizeY, ref scale);
         brd.sizeX = sizeX;
         brd.sizeY = sizeY;
         int identification = 0;
 
-        for (int i = 0; i < sizeX; i++)
+
+        for (int i = 0; i < sizeY; i++)
         {
-            for (int j = 0; j < sizeY; j++)
+            for (int j = 0; j < sizeX; j++)
             {
 
-                Vector3 position = new Vector3(((transform.position.x  - (sizeX/2)) + 0.5f) + i, (transform.position.y  - (sizeY/2))  + j, -1);
-                
-                // Instantiate GameObjects needed 
-                brd.board[i, j] = Instantiate(tilePrefab, position, Quaternion.identity); // Position
-                GameObject colorSprite = Instantiate(colour, position, Quaternion.identity);
-                GameObject camino = Instantiate(pathPrefab, position, Quaternion.identity);
-                GameObject hintPivot = new GameObject("HintPivot");
-                GameObject pathSpr = Instantiate(pathColor, position, Quaternion.identity);
+                Vector3 position = new Vector3(((transform.position.x  - (sizeX/2)) + 0.5f) + j, (transform.position.y  - (sizeY/2))  + i, -1);
 
-                // Attacht them to parents
-                brd.board[i, j].transform.SetParent(transform);
-                colorSprite.transform.SetParent(brd.board[i, j].transform);
-                camino.transform.SetParent(brd.board[i, j].transform);
-                hintPivot.transform.SetParent(brd.board[i, j].transform);
-                pathSpr.transform.SetParent(hintPivot.transform);
-                pathSpr.transform.SetPositionAndRotation(camino.transform.GetChild(0).transform.position, camino.transform.GetChild(0).transform.rotation);
+                if(level.layout[i][j] != '0')
+                {
+                    // Instantiate GameObjects needed 
+                    brd.board[i, j] = Instantiate(tilePrefab, position, Quaternion.identity); // Position
+                    GameObject colorSprite = Instantiate(colour, position, Quaternion.identity);
+                    GameObject camino = Instantiate(pathPrefab, position, Quaternion.identity);
+                    GameObject hintPivot = new GameObject("HintPivot");
+                    GameObject pathSpr = Instantiate(pathColor, position, Quaternion.identity);
 
+                    // Attacht them to parents
+                    brd.board[i, j].transform.SetParent(transform);
+                    colorSprite.transform.SetParent(brd.board[i, j].transform);
+                    camino.transform.SetParent(brd.board[i, j].transform);
+                    hintPivot.transform.SetParent(brd.board[i, j].transform);
+                    pathSpr.transform.SetParent(hintPivot.transform);
+                    pathSpr.transform.SetPositionAndRotation(camino.transform.GetChild(0).transform.position, camino.transform.GetChild(0).transform.rotation);
 
-                // Set the color sprite to Tile
-                brd.board[i, j].GetComponent<Tile>().SetColor(colorSprite);
-                brd.board[i, j].GetComponent<Tile>().SetPathSpr(camino);
-                brd.board[i, j].GetComponent<Tile>().SetHintSpr(hintPivot);
-                brd.board[i, j].GetComponent<Tile>().SetPressed(false, 0.0f);
-                brd.board[i, j].GetComponent<Tile>().SetPosBoard(i, j);
-                brd.board[i, j].GetComponent<Tile>().SetID(identification);
-                identification++;
+                    // Set the color sprite to Tile
+                    brd.board[i, j].GetComponent<Tile>().SetColor(colorSprite);
+                    brd.board[i, j].GetComponent<Tile>().SetPathSpr(camino);
+                    brd.board[i, j].GetComponent<Tile>().SetHintSpr(hintPivot);
+                    brd.board[i, j].GetComponent<Tile>().SetPressed(false, 0.0f);
+                    brd.board[i, j].GetComponent<Tile>().SetPosBoard(i, j);
+                    brd.board[i, j].GetComponent<Tile>().SetID(identification);
+                    identification++;
+
+                    Debug.Log(level.layout[i][j]);
+
+                    if (level.layout[i][j] == '2')
+                    { 
+                        brd.board[i, j].GetComponent<Tile>().SetPressed(true, 0.0f);
+                        brd.board[i, j].GetComponent<Tile>().CreatePath(0.0f, false);
+                        playerPath.Push(brd.board[i, j].GetComponent<Tile>().GetPosition());
+                    }
+                }
             }
         }
-
-        brd.board[0, 0].GetComponent<Tile>().SetPressed(true, 0.0f);
-        brd.board[0, 0].GetComponent<Tile>().CreatePath(0.0f, false);
-        playerPath.Push(brd.board[0, 0]);
-
-        Debug.Log(color);
 
         // Escalate all board
         transform.localScale = BoardEscalate(brd.size, camSize, scale);
     }
+
     #region Escalado y cosos
     Vector2 DefinePlayZone(Vector2 size, int x, int y, ref Vector2 scale)
     { // TODOS LOS CALCULOS EN PIXELES
@@ -218,13 +221,14 @@ public class BoardManager : MonoBehaviour
     }
     #endregion
 
-    bool CheckTile(Vector2 pos, int x, int y)
+    #region Gestion de Tiles
+    bool CheckTile(TilePosition pos, int x, int y)
     {
-        GameObject t = brd.board[x, y];
+        GameObject t = brd.board[y, x];
 
-        if (t.GetComponent<Tile>().GetPressed() && (playerPath.Peek() == t))
+        if (t.GetComponent<Tile>().GetPressed() && (playerPath.Peek() == t.GetComponent<Tile>().GetPosition()))
         {
-            playerPath.Push(brd.board[(int)pos.x, (int)pos.y]);
+            playerPath.Push(pos);
             return true;
         }
         else
@@ -233,7 +237,7 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    public bool TileClicked(int id, Vector2 pos, bool isClicked, ref float degrees)
+    public bool TileClicked(int id, TilePosition pos, bool isClicked, ref float degrees)
     {
         if (!isClicked)
         {
@@ -278,17 +282,23 @@ public class BoardManager : MonoBehaviour
         }
         else
         {
-            while (playerPath.Peek().GetComponent<Tile>().GetID() != id)
+            while (playerPath.Peek() != pos)
             {
-                playerPath.Peek().GetComponent<Tile>().SetPressed(false, 0.0f);
+                brd.board[pos.x, pos.y].GetComponent<Tile>().SetPressed(false, 0.0f);
                 playerPath.Pop();
             }
             return false; 
         }
     }
 
+    public bool Ended()
+    {
+        return true;
+    }
+
     public Vector2 GetSize ()
     {
         return brd.size;
     }
+    #endregion
 }
