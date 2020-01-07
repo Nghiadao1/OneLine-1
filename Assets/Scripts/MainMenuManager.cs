@@ -9,6 +9,8 @@ public class MainMenuManager : MonoBehaviour
 
     public Text[] texts;
 
+    public Text challengesCompleted;
+
     int[] completed;
     
     // Start is called before the first frame update

@@ -20,12 +20,14 @@ public class GameManager : MonoBehaviour
         public int coins;
         public bool[][] completedLevels;
         public bool paid;
+        public int challenges;
 
-        public PlayerData(int c, bool[][] lev, bool p)
+        public PlayerData(int c, bool[][] lev, bool p, int chang)
         {
             coins = c;
             completedLevels = lev;
             paid = p;
+            challenges = chang;
         }
     }
 
@@ -34,6 +36,7 @@ public class GameManager : MonoBehaviour
     int coins;
     bool[][] completedLevels;
     bool paid; // This is for the ads
+    int challengesCompleted;
 
 
     // Variables con el estado actual del juego
@@ -58,6 +61,7 @@ public class GameManager : MonoBehaviour
             instance.coins = dat.coins;
             instance.completedLevels = dat.completedLevels;
             instance.paid = dat.paid;
+            instance.challengesCompleted = dat.challenges;
 
             instance.currentDifficulty = "";
         }
@@ -73,7 +77,7 @@ public class GameManager : MonoBehaviour
         // The name of the file is random selected from a book
         FileStream file = File.Create(Application.persistentDataPath + "/pehmea.dat");
 
-        PlayerData pd = new PlayerData(instance.coins, instance.completedLevels, instance.paid);
+        PlayerData pd = new PlayerData(instance.coins, instance.completedLevels, instance.paid, instance.challengesCompleted);
 
         bf.Serialize(file, pd);
 
@@ -100,6 +104,7 @@ public class GameManager : MonoBehaviour
 
             newPLayer.coins = 0;
             newPLayer.paid = false;
+            newPLayer.challenges = 0;
 
             newPLayer.completedLevels = new bool [5][];
 
