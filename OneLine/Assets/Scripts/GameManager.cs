@@ -9,8 +9,14 @@ public class GameManager : MonoBehaviour
 
     public Canvas cnv;
 
+    public Camera cam;
+
+    public SpriteRenderer fondo;
+
     Image panelSuperior;
     Image panelInferior;
+
+    Scaling scalator;
 
     #endregion
 
@@ -30,6 +36,7 @@ public class GameManager : MonoBehaviour
             DontDestroyOnLoad(gameObject);
 
             // Aquí iría la inicialización de los datos del jugador
+            scalator = new Scaling(new int[] { Screen.width, Screen.height }, (int)cam.orthographicSize);
         }
         else if (instance != this)
         {
@@ -54,8 +61,18 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log(scalator.UnityUds());
+
+        Debug.Log(fondo.sprite.bounds.size);
+
+        Vector3 result = scalator.ScaleToScreen(fondo.sprite.bounds.size, fondo.transform.localScale);
+
+        Debug.Log(result);
+
+        fondo.transform.localScale = result;
+
         // Buscamos los paneles para luego realizar los cálculos
-        foreach(Transform child in cnv.transform)
+        foreach (Transform child in cnv.transform)
         {
             if(child.name == "Superior")
             {
