@@ -18,6 +18,7 @@ public class Scaling
     public Scaling(Vector2 res, Vector2 refRes, int camSize)
     {
         currResolution = res;
+        refResolution = refRes;
 
         unityUds = res.y / (2 * camSize);
     }
@@ -53,12 +54,18 @@ public class Scaling
     /// <param name="srcDims">El rectángulo que queremos escalar</param>
     /// <param name="refDims">El rectángulo que vamos a tener como referencia</param>
     /// <returns>Las dimensiones escaladas del rectángulo</returns>
-    public int[] ScaleWithReference(int[] srcDims, int[] refDims)
+    public Vector2 ScaleKeepingAspectRatio(Vector2 srcDims)
     {
-        int[] temp = null;
+        Vector2 temp;
+
+        temp.x = ResizeX(srcDims.x);
+        temp.y = (temp.x * srcDims.y) / srcDims.x;
+
 
         return temp;
     }
+
+    // Dos rectángulos -> Como es siempre, las dimensiones nuevas
 
     Vector3 resizeObjectScale(Vector3 origUnits, Vector3 currUnits, Vector3 scale)
     {

@@ -53,7 +53,7 @@ public class GameManager : MonoBehaviour
     /// Da acceso al resto de objetos y clases a la información del GameManager.
     /// </summary>
     /// <returns></returns>
-    public GameManager GetInstance()
+    public static GameManager GetInstance()
     {
         return instance;
     }
@@ -94,6 +94,11 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public Scaling GetScaling()
+    {
+        return scalator;
     }
 
     public int panelSuperiorHeight(){
