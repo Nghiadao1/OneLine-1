@@ -13,6 +13,8 @@ public class GameManager : MonoBehaviour
 
     public SpriteRenderer fondo;
 
+    public Vector2 scalingReferenceResolution = new Vector2(720, 1280);
+
     Image panelSuperior;
     Image panelInferior;
 
@@ -35,8 +37,11 @@ public class GameManager : MonoBehaviour
 
             DontDestroyOnLoad(gameObject);
 
+            // Nos aseguramos que el canvas tenga la resolución de referencia correcta
+            cnv.GetComponent<CanvasScaler>().referenceResolution = scalingReferenceResolution;
+
             // Aquí iría la inicialización de los datos del jugador
-            scalator = new Scaling(new int[] { Screen.width, Screen.height }, (int)cam.orthographicSize);
+            scalator = new Scaling(new Vector2 (Screen.width, Screen.height), scalingReferenceResolution, (int)cam.orthographicSize);
         }
         else if (instance != this)
         {
@@ -65,7 +70,7 @@ public class GameManager : MonoBehaviour
 
         Debug.Log(fondo.sprite.bounds.size);
 
-        Vector3 result = scalator.ScaleToScreen(fondo.sprite.bounds.size, fondo.transform.localScale);
+        Vector3 result = scalator.ScaleToFitScreen(fondo.sprite.bounds.size, fondo.transform.localScale);
 
         Debug.Log(result);
 

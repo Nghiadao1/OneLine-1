@@ -9,44 +9,32 @@ using UnityEngine;
 public class Scaling
 {
     // Resolución de referencia = 720x1280
-    int[] refResolution = new int[] { 720, 1280 };
-    int[] currResolution;
+    Vector2 refResolution;
+    Vector2 currResolution;
 
     // Valor para cambiar entre unidades de Unity y Pixeles
-    int unityUds;
+    float unityUds;
 
-    public Scaling(int[] res, int camSize)
+    public Scaling(Vector2 res, Vector2 refRes, int camSize)
     {
         currResolution = res;
 
-        unityUds = res[1] / (2 * camSize);
+        unityUds = res.y / (2 * camSize);
     }
 
     /// <summary>
     /// Función que hace el escalado de un rectangulo para que entre en la pantalla
     /// </summary>
-    public Vector3 ScaleToScreen(Vector3 sizeInUnits, Vector3 scale)
+    public Vector3 ScaleToFitScreen(Vector3 sizeInUnits, Vector3 scale)
     {
         Vector3 temp = sizeInUnits;
 
         temp.x *= unityUds;
         temp.y *= unityUds;
 
-        // Anchura 
-        if (temp.x > currResolution[0])
-        {
-            temp.x = currResolution[0];
+        temp.x = currResolution.x;
 
-            temp.y = (temp.x * sizeInUnits.y) / sizeInUnits.x;
-        }
-
-        // Altura
-        if (temp.y > currResolution[1])
-        {
-            temp.y = currResolution[1];
-
-            temp.x = (temp.y * sizeInUnits.x) / sizeInUnits.y;
-        }
+        temp.y = (temp.x * sizeInUnits.y) / sizeInUnits.x;
 
         // Traducción a unidades de Unity
         temp.x = temp.x / unityUds;
@@ -72,18 +60,6 @@ public class Scaling
         return temp;
     }
 
-    /// <summary>
-    /// Convierte las dimensiones de píxeles a unidades de Unity. TODO: Hacer reversible
-    /// </summary>
-    /// <param name="pixels"></param>
-    /// <returns></returns>
-    public int[] ConvertToUnity(int[] pixels)
-    {
-        int[] temp = null;
-
-        return temp;
-    }
-
     Vector3 resizeObjectScale(Vector3 origUnits, Vector3 currUnits, Vector3 scale)
     {
         Vector3 scalated = new Vector3();
@@ -94,7 +70,7 @@ public class Scaling
         return scalated;
     }
 
-    public int UnityUds()
+    public float UnityUds()
     {
         return unityUds;
     }
