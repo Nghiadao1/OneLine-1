@@ -15,8 +15,8 @@ public class GameManager : MonoBehaviour
 
     public Vector2 scalingReferenceResolution = new Vector2(720, 1280);
 
-    Image panelSuperior;
-    Image panelInferior;
+    RectTransform panelSuperior;
+    RectTransform panelInferior;
 
     Scaling scalator;
 
@@ -42,6 +42,20 @@ public class GameManager : MonoBehaviour
 
             // Aquí iría la inicialización de los datos del jugador
             scalator = new Scaling(new Vector2 (Screen.width, Screen.height), scalingReferenceResolution, (int)cam.orthographicSize);
+
+
+            // Buscamos los paneles para luego realizar los cálculos
+            foreach (Transform child in cnv.transform)
+            {
+                if (child.name == "Superior")
+                {
+                    panelSuperior = child.GetComponent<RectTransform>();
+                }
+                else if (child.name == "Inferior")
+                {
+                    panelInferior = child.GetComponent<RectTransform>();
+                }
+            }
         }
         else if (instance != this)
         {
@@ -66,28 +80,13 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log(scalator.UnityUds());
-
-        Debug.Log(fondo.sprite.bounds.size);
-
         Vector3 result = scalator.ScaleToFitScreen(fondo.sprite.bounds.size, fondo.transform.localScale);
-
-        Debug.Log(result);
 
         fondo.transform.localScale = result;
 
-        // Buscamos los paneles para luego realizar los cálculos
-        foreach (Transform child in cnv.transform)
-        {
-            if(child.name == "Superior")
-            {
-                panelSuperior = child.GetComponent<Image>();
-            }
-            else if (child.name == "Inferior")
-            {
-                panelInferior = child.GetComponent<Image>();
-            }
-        }
+
+        Debug.Log(panelInferior);
+        Debug.Log(panelSuperior);
     }
 
     // Update is called once per frame
@@ -101,13 +100,29 @@ public class GameManager : MonoBehaviour
         return scalator;
     }
 
-    public int panelSuperiorHeight(){
-        return (int)panelSuperior.rectTransform.rect.height;
+    public Canvas GetCanvas()
+    {
+        return cnv;
     }
 
-    public int panelInferiorHeight()
+    public Vector2 getResolution()
     {
-        return (int)panelInferior.rectTransform.rect.height;
+        return new Vector2(Screen.width, Screen.height);
+    }
+
+    // COMENTAAAAAAR
+    public Vector2 getReferenceResolution()
+    {
+        return scalingReferenceResolution;
+    }
+
+    public float panelSuperiorHeight(){
+        return panelSuperior.rect.height;
+    }
+
+    public float panelInferiorHeight()
+    {
+        return panelInferior.rect.height;
     }
 
     #endregion

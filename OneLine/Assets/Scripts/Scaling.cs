@@ -54,20 +54,37 @@ public class Scaling
     /// <param name="srcDims">El rectángulo que queremos escalar</param>
     /// <param name="refDims">El rectángulo que vamos a tener como referencia</param>
     /// <returns>Las dimensiones escaladas del rectángulo</returns>
-    public Vector2 ScaleKeepingAspectRatio(Vector2 srcDims)
+    public Vector2 ScaleToFitKeepingAspectRatio(Vector2 srcDims, Vector2 refDims)
     {
-        Vector2 temp;
+        Vector2 temp = srcDims;
 
-        temp.x = ResizeX(srcDims.x);
-        temp.y = (temp.x * srcDims.y) / srcDims.x;
+        // Comprobamos el ancho
+        if(temp.x > refDims.x || temp.x < refDims.x)
+        {
+            temp.x = refDims.x;
 
+            temp.y = (temp.x * srcDims.y) / srcDims.x;
+        }
+
+        // Comprobamos el alto
+        if(temp.y > refDims.y)
+        {
+            if(temp != srcDims)
+            {
+                temp = srcDims;
+            }
+
+            temp.y = refDims.y;
+
+            temp.x = (temp.y * srcDims.x) / srcDims.y;
+        }
 
         return temp;
     }
 
     // Dos rectángulos -> Como es siempre, las dimensiones nuevas
 
-    Vector3 resizeObjectScale(Vector3 origUnits, Vector3 currUnits, Vector3 scale)
+    public Vector3 resizeObjectScale(Vector3 origUnits, Vector3 currUnits, Vector3 scale)
     {
         Vector3 scalated = new Vector3();
 
@@ -82,13 +99,17 @@ public class Scaling
         return unityUds;
     }
 
-    float ResizeX(float x)
+    public float ResizeX(float x)
     {
-        return (x * currResolution[0]) / refResolution[0];
+        float temp = (x * currResolution.x) / refResolution.x;
+
+        return temp;
     }
 
-    float ResizeY(float y)
+    public float ResizeY(float y)
     {
-        return (y * currResolution[1]) / refResolution[1];
+        float temp = (y * currResolution.y) / refResolution.y;
+
+        return temp;
     }
 }
