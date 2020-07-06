@@ -7,13 +7,17 @@ public class GameManager : MonoBehaviour
 {
     #region Variables
 
+    // Públicas
     public Canvas cnv;
 
     public Camera cam;
 
     public SpriteRenderer fondo;
 
-    public Vector2 scalingReferenceResolution = new Vector2(720, 1280);
+    public bool challenge = false;
+
+    // Privadas
+    Vector2 scalingReferenceResolution;
 
     RectTransform panelSuperior;
     RectTransform panelInferior;
@@ -26,7 +30,7 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// Variable que establece el singleton del GameManager.
     /// </summary>
-    static GameManager instance; 
+    private static GameManager instance; 
 
     private void Awake()
     {
@@ -38,7 +42,7 @@ public class GameManager : MonoBehaviour
             DontDestroyOnLoad(gameObject);
 
             // Nos aseguramos que el canvas tenga la resolución de referencia correcta
-            cnv.GetComponent<CanvasScaler>().referenceResolution = scalingReferenceResolution;
+            scalingReferenceResolution = cnv.GetComponent<CanvasScaler>().referenceResolution;
 
             // Aquí iría la inicialización de los datos del jugador
             scalator = new Scaling(new Vector2 (Screen.width, Screen.height), scalingReferenceResolution, (int)cam.orthographicSize);
@@ -75,18 +79,13 @@ public class GameManager : MonoBehaviour
 
     #region GameManagement
 
-
-
     // Start is called before the first frame update
     void Start()
     {
         Vector3 result = scalator.ScaleToFitScreen(fondo.sprite.bounds.size, fondo.transform.localScale);
 
         fondo.transform.localScale = result;
-
-
-        Debug.Log(panelInferior);
-        Debug.Log(panelSuperior);
+        
     }
 
     // Update is called once per frame
@@ -95,6 +94,10 @@ public class GameManager : MonoBehaviour
         
     }
 
+
+    #endregion
+
+    #region Getters
     public Scaling GetScaling()
     {
         return scalator;
@@ -124,6 +127,8 @@ public class GameManager : MonoBehaviour
     {
         return panelInferior.rect.height;
     }
+    
+
 
     #endregion
 }

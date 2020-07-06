@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+
 public class BoardManager : MonoBehaviour
 {
     // Original resolution of the board (CAMBIAR EL NOMBRE DE ESTA SEÑORA)
@@ -15,16 +17,29 @@ public class BoardManager : MonoBehaviour
 
     // Simplemente para debugear (LIMPIAR LUEGO)
     public Transform panelDePrueba;
-    
+
+    // Prefab de los tiles
+    public GameObject tile;
+
+    // Esto es para luego calcular la posición del tablero
+    private float panelSuperior;
+
+    private float panelInferior;
+
+    float PixelToUnityPosition(float pixel)
+    {
+        return pixel /= GameManager.GetInstance().GetScaling().UnityUds();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        // Clacular el tamaño disponible para el juego y luego ya si eso tirar 
-        // Hay dejar definido el espacio que queremos ocupar de píxeles por un lado 
-        // y el que queremos ocupar por arriba y por abajo (márgenes)
+        
         CalculateSpace();
 
-        Debug.Log(GameManager.GetInstance().panelSuperiorHeight());
+        SetSpaceWithConfig();
+
+        CalculatePosition();
         
     }
 
@@ -34,13 +49,14 @@ public class BoardManager : MonoBehaviour
         
     }
 
+    #region CalculateBoard
     /// <summary>
     /// Calcula el espacio disponible para el tablero de juego
     /// </summary>
     void CalculateSpace()
     {
-        float panelSuperior = GameManager.GetInstance().panelSuperiorHeight();
-        float panelInferior = GameManager.GetInstance().panelInferiorHeight();
+        panelSuperior = GameManager.GetInstance().panelSuperiorHeight();
+        panelInferior = GameManager.GetInstance().panelInferiorHeight();
 
         Vector2 refRes = GameManager.GetInstance().getReferenceResolution();
         Vector2 actRes = GameManager.GetInstance().getResolution();
@@ -52,8 +68,7 @@ public class BoardManager : MonoBehaviour
         // Calculamos los valores actuales en píxeles del espacio ocupado por los paneles EN LA RESOLUCIÓN ACTUAL 
         panelSuperior *= GameManager.GetInstance().GetCanvas().scaleFactor;
         panelInferior *= GameManager.GetInstance().GetCanvas().scaleFactor;
-
-        // AHORA SE VIENE LA WEA
+        
         // Calculamos el espacio disponible en la resolución actual 
         float dispTamActY = (actRes.y - (panelInferior + panelSuperior)) - (2 * GameManager.GetInstance().GetScaling().ResizeY(margenSuperior));
         float dipsTamActX = actRes.x - (2 * GameManager.GetInstance().GetScaling().ResizeX(margenLateral));
@@ -64,15 +79,51 @@ public class BoardManager : MonoBehaviour
 
         // Escalamos el espacio de juego
         resolution = GameManager.GetInstance().GetScaling().ScaleToFitKeepingAspectRatio(tamTeoricoTabla, espDisp);
-
-        Debug.Log(espDisp);
-        Debug.Log(resolution);
-
+        
         resolution /= GameManager.GetInstance().GetScaling().UnityUds();
-
-        Debug.Log(tamTeoricoTabla);
-        Debug.Log(resolution);
-
+        
         panelDePrueba.localScale = GameManager.GetInstance().GetScaling().resizeObjectScale(panelDePrueba.GetComponent<SpriteRenderer>().bounds.size, resolution, panelDePrueba.localScale);
     }
+
+    void SetSpaceWithConfig()
+    {
+        Debug.Log(tile.transform.GetComponent<SpriteRenderer>().bounds.size * GameManager.GetInstance().GetScaling().UnityUds());
+    }
+
+    void CalculatePosition()
+    {
+        Vector3 position = new Vector3();
+
+        float dispDistance = GameManager.GetInstance().getResolution().y - (panelInferior + panelSuperior);
+
+        dispDistance /= 2; // Calculamos la distancia hasta el punto medio entre los dos paneles
+
+        position.y = (GameManager.GetInstance().getResolution().y - panelSuperior) - dispDistance;
+        
+        // Ahora calcular la posición en unidades de Unity
+        // Si la posición es mayor de la mitad, está en unidades de unity positivas
+        if(position.y > (GameManager.GetInstance().getResolution().y / 2))
+        {
+            position.y -= (GameManager.GetInstance().getResolution().y / 2);
+
+            position.y = PixelToUnityPosition(position.y);
+        }
+        // Si no, está en unidades negativas
+        else if (position.y < (GameManager.GetInstance().getResolution().y / 2))
+        {
+            position.y = (GameManager.GetInstance().getResolution().y / 2) - position.y;
+
+            position.y = (PixelToUnityPosition(position.y) * (-1));
+        }
+        // Por último, la posición 0, 0, 0
+        else
+        {
+            position.y = 0;
+        }
+
+        panelDePrueba.SetPositionAndRotation(position, panelDePrueba.rotation);
+    }
+    #endregion
+
+
 }
