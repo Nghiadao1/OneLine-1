@@ -26,6 +26,8 @@ public class BoardManager : MonoBehaviour
 
     private float panelInferior;
 
+    public Vector2 dimensiones =  new Vector2(); // Cuantos tiles hay a lo alto y a lo ancho
+
     float PixelToUnityPosition(float pixel)
     {
         return pixel /= GameManager.GetInstance().GetScaling().UnityUds();
@@ -34,10 +36,10 @@ public class BoardManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //Primero creamos el tablero de un tamaño concreto para que entren X tiles a lo largo y ancho
+        // Le damos ese valor y luego, calculando el espacio disponible, lo ajustamos
         
         CalculateSpace();
-
-        SetSpaceWithConfig();
 
         CalculatePosition();
         
@@ -76,18 +78,85 @@ public class BoardManager : MonoBehaviour
         // Creamos los Vectores para hacer los cálculos
         Vector2 tamTeoricoTabla = new Vector2 (dipsTamX, dispTamY);
         Vector2 espDisp = new Vector2(dipsTamActX, dispTamActY);
+        
 
         // Escalamos el espacio de juego
         resolution = GameManager.GetInstance().GetScaling().ScaleToFitKeepingAspectRatio(tamTeoricoTabla, espDisp);
-        
+
         resolution /= GameManager.GetInstance().GetScaling().UnityUds();
-        
-        panelDePrueba.localScale = GameManager.GetInstance().GetScaling().resizeObjectScale(panelDePrueba.GetComponent<SpriteRenderer>().bounds.size, resolution, panelDePrueba.localScale);
+
+        CreateBoardWithTiles();
     }
 
-    void SetSpaceWithConfig()
+    void CreateBoardWithTiles()
     {
-        Debug.Log(tile.transform.GetComponent<SpriteRenderer>().bounds.size * GameManager.GetInstance().GetScaling().UnityUds());
+        Vector2 resolutionTemp = resolution * GameManager.GetInstance().GetScaling().UnityUds();
+
+        Vector3 medidasTablero = new Vector3 ();
+
+        medidasTablero.x = (tile.transform.GetComponent<SpriteRenderer>().bounds.size.x * GameManager.GetInstance().GetScaling().UnityUds()) * 6;
+
+        if (dimensiones.y > 5)
+        {
+            medidasTablero.y = (tile.transform.GetComponent<SpriteRenderer>().bounds.size.x * GameManager.GetInstance().GetScaling().UnityUds()) * 8;
+        }
+        else
+        {
+            medidasTablero.y = (tile.transform.GetComponent<SpriteRenderer>().bounds.size.x * GameManager.GetInstance().GetScaling().UnityUds()) * 5;
+        }
+
+        medidasTablero /= GameManager.GetInstance().GetScaling().UnityUds();
+
+        InstantiateTiles(medidasTablero);
+        
+        panelDePrueba.localScale = GameManager.GetInstance().GetScaling().resizeObjectScaleKeepingAspectRatio(medidasTablero * GameManager.GetInstance().GetScaling().UnityUds(), resolutionTemp, panelDePrueba.localScale);
+
+    }
+
+    void InstantiateTiles(Vector3 medidasTablero)
+    {
+        Debug.Log(medidasTablero);
+
+        for(int i = 0; i < dimensiones.y; i++)
+        {
+            for (int j = 0; j < dimensiones.x; j++)
+            {
+                Vector3 position = new Vector3();
+
+                position.z = -1;
+
+                if(dimensiones.x % 2 == 0)
+                {
+                    position.x = ((panelDePrueba.position.x - (dimensiones.x / 2)) + 0.5f) + j;                   
+                }
+                else
+                {
+                    position.x = ((panelDePrueba.position.x - (int)(dimensiones.x / 2))) + j;
+                }
+
+                if (dimensiones.y % 2 == 0)
+                {
+                    position.y = (panelDePrueba.position.y + (dimensiones.y / 2) - 0.5f) - i;
+                }
+                else
+                {
+                    position.y = (panelDePrueba.position.y + (int)(dimensiones.y / 2)) - i;
+                }
+
+                Debug.Log(position);
+
+                GameObject nTile = Instantiate(tile, position, Quaternion.identity);
+
+                nTile.transform.SetParent(panelDePrueba);
+
+                ConfigTile();
+            }
+        }
+    }
+
+    void ConfigTile()
+    {
+
     }
 
     void CalculatePosition()

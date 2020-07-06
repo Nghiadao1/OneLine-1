@@ -94,6 +94,28 @@ public class Scaling
         return scalated;
     }
 
+    public Vector3 resizeObjectScaleKeepingAspectRatio(Vector3 origUnits, Vector3 currUnits, Vector3 scale)
+    {
+        Vector3 scalated = new Vector3();
+        
+        // TODO because los loles
+        if(origUnits.x > currUnits.x)
+        {
+            scalated.x = scalated.y = (currUnits.x * scale.x) / origUnits.x;
+        }
+
+        if(origUnits.y > currUnits.y)
+        {
+            if(scalated.x != 0 && scalated.y != 0)
+            {
+
+            }
+
+        }
+
+        return scalated;
+    }
+
     public float UnityUds()
     {
         return unityUds;
