@@ -108,10 +108,14 @@ public class Scaling
         {
             if(scalated.x != 0 && scalated.y != 0)
             {
-
+                scalated.x = scalated.y = 0;
             }
 
+            scalated.y = scalated.x = (currUnits.y * scale.y) / origUnits.y;
+
         }
+
+        Debug.Log(scalated);
 
         return scalated;
     }

@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class BoardManager : MonoBehaviour
 {
     // Original resolution of the board (CAMBIAR EL NOMBRE DE ESTA SEÑORA)
-    public Vector2 resolution = new Vector2 (630, 780);
+    Vector2 resolution;
 
     // Margenes que se van a dejar para hacer el espacio de juego 
     public int margenSuperior = 5;
@@ -57,63 +57,66 @@ public class BoardManager : MonoBehaviour
     /// </summary>
     void CalculateSpace()
     {
-        panelSuperior = GameManager.GetInstance().panelSuperiorHeight();
-        panelInferior = GameManager.GetInstance().panelInferiorHeight();
-
-        Vector2 refRes = GameManager.GetInstance().getReferenceResolution();
+        // Calculamos el espacio ocupado por los paneles superior e inferior en píxeles
+        panelSuperior = GameManager.GetInstance().panelSuperiorHeight() * GameManager.GetInstance().GetCanvas().scaleFactor;
+        panelInferior = GameManager.GetInstance().panelInferiorHeight() * GameManager.GetInstance().GetCanvas().scaleFactor;
+        
         Vector2 actRes = GameManager.GetInstance().getResolution();
-
-        // Ahora calculamos el espacio disponible para el juego y restamos los márgenes pero en la resolución de referencia
-        float dispTamY = (refRes.y - (panelInferior + panelSuperior)) - (2 * margenSuperior);
-        float dipsTamX = refRes.x - (2 * margenLateral);
-
-        // Calculamos los valores actuales en píxeles del espacio ocupado por los paneles EN LA RESOLUCIÓN ACTUAL 
-        panelSuperior *= GameManager.GetInstance().GetCanvas().scaleFactor;
-        panelInferior *= GameManager.GetInstance().GetCanvas().scaleFactor;
         
         // Calculamos el espacio disponible en la resolución actual 
-        float dispTamActY = (actRes.y - (panelInferior + panelSuperior)) - (2 * GameManager.GetInstance().GetScaling().ResizeY(margenSuperior));
-        float dipsTamActX = actRes.x - (2 * GameManager.GetInstance().GetScaling().ResizeX(margenLateral));
+        float dispY = (actRes.y - (panelInferior + panelSuperior)) - (2 * GameManager.GetInstance().GetScaling().ResizeY(margenSuperior));
+        float dipsX = actRes.x - (2 * GameManager.GetInstance().GetScaling().ResizeX(margenLateral));
 
-        // Creamos los Vectores para hacer los cálculos
-        Vector2 tamTeoricoTabla = new Vector2 (dipsTamX, dispTamY);
-        Vector2 espDisp = new Vector2(dipsTamActX, dispTamActY);
-        
+        // Creamos el espacio disponible en pantalla (en píxeles) para el juego
+        resolution = new Vector2(dipsX, dispY);
 
-        // Escalamos el espacio de juego
-        resolution = GameManager.GetInstance().GetScaling().ScaleToFitKeepingAspectRatio(tamTeoricoTabla, espDisp);
+        Debug.Log("Disponemos de este espacio: " + resolution);
 
         resolution /= GameManager.GetInstance().GetScaling().UnityUds();
 
-        CreateBoardWithTiles();
+        DefineTileSize();
     }
 
-    void CreateBoardWithTiles()
+    void DefineTileSize()
     {
         Vector2 resolutionTemp = resolution * GameManager.GetInstance().GetScaling().UnityUds();
 
         Vector3 medidasTablero = new Vector3 ();
 
-        medidasTablero.x = (tile.transform.GetComponent<SpriteRenderer>().bounds.size.x * GameManager.GetInstance().GetScaling().UnityUds()) * 6;
+        float tamFinal;
+        float tamTilesX;
+        float tamTilesY;
 
         if (dimensiones.y > 5)
         {
-            medidasTablero.y = (tile.transform.GetComponent<SpriteRenderer>().bounds.size.x * GameManager.GetInstance().GetScaling().UnityUds()) * 8;
+            tamTilesX = resolutionTemp.x / 6;
+            tamTilesY = resolutionTemp.y / 8;            
         }
         else
         {
-            medidasTablero.y = (tile.transform.GetComponent<SpriteRenderer>().bounds.size.x * GameManager.GetInstance().GetScaling().UnityUds()) * 5;
+            tamTilesX = resolutionTemp.x / 6;
+            tamTilesY = resolutionTemp.y / 5;
+            
         }
+
+        if (tamTilesY < tamTilesX)
+        {
+            tamFinal = tamTilesY;
+        }
+        else
+        {
+            tamFinal = tamTilesX;
+        }
+
+        medidasTablero.x = tamFinal * dimensiones.x;
+        medidasTablero.y = tamFinal * dimensiones.y;
 
         medidasTablero /= GameManager.GetInstance().GetScaling().UnityUds();
 
-        InstantiateTiles(medidasTablero);
-        
-        panelDePrueba.localScale = GameManager.GetInstance().GetScaling().resizeObjectScaleKeepingAspectRatio(medidasTablero * GameManager.GetInstance().GetScaling().UnityUds(), resolutionTemp, panelDePrueba.localScale);
-
+        InstantiateTiles(medidasTablero, tamFinal);
     }
 
-    void InstantiateTiles(Vector3 medidasTablero)
+    void InstantiateTiles(Vector3 medidasTablero, float tamTile)
     {
         Debug.Log(medidasTablero);
 
@@ -121,13 +124,17 @@ public class BoardManager : MonoBehaviour
         {
             for (int j = 0; j < dimensiones.x; j++)
             {
+                GameObject nTile = Instantiate(tile, panelDePrueba.position, Quaternion.identity);
+
+                ConfigTile(nTile, tamTile);
+
                 Vector3 position = new Vector3();
 
                 position.z = -1;
 
                 if(dimensiones.x % 2 == 0)
                 {
-                    position.x = ((panelDePrueba.position.x - (dimensiones.x / 2)) + 0.5f) + j;                   
+                    position.x = ((panelDePrueba.position.x - (medidasTablero.x / 2)) + (margenLateral / GameManager.GetInstance().GetScaling().UnityUds())) + (j * ((tamTile + 10) / GameManager.GetInstance().GetScaling().UnityUds()));                   
                 }
                 else
                 {
@@ -143,20 +150,18 @@ public class BoardManager : MonoBehaviour
                     position.y = (panelDePrueba.position.y + (int)(dimensiones.y / 2)) - i;
                 }
 
-                Debug.Log(position);
-
-                GameObject nTile = Instantiate(tile, position, Quaternion.identity);
+                nTile.transform.SetPositionAndRotation(position, nTile.transform.rotation);
 
                 nTile.transform.SetParent(panelDePrueba);
-
-                ConfigTile();
             }
         }
     }
 
-    void ConfigTile()
+    void ConfigTile(GameObject tile, float tamTile)
     {
+        Vector2 nTam = new Vector2(tamTile, tamTile);
 
+        tile.transform.localScale = GameManager.GetInstance().GetScaling().resizeObjectScaleKeepingAspectRatio(tile.GetComponent<SpriteRenderer>().bounds.size * GameManager.GetInstance().GetScaling().UnityUds(), nTam, tile.transform.localScale);
     }
 
     void CalculatePosition()
