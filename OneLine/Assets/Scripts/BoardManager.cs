@@ -75,6 +75,8 @@ public class BoardManager : MonoBehaviour
         resolution /= GameManager.GetInstance().GetScaling().UnityUds();
 
         DefineTileSize();
+
+        
     }
 
     void DefineTileSize()
@@ -114,6 +116,12 @@ public class BoardManager : MonoBehaviour
         medidasTablero /= GameManager.GetInstance().GetScaling().UnityUds();
 
         InstantiateTiles(medidasTablero, tamFinal);
+
+        //Escalado del tablero con los tiles una vez que se han instanciado todos estos
+        Vector2 nTam = new Vector2(tamFinal, tamFinal);
+        panelDePrueba.transform.localScale = 
+            GameManager.GetInstance().GetScaling().resizeObjectScaleKeepingAspectRatio(tile.GetComponent<SpriteRenderer>().bounds.size * GameManager.GetInstance().GetScaling().UnityUds(), 
+            nTam, tile.transform.localScale);
     }
 
     void InstantiateTiles(Vector3 medidasTablero, float tamTile)
@@ -126,7 +134,7 @@ public class BoardManager : MonoBehaviour
             {
                 GameObject nTile = Instantiate(tile, panelDePrueba.position, Quaternion.identity);
 
-                ConfigTile(nTile, tamTile);
+                //ConfigTile(nTile, tamTile);
 
                 Vector3 position = new Vector3();
 
@@ -134,7 +142,8 @@ public class BoardManager : MonoBehaviour
 
                 if(dimensiones.x % 2 == 0)
                 {
-                    position.x = ((panelDePrueba.position.x - (medidasTablero.x / 2)) + (margenLateral / GameManager.GetInstance().GetScaling().UnityUds())) + (j * ((tamTile + 10) / GameManager.GetInstance().GetScaling().UnityUds()));                   
+                    //position.x = ((panelDePrueba.position.x - (medidasTablero.x / 2)) + (margenLateral / GameManager.GetInstance().GetScaling().UnityUds())) + (j * ((tamTile + 40) / GameManager.GetInstance().GetScaling().UnityUds())); 
+                    position.x = (panelDePrueba.position.x + (dimensiones.x / 2) - 0.5f) - j;
                 }
                 else
                 {
@@ -143,6 +152,7 @@ public class BoardManager : MonoBehaviour
 
                 if (dimensiones.y % 2 == 0)
                 {
+                    //position.y = ((panelDePrueba.position.y - (medidasTablero.y / 2)) + (margenLateral / GameManager.GetInstance().GetScaling().UnityUds())) + (i * ((tamTile + 40) / GameManager.GetInstance().GetScaling().UnityUds()));
                     position.y = (panelDePrueba.position.y + (dimensiones.y / 2) - 0.5f) - i;
                 }
                 else

@@ -261,7 +261,7 @@ PrefabInstance:
     - target: {fileID: 4771842088075209650, guid: 32b848fbaa2066e4698de957d96a135a,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4771842088075209660, guid: 32b848fbaa2066e4698de957d96a135a,
         type: 3}
@@ -605,6 +605,16 @@ PrefabInstance:
         type: 3}
       propertyPath: dimensiones.y
       value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1370455100146887443, guid: ce9b32fdf52570049890a80e50fcc8bc,
+        type: 3}
+      propertyPath: margenSuperior
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 1370455100146887443, guid: ce9b32fdf52570049890a80e50fcc8bc,
+        type: 3}
+      propertyPath: margenLateral
+      value: 65
       objectReference: {fileID: 0}
     - target: {fileID: 1370455100146887452, guid: ce9b32fdf52570049890a80e50fcc8bc,
         type: 3}
