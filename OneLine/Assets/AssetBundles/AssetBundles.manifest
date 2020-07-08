@@ -1,0 +1,7 @@
+ManifestFileVersion: 0
+CRC: 876488991
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: skins
+      Dependencies: {}

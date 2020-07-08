@@ -1,0 +1,47 @@
+ManifestFileVersion: 0
+CRC: 3434308926
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 1e3779dc91f4b948ed7a8106f4603995
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: d4b11e5b5610570f39663fbe0d04d01b
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 9b6a402649f7fa442a1ed75447a42a3a, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 212
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+Assets:
+- Assets/Prefabs/Game/Tiles/TileSkin/block_02.prefab
+- Assets/Prefabs/Game/Paths/PathSkin/block_03_hint.prefab
+- Assets/Prefabs/Game/Paths/block_00_hint.prefab
+- Assets/Prefabs/Game/Tiles/TileSkin/block_01.prefab
+- Assets/Prefabs/Game/Tiles/TileSkin/block_06.prefab
+- Assets/Prefabs/Game/Tiles/TileSkin/block_03.prefab
+- Assets/Prefabs/Game/Paths/PathSkin/block_04_hint.prefab
+- Assets/Prefabs/Game/Tiles/TileSkin/block_04.prefab
+- Assets/Prefabs/Game/Paths/PathSkin/block_06_hint.prefab
+- Assets/Prefabs/Game/Paths/PathSkin/block_01_hint.prefab
+- Assets/Prefabs/Game/Tiles/TileSkin/block_05.prefab
+- Assets/Prefabs/Game/Paths/PathSkin/block_02_hint.prefab
+- Assets/Prefabs/Game/Paths/PathSkin/block_05_hint.prefab
+- Assets/Prefabs/Game/Paths/PathSkin/block_07_hint.prefab
+- Assets/Prefabs/Game/Tiles/TileSkin/block_07.prefab
+- Assets/Prefabs/Game/Tiles/Tile.prefab
+Dependencies: []

@@ -1,17 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     #region Variables
-
     // Públicas
-    public Canvas cnv;
 
+    [Header("Debugging")]
+    public bool debugGame;
+    
+    [Header("ImportantObjects")]
+    public Canvas cnv;
     public Camera cam;
 
+    [Header("FondoGame")]
     public SpriteRenderer fondo;
 
     public bool challenge = false;
@@ -24,6 +30,11 @@ public class GameManager : MonoBehaviour
 
     Scaling scalator;
 
+    Vector2 lastTouchPosition;
+
+    AssetBundle skins;
+
+    LevelManager lm;
     #endregion
 
     #region StartUpGameManager
@@ -47,6 +58,12 @@ public class GameManager : MonoBehaviour
             // Aquí iría la inicialización de los datos del jugador
             scalator = new Scaling(new Vector2 (Screen.width, Screen.height), scalingReferenceResolution, (int)cam.orthographicSize);
 
+            skins = AssetBundle.LoadFromFile(Path.Combine(Application.dataPath, "AssetBundles/skins"));
+
+            if(skins == null)
+            {
+                Debug.Log("Failed to load AssetBundle!");
+            }
 
             // Buscamos los paneles para luego realizar los cálculos
             foreach (Transform child in cnv.transform)
@@ -82,10 +99,13 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Vector3 result = scalator.ScaleToFitScreen(fondo.sprite.bounds.size, fondo.transform.localScale);
+        if (SceneManager.GetActiveScene().buildIndex == 2 || debugGame != true)
+        {
+            Vector3 result = scalator.ScaleToFitScreen(fondo.sprite.bounds.size, fondo.transform.localScale);
+            fondo.transform.localScale = result;
+        }
 
-        fondo.transform.localScale = result;
-        
+
     }
 
     // Update is called once per frame
@@ -94,6 +114,31 @@ public class GameManager : MonoBehaviour
         
     }
 
+    public void ScreenTouched(Vector2 touchPosition)
+    {
+
+    }
+
+    public void ScreenTouchedAndDrag(Vector2 touchPosition)
+    {
+
+
+        lastTouchPosition = touchPosition;
+    }
+
+    public void ScreenReleased(Vector2 touchPosition)
+    {
+
+    }
+
+    #endregion
+
+    #region Setters
+
+    public void setLevelManager(LevelManager man)
+    {
+        instance.lm = man;
+    }
 
     #endregion
 
@@ -128,7 +173,10 @@ public class GameManager : MonoBehaviour
         return panelInferior.rect.height;
     }
     
-
+    public AssetBundle getSkins()
+    {
+        return skins;
+    }
 
     #endregion
 }

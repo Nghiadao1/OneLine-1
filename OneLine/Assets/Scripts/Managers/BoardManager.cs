@@ -15,10 +15,7 @@ public class BoardManager : MonoBehaviour
 {
     // Space that the board will take
     Vector2 resolution;
-
-    // Path to get resources
-    string path = "Prefabs/Game/";
-
+    
     // Margins
     public int margenSuperior = 5;
     public int margenLateral = 45;
@@ -40,8 +37,7 @@ public class BoardManager : MonoBehaviour
     // How many tiles will be in the current level (WidthxHeight)
     public Vector2 dimensiones =  new Vector2(); // Cuantos tiles hay a lo alto y a lo ancho
 
-
-
+    
     /// <summary>
     /// Converts a pixel meassure to Unity Units.
     /// </summary>
@@ -75,10 +71,10 @@ public class BoardManager : MonoBehaviour
     #region CalculateBoard
     void InitGameObjects(int color)
     {
-        tile = Resources.Load(path + "Tiles/Tile") as GameObject;
-        playerPath = Resources.Load(path + "Paths/block_00_hint") as GameObject;
-        colorTile = Resources.Load(path + "Tiles/TileSkin/block_0" + color) as GameObject;
-        pathColor = Resources.Load(path + "Paths/PathSkin/block_0" + color + "_hint") as GameObject;
+        tile = GameManager.GetInstance().getSkins().LoadAsset<GameObject>("Tile");
+        playerPath = GameManager.GetInstance().getSkins().LoadAsset<GameObject>("block_00_hint");
+        colorTile = GameManager.GetInstance().getSkins().LoadAsset<GameObject>("block_0" + color);
+        pathColor = GameManager.GetInstance().getSkins().LoadAsset<GameObject>("block_0" + color + "_hint");
     }
 
     /// <summary>
@@ -192,21 +188,29 @@ public class BoardManager : MonoBehaviour
     {
         // Instantiate GameObjects needed
         GameObject nTile = Instantiate(tile, pos, Quaternion.identity);
-        GameObject colorTile = null;
-        GameObject playerPath = null;
+        GameObject clTile = Instantiate(colorTile, pos, Quaternion.identity);
+        GameObject pathPivot = new GameObject("PathPivot");
+        pathPivot.transform.SetPositionAndRotation(pos, Quaternion.identity);
+        GameObject plPath = Instantiate(playerPath, pos, Quaternion.identity);
         GameObject hintPivot = new GameObject("HintPivot");
         hintPivot.transform.SetPositionAndRotation(pos, Quaternion.identity);
-        GameObject hintPath = null;
+        GameObject hnPath = Instantiate(pathColor, pos, Quaternion.identity);
 
         // Attacht them to parents
         nTile.transform.SetParent(panelDePrueba);
-        colorTile.transform.SetParent(nTile.transform);
-        playerPath.transform.SetParent(nTile.transform);
+        clTile.transform.SetParent(nTile.transform);
         hintPivot.transform.SetParent(nTile.transform);
-        hintPath.transform.SetParent(nTile.transform);
+        pathPivot.transform.SetParent(nTile.transform);
+
+        // Configure paths to rotate correctly
+        plPath.transform.SetParent(pathPivot.transform);
+        plPath.transform.SetPositionAndRotation(pathPivot.transform.position + new Vector3(0.5f, 0, 0), pathPivot.transform.rotation);
+
+        hnPath.transform.SetParent(hintPivot.transform);
+        hnPath.transform.SetPositionAndRotation(hintPivot.transform.position + new Vector3(0.5f, 0, 0),hintPivot.transform.rotation);
 
         // Configure Tile infor for later use
-        nTile.transform.GetComponent<Tile>().SetTile(nTile, colorTile, playerPath, hintPath, new Vector2(posX, posY));
+        nTile.transform.GetComponent<Tile>().SetTile(nTile, clTile, pathPivot, hintPivot, new Vector2(posX, posY));
 
         board[posY, posX] = nTile;
     }
@@ -245,6 +249,4 @@ public class BoardManager : MonoBehaviour
         panelDePrueba.SetPositionAndRotation(position, panelDePrueba.rotation);
     }
     #endregion
-
-
 }

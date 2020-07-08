@@ -16,11 +16,11 @@ public class LevelManager : MonoBehaviour
 
     private void Start()
     {
+        // Establecerse en el GameManager para la comunicación
+        GameManager.GetInstance().setLevelManager(this);
+
         // Establecer el tamaño del fondo
-        Vector3 result = GameManager.GetInstance().GetScaling().ScaleToFitScreen(fondo.sprite.bounds.size, fondo.transform.localScale);
-
-        fondo.transform.localScale = result;
-
+        
         // Comprobar si la partida es un Challenge o no
 
         // Activar el canvas correspondiente
@@ -34,16 +34,12 @@ public class LevelManager : MonoBehaviour
 
     private void Update()
     {
-        // Consultar al InputManager si ha habido Input
-
-        // Comprobar si ese Input está dentro del tablero 
-
-        // Actualizar algunas cosas
-
         // Comprobar si ha finalizado el nivel 
 
         // Si sí, avisar al GM para gestionar el fin de nivel 
 
         // Si no, no hace nada
     }
+
+
 }

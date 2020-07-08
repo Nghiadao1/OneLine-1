@@ -41,3 +41,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Empty
+    uniqueID: 4272370269
+    locked: 0
+  - name: Hint
+    uniqueID: 3484824305
+    locked: 0
+  - name: ColorBlock
+    uniqueID: 2747872635
+    locked: 0
+  - name: PlayerPath
+    uniqueID: 139174439
+    locked: 0
