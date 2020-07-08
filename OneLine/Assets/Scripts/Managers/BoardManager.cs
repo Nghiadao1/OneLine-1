@@ -4,30 +4,49 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-
+/// <summary>
+/// This class is the one that will control the board of the game and 
+/// manage all the changes in the tiles. Calculates the space between 
+/// the panels to locate the game. Calculates how many tiles are needed
+/// for the current level. Sets the space for the current configuration
+/// and scales everything keeping aspect ratio. 
+/// </summary>
 public class BoardManager : MonoBehaviour
 {
-    // Original resolution of the board (CAMBIAR EL NOMBRE DE ESTA SEÑORA)
+    // Space that the board will take
     Vector2 resolution;
 
-    // Margenes que se van a dejar para hacer el espacio de juego 
-    public int margenSuperior = 5;
+    // Path to get resources
+    string path = "Prefabs/Game/";
 
+    // Margins
+    public int margenSuperior = 5;
     public int margenLateral = 45;
 
-    // Simplemente para debugear (LIMPIAR LUEGO)
+    // Object that will contain the Board
     public Transform panelDePrueba;
+    GameObject[,] board;
 
-    // Prefab de los tiles
+    // Tile's prefab
     public GameObject tile;
+    public GameObject playerPath;
+    public GameObject colorTile;
+    public GameObject pathColor;
 
-    // Esto es para luego calcular la posición del tablero
+    // Panels to calculate the space for the board
     private float panelSuperior;
-
     private float panelInferior;
 
+    // How many tiles will be in the current level (WidthxHeight)
     public Vector2 dimensiones =  new Vector2(); // Cuantos tiles hay a lo alto y a lo ancho
 
+
+
+    /// <summary>
+    /// Converts a pixel meassure to Unity Units.
+    /// </summary>
+    /// <param name="pixel">Pixels</param>
+    /// <returns>Unity Units</returns>
     float PixelToUnityPosition(float pixel)
     {
         return pixel /= GameManager.GetInstance().GetScaling().UnityUds();
@@ -36,13 +55,15 @@ public class BoardManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //Primero creamos el tablero de un tamaño concreto para que entren X tiles a lo largo y ancho
+        // Primero creamos el tablero de un tamaño concreto para que entren X tiles a lo largo y ancho
         // Le damos ese valor y luego, calculando el espacio disponible, lo ajustamos
-        
+        board = new GameObject[(int)dimensiones.y, (int)dimensiones.x];
+
+        InitGameObjects(2);
+
         CalculateSpace();
 
         CalculatePosition();
-        
     }
 
     // Update is called once per frame
@@ -52,8 +73,18 @@ public class BoardManager : MonoBehaviour
     }
 
     #region CalculateBoard
+    void InitGameObjects(int color)
+    {
+        tile = Resources.Load(path + "Tiles/Tile") as GameObject;
+        playerPath = Resources.Load(path + "Paths/block_00_hint") as GameObject;
+        colorTile = Resources.Load(path + "Tiles/TileSkin/block_0" + color) as GameObject;
+        pathColor = Resources.Load(path + "Paths/PathSkin/block_0" + color + "_hint") as GameObject;
+    }
+
     /// <summary>
-    /// Calcula el espacio disponible para el tablero de juego
+    /// Function that calculates the space available for the board and the game.  Uses the height 
+    /// of the different panels to calculate this space in relation with the height of the screen.
+    /// 
     /// </summary>
     void CalculateSpace()
     {
@@ -75,8 +106,6 @@ public class BoardManager : MonoBehaviour
         resolution /= GameManager.GetInstance().GetScaling().UnityUds();
 
         DefineTileSize();
-
-        
     }
 
     void DefineTileSize()
@@ -117,7 +146,7 @@ public class BoardManager : MonoBehaviour
 
         InstantiateTiles(medidasTablero, tamFinal);
 
-        //Escalado del tablero con los tiles una vez que se han instanciado todos estos
+        //Escalado del tablero con los tiles una vez que se han instanciado todos
         Vector2 nTam = new Vector2(tamFinal, tamFinal);
         panelDePrueba.transform.localScale = 
             GameManager.GetInstance().GetScaling().resizeObjectScaleKeepingAspectRatio(tile.GetComponent<SpriteRenderer>().bounds.size * GameManager.GetInstance().GetScaling().UnityUds(), 
@@ -132,17 +161,12 @@ public class BoardManager : MonoBehaviour
         {
             for (int j = 0; j < dimensiones.x; j++)
             {
-                GameObject nTile = Instantiate(tile, panelDePrueba.position, Quaternion.identity);
-
-                //ConfigTile(nTile, tamTile);
-
                 Vector3 position = new Vector3();
 
                 position.z = -1;
 
                 if(dimensiones.x % 2 == 0)
                 {
-                    //position.x = ((panelDePrueba.position.x - (medidasTablero.x / 2)) + (margenLateral / GameManager.GetInstance().GetScaling().UnityUds())) + (j * ((tamTile + 40) / GameManager.GetInstance().GetScaling().UnityUds())); 
                     position.x = (panelDePrueba.position.x + (dimensiones.x / 2) - 0.5f) - j;
                 }
                 else
@@ -152,26 +176,39 @@ public class BoardManager : MonoBehaviour
 
                 if (dimensiones.y % 2 == 0)
                 {
-                    //position.y = ((panelDePrueba.position.y - (medidasTablero.y / 2)) + (margenLateral / GameManager.GetInstance().GetScaling().UnityUds())) + (i * ((tamTile + 40) / GameManager.GetInstance().GetScaling().UnityUds()));
                     position.y = (panelDePrueba.position.y + (dimensiones.y / 2) - 0.5f) - i;
                 }
                 else
                 {
                     position.y = (panelDePrueba.position.y + (int)(dimensiones.y / 2)) - i;
                 }
-
-                nTile.transform.SetPositionAndRotation(position, nTile.transform.rotation);
-
-                nTile.transform.SetParent(panelDePrueba);
+                
+                ConfigTile(position, j, i);
             }
         }
     }
 
-    void ConfigTile(GameObject tile, float tamTile)
+    void ConfigTile(Vector3 pos, int posX, int posY)
     {
-        Vector2 nTam = new Vector2(tamTile, tamTile);
+        // Instantiate GameObjects needed
+        GameObject nTile = Instantiate(tile, pos, Quaternion.identity);
+        GameObject colorTile = null;
+        GameObject playerPath = null;
+        GameObject hintPivot = new GameObject("HintPivot");
+        hintPivot.transform.SetPositionAndRotation(pos, Quaternion.identity);
+        GameObject hintPath = null;
 
-        tile.transform.localScale = GameManager.GetInstance().GetScaling().resizeObjectScaleKeepingAspectRatio(tile.GetComponent<SpriteRenderer>().bounds.size * GameManager.GetInstance().GetScaling().UnityUds(), nTam, tile.transform.localScale);
+        // Attacht them to parents
+        nTile.transform.SetParent(panelDePrueba);
+        colorTile.transform.SetParent(nTile.transform);
+        playerPath.transform.SetParent(nTile.transform);
+        hintPivot.transform.SetParent(nTile.transform);
+        hintPath.transform.SetParent(nTile.transform);
+
+        // Configure Tile infor for later use
+        nTile.transform.GetComponent<Tile>().SetTile(nTile, colorTile, playerPath, hintPath, new Vector2(posX, posY));
+
+        board[posY, posX] = nTile;
     }
 
     void CalculatePosition()
