@@ -18,13 +18,9 @@ public class InputManager : MonoBehaviour
         {
             GameManager.GetInstance().ScreenTouched(Input.mousePosition);
         }
-        else if (Input.GetMouseButtonDown(0))
-        {
-            GameManager.GetInstance().ScreenTouchedAndDrag(Input.mousePosition);
-        }
         else if (Input.GetMouseButtonUp(0))
         {
-            GameManager.GetInstance().ScreenReleased(Input.mousePosition);
+            GameManager.GetInstance().ScreenReleased();
         }
     }
 }

@@ -53,3 +53,9 @@ TagManager:
   - name: PlayerPath
     uniqueID: 139174439
     locked: 0
+  - name: Canvas
+    uniqueID: 167263837
+    locked: 0
+  - name: TouchingPoint
+    uniqueID: 1563457775
+    locked: 0

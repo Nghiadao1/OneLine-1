@@ -10,35 +10,60 @@ public class Tile : MonoBehaviour
     // Sprites needed for changing and showing information
     GameObject baseSpr;
     GameObject colorSpr;
-    GameObject pathSpr;
-    GameObject hintSpr;
+    GameObject pathPivot;
+    GameObject hintPivot;
+
+    Quaternion origRotPath;
+    Quaternion origRotHint;
 
     // Position in the board
     Vector2 brdPos;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    public void SetTile(GameObject baseSprite, GameObject colorSprite, GameObject pathSprite, GameObject hintSprite, Vector2 pos)
+    public void SetTile(GameObject baseSprite, GameObject colorSprite, GameObject plPivot, GameObject hnPivot, Vector2 pos)
     {
         baseSpr = baseSprite;
         colorSpr = colorSprite;
-        pathSpr = pathSprite;
-        hintSpr = hintSprite;
+        pathPivot = plPivot;
+        hintPivot = hnPivot;
+
+        origRotPath = pathPivot.transform.rotation;
+        origRotHint = hintPivot.transform.rotation;
 
         colorSpr.SetActive(false);
-        pathSpr.SetActive(false);
-        hintSpr.SetActive(false);
+        pathPivot.SetActive(false);
+        hintPivot.SetActive(false);
 
         brdPos = pos;
+    }
+
+    public void ActivateColor()
+    {
+        colorSpr.SetActive(true);
+    }
+
+    public void RotatePlayerPath(float rotation)
+    {
+        pathPivot.transform.Rotate(new Vector3(0, 0, rotation));
+        pathPivot.SetActive(true);
+    }
+
+    public void RotateHintPath(float rotation)
+    {
+        hintPivot.SetActive(true);
+    }
+
+    public void ResetTile()
+    {
+        pathPivot.transform.rotation = origRotPath;
+        hintPivot.transform.rotation = origRotHint;
+
+        colorSpr.SetActive(false);
+        pathPivot.SetActive(false);
+        hintPivot.SetActive(false);
+    }
+
+    public Vector2 getPositionInBoard()
+    {
+        return brdPos;
     }
 }

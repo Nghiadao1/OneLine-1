@@ -24,15 +24,23 @@ public class BoardManager : MonoBehaviour
     public Transform panelDePrueba;
     GameObject[,] board;
 
+    Stack<Vector2> path;
+
     // Tile's prefab
-    public GameObject tile;
-    public GameObject playerPath;
-    public GameObject colorTile;
-    public GameObject pathColor;
+    GameObject tile;
+    GameObject playerPath;
+    GameObject colorTile;
+    GameObject pathColor;
+
+    // Tile Origen del nivel
+    GameObject origin;
 
     // Panels to calculate the space for the board
     private float panelSuperior;
     private float panelInferior;
+
+    // Variables del tablero
+    Levels _level;
 
     // How many tiles will be in the current level (WidthxHeight)
     public Vector2 dimensiones =  new Vector2(); // Cuantos tiles hay a lo alto y a lo ancho
@@ -48,12 +56,24 @@ public class BoardManager : MonoBehaviour
         return pixel /= GameManager.GetInstance().GetScaling().UnityUds();
     }
 
-    // Start is called before the first frame update
-    void Start()
+    private void Awake()
     {
+        path = new Stack<Vector2>();
+    }
+
+    // Start is called before the first frame update
+    public void Init(Levels level)
+    {
+        _level = level;
+
+        dimensiones = new Vector2(_level.layout[0].Length, _level.layout.Length);
+
         // Primero creamos el tablero de un tamaño concreto para que entren X tiles a lo largo y ancho
         // Le damos ese valor y luego, calculando el espacio disponible, lo ajustamos
         board = new GameObject[(int)dimensiones.y, (int)dimensiones.x];
+
+        margenSuperior = (int)(7.5 * dimensiones.y);
+        margenLateral = (int)(11.7 * dimensiones.x);
 
         InitGameObjects(2);
 
@@ -68,7 +88,7 @@ public class BoardManager : MonoBehaviour
         
     }
 
-    #region CalculateBoard
+    #region Calculate and create Board
     void InitGameObjects(int color)
     {
         tile = GameManager.GetInstance().getSkins().LoadAsset<GameObject>("Tile");
@@ -144,9 +164,9 @@ public class BoardManager : MonoBehaviour
 
         //Escalado del tablero con los tiles una vez que se han instanciado todos
         Vector2 nTam = new Vector2(tamFinal, tamFinal);
-        panelDePrueba.transform.localScale = 
-            GameManager.GetInstance().GetScaling().resizeObjectScaleKeepingAspectRatio(tile.GetComponent<SpriteRenderer>().bounds.size * GameManager.GetInstance().GetScaling().UnityUds(), 
+        Vector2 nScale = GameManager.GetInstance().GetScaling().resizeObjectScaleKeepingAspectRatio(tile.GetComponent<SpriteRenderer>().bounds.size * GameManager.GetInstance().GetScaling().UnityUds(),
             nTam, tile.transform.localScale);
+        panelDePrueba.transform.localScale = new Vector3(nScale.x, nScale.y, 1);
     }
 
     void InstantiateTiles(Vector3 medidasTablero, float tamTile)
@@ -157,29 +177,38 @@ public class BoardManager : MonoBehaviour
         {
             for (int j = 0; j < dimensiones.x; j++)
             {
-                Vector3 position = new Vector3();
+                if (_level.layout[i][j] != '0') {
+                    Vector3 position = new Vector3();
 
-                position.z = -1;
+                    position.z = -1;
 
-                if(dimensiones.x % 2 == 0)
-                {
-                    position.x = (panelDePrueba.position.x + (dimensiones.x / 2) - 0.5f) - j;
-                }
-                else
-                {
-                    position.x = ((panelDePrueba.position.x - (int)(dimensiones.x / 2))) + j;
-                }
+                    if (dimensiones.x % 2 == 0)
+                    {
+                        position.x = (panelDePrueba.position.x - (dimensiones.x / 2) + 0.5f) + j;
+                    }
+                    else
+                    {
+                        position.x = ((panelDePrueba.position.x - (int)(dimensiones.x / 2))) + j;
+                    }
 
-                if (dimensiones.y % 2 == 0)
-                {
-                    position.y = (panelDePrueba.position.y + (dimensiones.y / 2) - 0.5f) - i;
+                    if (dimensiones.y % 2 == 0)
+                    {
+                        position.y = (panelDePrueba.position.y + (dimensiones.y / 2) - 0.5f) - i;
+                    }
+                    else
+                    {
+                        position.y = (panelDePrueba.position.y + (int)(dimensiones.y / 2)) - i;
+                    }
+
+                    ConfigTile(position, j, i);
+
+                    if(_level.layout[i][j] == '2')
+                    {
+                        path.Push(new Vector2(j, i));
+
+                        board[i, j].GetComponent<Tile>().ActivateColor();
+                    }
                 }
-                else
-                {
-                    position.y = (panelDePrueba.position.y + (int)(dimensiones.y / 2)) - i;
-                }
-                
-                ConfigTile(position, j, i);
             }
         }
     }
@@ -209,9 +238,10 @@ public class BoardManager : MonoBehaviour
         hnPath.transform.SetParent(hintPivot.transform);
         hnPath.transform.SetPositionAndRotation(hintPivot.transform.position + new Vector3(0.5f, 0, 0),hintPivot.transform.rotation);
 
-        // Configure Tile infor for later use
+        // Configure Tile info for later use
         nTile.transform.GetComponent<Tile>().SetTile(nTile, clTile, pathPivot, hintPivot, new Vector2(posX, posY));
 
+        // Save the tile in the array
         board[posY, posX] = nTile;
     }
 
@@ -247,6 +277,100 @@ public class BoardManager : MonoBehaviour
         }
 
         panelDePrueba.SetPositionAndRotation(position, panelDePrueba.rotation);
+    }
+    #endregion
+
+    #region GamePlay
+
+    public void Touched(Vector2 position)
+    {
+        float degrees;
+        RaycastHit2D ray = Physics2D.Raycast(position, Vector2.zero);
+        if (ray)
+        {
+            if (ray.collider.gameObject.GetComponent<Tile>())
+            {
+                Tile tile = ray.collider.gameObject.GetComponent<Tile>();
+
+                if (path.Contains(tile.getPositionInBoard()))
+                {
+                    while(path.Peek() != tile.getPositionInBoard())
+                    {
+                        board[(int)path.Peek().y, (int)path.Peek().x].GetComponent<Tile>().ResetTile();
+                        path.Pop();
+                    }
+                }
+                else
+                {
+                    Debug.Log(tile.getPositionInBoard());
+                    // Si no, comprobamos si alrededor tiene tiles activados y el que está activo es el último
+                    if(CheckTile(new Vector2 (tile.getPositionInBoard().x - 1, tile.getPositionInBoard().y)))
+                    {
+                        degrees = 180.0f;
+                        TileAdded(tile, degrees);
+                    }
+                    else if (CheckTile(new Vector2(tile.getPositionInBoard().x + 1, tile.getPositionInBoard().y)))
+                    {
+                        degrees = 0.0f;
+                        TileAdded(tile, degrees);
+                    }
+                    else if (CheckTile(new Vector2(tile.getPositionInBoard().x, tile.getPositionInBoard().y - 1)))
+                    {
+                        degrees = 90.0f;
+                        TileAdded(tile, degrees);
+                    }
+                    else if (CheckTile(new Vector2(tile.getPositionInBoard().x, tile.getPositionInBoard().y + 1)))
+                    {
+                        degrees = -90.0f;
+                        TileAdded(tile, degrees);
+                    }
+                }
+            }
+        }
+    }
+
+    public void TileAdded(Tile t, float degrees)
+    {
+        path.Push(t.getPositionInBoard());
+
+        t.ActivateColor();
+        t.RotatePlayerPath(degrees);
+    }
+
+    public bool CheckTile(Vector2 position)
+    {
+        Debug.Log(position);
+        if(position.x >= dimensiones.x || position.x < 0 || position.y >= dimensiones.y || position.y < 0)
+        {
+            return false;
+        }
+        else if(board[(int)position.y, (int)position.x] != null)
+        {
+            if(path.Peek() == position)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public bool Ended()
+    {
+        if(path.ToArray().Length == _level.path.Length)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
     #endregion
 }

@@ -8,19 +8,15 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     #region Variables
-    // Públicas
-
-    [Header("Debugging")]
-    public bool debugGame;
-    
+    // Públicas    
     [Header("ImportantObjects")]
     public Canvas cnv;
     public Camera cam;
-
-    [Header("FondoGame")]
-    public SpriteRenderer fondo;
-
+    
+    [Header("Public only for debugging")]
     public bool challenge = false;
+    public int difficulty;
+    public int level;
 
     // Privadas
     Vector2 scalingReferenceResolution;
@@ -99,13 +95,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (SceneManager.GetActiveScene().buildIndex == 2 || debugGame != true)
-        {
-            Vector3 result = scalator.ScaleToFitScreen(fondo.sprite.bounds.size, fondo.transform.localScale);
-            fondo.transform.localScale = result;
-        }
-
-
+        
     }
 
     // Update is called once per frame
@@ -116,25 +106,33 @@ public class GameManager : MonoBehaviour
 
     public void ScreenTouched(Vector2 touchPosition)
     {
+        // Comprobar si el click ha sido dentro de la zona de juego
+        if(IsInPlayZone(touchPosition))
+        {
+            // Si es así, informar al level manager
+            touchPosition = scalator.ScreenToWorldPosition(touchPosition);
 
+            lm.ScreenTouched(touchPosition);
+        }
     }
 
-    public void ScreenTouchedAndDrag(Vector2 touchPosition)
+    public void ScreenReleased()
     {
-
-
-        lastTouchPosition = touchPosition;
+        lm.ScreenReleased();
     }
 
-    public void ScreenReleased(Vector2 touchPosition)
+    public bool IsInPlayZone(Vector2 position)
     {
-
+        return position.y < (scalator.CurrentResolution().y - panelSuperiorHeight() * cnv.scaleFactor) && position.y > (panelInferiorHeight() * cnv.scaleFactor);
     }
 
+    public void LevelCompleted()
+    {
+        SceneManager.LoadScene(0);
+    }
     #endregion
 
     #region Setters
-
     public void setLevelManager(LevelManager man)
     {
         instance.lm = man;
@@ -178,5 +176,27 @@ public class GameManager : MonoBehaviour
         return skins;
     }
 
+    public int getDifficulty()
+    {
+        return difficulty;
+    }
+
+    public int getLevel()
+    {
+        return level;
+    }
+
     #endregion
+
+    #region ApplicationLifeManagement
+    public void ExitGame()
+    {
+        Application.Quit();
+    }
+
+    private void OnApplicationQuit()
+    {
+        // Salvar el estado del juego
+    }
+    #endregion 
 }

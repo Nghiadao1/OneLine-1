@@ -164,6 +164,31 @@ public class Scaling
         return scalated;
     }
 
+    public Vector2 ScreenToWorldPosition(Vector2 position)
+    {
+        Vector2 temp = position;
+
+        if(temp.x > (currResolution.x / 2))
+        {
+            temp.x = (0 + (temp.x - (currResolution.x / 2))) / unityUds;
+        }
+        else
+        {
+            temp.x = (0 - ((currResolution.x / 2) - temp.x)) / unityUds;
+        }
+
+        if (temp.y > (currResolution.y / 2))
+        {
+            temp.y = (0 + (temp.y - (currResolution.y / 2))) / unityUds;
+        }
+        else
+        {
+            temp.y = (0 - ((currResolution.y / 2) - temp.y)) / unityUds;
+        }
+
+        return temp;
+    }
+
     /// <summary>
     /// Resize a number with the width of the screen and the reference resolution width
     /// </summary>
@@ -192,5 +217,10 @@ public class Scaling
     public float UnityUds()
     {
         return unityUds;
+    }
+
+    public Vector2 CurrentResolution()
+    {
+        return currResolution;
     }
 }
