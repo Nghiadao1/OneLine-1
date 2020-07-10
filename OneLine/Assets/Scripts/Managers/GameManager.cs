@@ -31,6 +31,8 @@ public class GameManager : MonoBehaviour
     AssetBundle skins;
 
     LevelManager lm;
+
+    int _lastScene;
     #endregion
 
     #region StartUpGameManager
@@ -130,6 +132,37 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene(0);
     }
+
+    public void ResetLevel()
+    {
+        lm.ReloadLevel();
+    }
+    #endregion
+
+    #region SceneManagement
+
+    public void ReturnToLastScene()
+    {
+        // Comprobar si estamos en un nivel para 
+
+        SceneManager.LoadScene(_lastScene);
+    }
+
+    public void NextLevel()
+    {
+
+    }
+
+    public void ChangeToLevelSelection(int difficulty)
+    {
+
+    }
+
+    public void InitChallenge()
+    {
+
+    }
+
     #endregion
 
     #region Setters
