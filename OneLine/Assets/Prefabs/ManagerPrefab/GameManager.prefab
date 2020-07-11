@@ -45,5 +45,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cnv: {fileID: 0}
   cam: {fileID: 0}
-  fondo: {fileID: 0}
-  scalingReferenceResolution: {x: 720, y: 1280}
+  difficulties:
+  - Beginner
+  - Regular
+  - Advanced
+  - Expert
+  - Master
+  challenge: 0
+  difficulty: 0
+  level: 0
+  hintPrice: 0

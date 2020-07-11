@@ -36,7 +36,7 @@ public class LevelReader
         }
         else
         {
-            Debug.LogError("Cannot find data");
+            Debug.LogError("Can not find data");
         }
     }
     public int GetNumLevels()

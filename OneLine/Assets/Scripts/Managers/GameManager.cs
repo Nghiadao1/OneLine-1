@@ -13,10 +13,13 @@ public class GameManager : MonoBehaviour
     [Header("ImportantObjects")]
     public Canvas cnv;
     public Camera cam;
-    
+
+    public string[] difficulties;
+
+
     [Header("Public only for debugging")]
     public bool challenge = false;
-    public int difficulty;
+    public int difficulty = 0;
     public int level;
 
     // Privadas
@@ -30,6 +33,7 @@ public class GameManager : MonoBehaviour
     Vector2 lastTouchPosition;
 
     AssetBundle skins;
+    AssetBundle config;
 
     LevelManager lm;
 
@@ -65,8 +69,9 @@ public class GameManager : MonoBehaviour
             scalator = new Scaling(new Vector2 (Screen.width, Screen.height), scalingReferenceResolution, (int)cam.orthographicSize);
 
             skins = AssetBundle.LoadFromFile(Path.Combine(Application.dataPath, "AssetBundles/skins"));
+            config = AssetBundle.LoadFromFile(Path.Combine(Application.dataPath, "AssetBundles/config"));
 
-            if(skins == null)
+            if (skins == null)
             {
                 Debug.Log("Failed to load AssetBundle!");
             }
@@ -86,11 +91,11 @@ public class GameManager : MonoBehaviour
         {
             if (child.name == "Superior")
             {
-                panelSuperior = child.GetComponent<RectTransform>();
+                GetInstance().panelSuperior = child.GetComponent<RectTransform>();
             }
             else if (child.name == "Inferior")
             {
-                panelInferior = child.GetComponent<RectTransform>();
+                GetInstance().panelInferior = child.GetComponent<RectTransform>();
             }
         }
     }
@@ -125,20 +130,24 @@ public class GameManager : MonoBehaviour
         if(IsInPlayZone(touchPosition))
         {
             // Si es así, informar al level manager
-            touchPosition = scalator.ScreenToWorldPosition(touchPosition);
+            touchPosition = GetInstance().scalator.ScreenToWorldPosition(touchPosition);
 
-            lm.ScreenTouched(touchPosition);
+            GetInstance().lm.ScreenTouched(touchPosition);
         }
     }
 
     public void ScreenReleased()
     {
-        lm.ScreenReleased();
+        if(SceneManager.GetActiveScene().buildIndex == 2)
+            GetInstance().lm.ScreenReleased();
     }
 
     public bool IsInPlayZone(Vector2 position)
     {
-        return position.y < (scalator.CurrentResolution().y - panelSuperiorHeight() * cnv.scaleFactor) && position.y > (panelInferiorHeight() * cnv.scaleFactor);
+        if (SceneManager.GetActiveScene().buildIndex == 2)
+            return position.y < (GetInstance().scalator.CurrentResolution().y - panelSuperiorHeight() * GetInstance().cnv.scaleFactor) && position.y > (panelInferiorHeight() * GetInstance().cnv.scaleFactor);
+        else
+            return false;
     }
 
     public void LevelCompleted()
@@ -148,7 +157,7 @@ public class GameManager : MonoBehaviour
 
     public void ResetLevel()
     {
-        lm.ReloadLevel();
+        GetInstance().lm.ReloadLevel();
     }
 
     public int AdRewarded()
@@ -159,13 +168,29 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
+    #region LevelSelectionManagement
+
+    // Primero hay que gestionar la creación del menú
+    public void CreateTextLevelSelectionMenu()
+    {
+        foreach  (Transform t in panelSuperior.transform)
+        {
+            if(t.name == "Difficulty")
+            {
+                t.GetComponent<Text>().text = getDifficultyText();
+            }
+        }
+    }
+
+    #endregion
+
     #region SceneManagement
 
     public void ReturnToLastScene()
     {
         // Comprobar si estamos en un nivel para 
 
-        SceneManager.LoadScene(_lastScene);
+        SceneManager.LoadScene(GetInstance()._lastScene);
     }
 
     public void ReturnToMenu()
@@ -191,6 +216,14 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    public void InitLevel(int l)
+    {
+        GetInstance()._lastScene = SceneManager.GetActiveScene().buildIndex;
+        GetInstance().level = l;
+
+        SceneManager.LoadScene(2);
+    }
+
     public void ChangeToLevelSelection(int difficulty)
     {
 
@@ -206,22 +239,24 @@ public class GameManager : MonoBehaviour
     #region Setters
     public void setLevelManager(LevelManager man)
     {
-        instance.lm = man;
+        GetInstance().lm = man;
     }
 
     public void CoinsUsed()
     {
-        coins -= hintPrice;
+        GetInstance().coins -= GetInstance().hintPrice;
     }
 
     public void SetCanvas(Canvas can)
     {
-        cnv = can;
+        GetInstance().cnv = can;
+
+        ReloadPanels();
     }
 
     public void SetCamera(Camera c)
     {
-        cam = c;
+        GetInstance().cam = c;
     }
 
     #endregion
@@ -229,12 +264,12 @@ public class GameManager : MonoBehaviour
     #region Getters
     public Scaling GetScaling()
     {
-        return scalator;
+        return GetInstance().scalator;
     }
 
     public Canvas GetCanvas()
     {
-        return cnv;
+        return GetInstance().cnv;
     }
 
     public Vector2 getResolution()
@@ -242,39 +277,49 @@ public class GameManager : MonoBehaviour
         return new Vector2(Screen.width, Screen.height);
     }
 
+    public string getDifficultyText()
+    {
+        return difficulties[difficulty];
+    }
+
     // COMENTAAAAAAR
     public Vector2 getReferenceResolution()
     {
-        return scalingReferenceResolution;
+        return GetInstance().scalingReferenceResolution;
     }
 
     public float panelSuperiorHeight(){
-        return panelSuperior.rect.height;
+        return GetInstance().panelSuperior.rect.height;
     }
 
     public float panelInferiorHeight()
     {
-        return panelInferior.rect.height;
+        return GetInstance().panelInferior.rect.height;
     }
     
     public AssetBundle getSkins()
     {
-        return skins;
+        return GetInstance().skins;
+    }
+
+    public AssetBundle getConfig()
+    {
+        return GetInstance().config;
     }
 
     public int getDifficulty()
     {
-        return difficulty;
+        return GetInstance().difficulty;
     }
 
     public int getLevel()
     {
-        return level;
+        return GetInstance().level;
     }
 
     public int getPrice()
     {
-        return hintPrice;
+        return GetInstance().hintPrice;
     }
 
     #endregion

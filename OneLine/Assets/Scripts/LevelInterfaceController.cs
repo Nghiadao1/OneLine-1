@@ -11,12 +11,19 @@ public enum InterfaceType
     ChallengeInferior
 }
 
+public enum Difficulty
+{
+    Beginner,
+    Regular,
+    Advanced,
+    Expert,
+    Master
+}
+
 // CAMBIAR INFERIOR Y SUPERIOR POR BOTTOM Y TOP
 public class LevelInterfaceController : MonoBehaviour
 {
     public InterfaceType _type;
-
-    public string[] difficulties;
 
     private int _numCoins;
 
@@ -54,7 +61,7 @@ public class LevelInterfaceController : MonoBehaviour
             t = temp.transform.GetComponent<Text>();
             if (t != null)
             {
-                t.text = difficulties[difficulty];
+                t.text = GameManager.GetInstance().getDifficultyText();
             }
         }
         else

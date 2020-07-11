@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 547044323
+CRC: 4083222833
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: d6fc17cc04a979ef5280310e130fa9b2
+    Hash: b0baf25fe92969390fe7f7b8dde5f7cf
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 5539025e8980820badf370bc35005049
+    Hash: 352ce37f3750a51ac1897cd3597b1c91
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -30,11 +30,15 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
 - Class: 114
+  Script: {fileID: 11500000, guid: d5c21c32be4d3eb4eb7c4cb7f196e2ef, type: 3}
+- Class: 114
   Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: cf1eede817d64ba429f9482a6ef86447, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: d5c21c32be4d3eb4eb7c4cb7f196e2ef, type: 3}
+  Script: {fileID: 11500000, guid: 9dcd8f85f5af52046a855ec023174336, type: 3}
 - Class: 115
   Script: {instanceID: 0}
 - Class: 128
@@ -48,6 +52,7 @@ ClassTypes:
 - Class: 224
   Script: {instanceID: 0}
 Assets:
+- Assets/Prefabs/UI/PrefabLevelSelectionButton.prefab
 - Assets/Prefabs/UI/Main Camera.prefab
 - Assets/Prefabs/UI/CanvasGame.prefab
 Dependencies: []

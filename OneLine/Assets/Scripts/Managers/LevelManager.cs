@@ -225,6 +225,9 @@ public class LevelManager : MonoBehaviour
         if (!challenge)
         {
             cpc.LevelComplete();
+
+            cpc.SetDifficultyText(GameManager.GetInstance().getDifficultyText());
+            cpc.SetLevelNumber(level);
         }
         else
         {
