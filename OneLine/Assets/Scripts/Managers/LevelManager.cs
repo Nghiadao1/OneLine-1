@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
+    public Canvas cnv;
+    public Camera cam;
 
     public BoardManager bm;
 
@@ -16,7 +18,7 @@ public class LevelManager : MonoBehaviour
     // Se consultan en GM
     int level = 0;
     int difficulty = 0;
-    int coins = 0;
+    int coins = 2000;
 
     /// <summary>
     /// Flag que controla si el nivel que va a jugar es un challenge o no
@@ -25,11 +27,38 @@ public class LevelManager : MonoBehaviour
 
     LevelReader lr;
 
+    public ClearPanelController cpc;
+
     private void Start()
     {
         // Establecerse en el GameManager para la comunicación
         GameManager.GetInstance().setLevelManager(this);
+        GameManager.GetInstance().SetCanvas(cnv);
+        GameManager.GetInstance().SetCamera(cam);
+        GameManager.GetInstance().ReloadPanels();
 
+        ConfigCanvas();
+
+        // Establecer el tamaño del fondo
+        Vector3 result = GameManager.GetInstance().GetScaling().ScaleToFitScreen(fondo.sprite.bounds.size, fondo.transform.localScale);
+        fondo.transform.localScale = result;
+
+        // Comprobar si la partida es un Challenge o no
+        LoadLevels(difficulty);
+
+        // Activar el canvas correspondiente
+        SetCanvas();
+
+        // Consultar el nivel que hay que poner al GM
+
+        // Cargar ese nivel 
+        bm.Init(lr.GetLevel(level));
+
+        // Inicializar el BM con ese nivel 
+    }
+
+    public void ConfigCanvas()
+    {
         level = GameManager.GetInstance().getLevel();
         difficulty = GameManager.GetInstance().getDifficulty();
         challenge = GameManager.GetInstance().challenge;
@@ -52,54 +81,116 @@ public class LevelManager : MonoBehaviour
         {
             Debug.LogError("Game Interfaces not assigned correctly! Here: " + this.gameObject);
         }
-
-        // Establecer el tamaño del fondo
-        Vector3 result = GameManager.GetInstance().GetScaling().ScaleToFitScreen(fondo.sprite.bounds.size, fondo.transform.localScale);
-        fondo.transform.localScale = result;
-
-        // Comprobar si la partida es un Challenge o no
-        LoadLevels(difficulty);
-
-        // Activar el canvas correspondiente
-        SetCanvas();
-
-
-        // Consultar el nivel que hay que poner al GM
-
-        // Cargar ese nivel 
-        bm.Init(lr.GetLevel(level));
-
-        // Inicializar el BM con ese nivel 
     }
 
-    public void SetCanvas()
+    public LevelInterfaceController GetInterfacePart(InterfaceType t)
     {
-        if (!challenge)
+        if (challenge)
         {
-            for (int i = 0; i < levelInterface.Length; i++)
+            for (int i = 0; i < challengeInterface.Length; i++)
             {
-                levelInterface[i].SetActive(true);
-                if (levelInterface[i].GetComponent<LevelInterfaceController>().getType() == InterfaceType.NormalSuperior)
+                if (challengeInterface[i].GetComponent<LevelInterfaceController>().getType() == t)
                 {
-                    levelInterface[i].GetComponent<LevelInterfaceController>().SetLevelSuperior(difficulty, level, coins);
+                    return challengeInterface[i].GetComponent<LevelInterfaceController>();
                 }
             }
         }
         else
         {
-            for (int i = 0; i < challengeInterface.Length; i++)
+            for (int i = 0; i < levelInterface.Length; i++)
             {
-                challengeInterface[i].SetActive(true);
-                if (challengeInterface[i].GetComponent<LevelInterfaceController>().getType() == InterfaceType.ChallengeSuperior)
+                if (levelInterface[i].GetComponent<LevelInterfaceController>().getType() == t)
                 {
-                    challengeInterface[i].GetComponent<LevelInterfaceController>().SetChallengeSuperior();
-                }
-                else if(challengeInterface[i].GetComponent<LevelInterfaceController>().getType() == InterfaceType.ChallengeInferior)
-                {
-                    challengeInterface[i].GetComponent<LevelInterfaceController>().SetChallengeInferior();
+                    return levelInterface[i].GetComponent<LevelInterfaceController>();
                 }
             }
         }
+        return null;
+    }
+
+    public void SetCanvas()
+    {
+        LevelInterfaceController lic;
+
+        if (!challenge)
+        {
+            if ((lic = GetInterfacePart(InterfaceType.NormalSuperior))  != null)
+            {
+                lic.SetLevelSuperior(difficulty, level, coins);
+            }
+            else
+            {
+                Debug.LogError("Interface parts missing: " + InterfaceType.NormalSuperior);
+            }
+            if((lic = GetInterfacePart(InterfaceType.NormalInferior)) != null)
+            {
+                lic.SetLevelInferior(GameManager.GetInstance().getPrice());
+            }
+            else
+            {
+                Debug.LogError("Interface parts missing: " + InterfaceType.NormalInferior);
+            }
+        }
+        else
+        {
+            if ((lic = GetInterfacePart(InterfaceType.ChallengeSuperior)) != null)
+            {
+                lic.SetChallengeSuperior();
+            }
+            else
+            {
+                Debug.LogError("Interface parts missing: " + InterfaceType.ChallengeSuperior);
+            }
+
+            if ((lic = GetInterfacePart(InterfaceType.ChallengeInferior)) != null)
+            {
+                lic.SetChallengeInferior();
+            }
+            else
+            {
+                Debug.LogError("Interface parts missing: " + InterfaceType.ChallengeInferior);
+            }
+        }
+    }
+
+    public void HintRequested()
+    {
+        LevelInterfaceController lic;
+
+        if(coins >= GameManager.GetInstance().getPrice())
+        {
+            coins -= GameManager.GetInstance().getPrice();
+
+            GameManager.GetInstance().CoinsUsed();
+
+            if ((lic = GetInterfacePart(InterfaceType.NormalSuperior)) != null)
+            {
+                lic.ChangeCoins(coins);
+            }
+            else
+            {
+                Debug.LogError("Interface parts missing: " + InterfaceType.NormalSuperior);
+            }
+
+            bm.HintGiven();
+        }
+    }
+
+    public void AdRequested()
+    {
+        LevelInterfaceController lic;
+
+        coins += GameManager.GetInstance().AdRewarded();
+
+        if ((lic = GetInterfacePart(InterfaceType.NormalSuperior)) != null)
+        {
+            lic.ChangeCoins(coins);
+        }
+        else
+        {
+            Debug.LogError("Interface parts missing: " + InterfaceType.NormalSuperior);
+        }
+
     }
 
     public void LoadLevels(int difficulty)
@@ -109,7 +200,7 @@ public class LevelManager : MonoBehaviour
 
     public void ReloadLevel()
     {
-
+        bm.ResetLevel();
     }
 
     public void ScreenReleased()
@@ -130,6 +221,14 @@ public class LevelManager : MonoBehaviour
 
     public void EndGame()
     {
-        GameManager.GetInstance().LevelCompleted();
+        // Activar un panel para decidir si vamos al siguiente nivel o no
+        if (!challenge)
+        {
+            cpc.LevelComplete();
+        }
+        else
+        {
+            cpc.ChallengeComplete();
+        }
     }
 }

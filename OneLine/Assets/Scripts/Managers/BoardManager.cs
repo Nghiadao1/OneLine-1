@@ -43,7 +43,10 @@ public class BoardManager : MonoBehaviour
     Levels _level;
 
     // How many tiles will be in the current level (WidthxHeight)
-    public Vector2 dimensiones =  new Vector2(); // Cuantos tiles hay a lo alto y a lo ancho
+    Vector2 dimensiones; // Cuantos tiles hay a lo alto y a lo ancho
+
+    // Hint management
+    int lastHint = 1;
 
     
     /// <summary>
@@ -82,12 +85,6 @@ public class BoardManager : MonoBehaviour
         CalculatePosition();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     #region Calculate and create Board
     void InitGameObjects(int color)
     {
@@ -116,9 +113,7 @@ public class BoardManager : MonoBehaviour
 
         // Creamos el espacio disponible en pantalla (en píxeles) para el juego
         resolution = new Vector2(dipsX, dispY);
-
-        Debug.Log("Disponemos de este espacio: " + resolution);
-
+       
         resolution /= GameManager.GetInstance().GetScaling().UnityUds();
 
         DefineTileSize();
@@ -171,8 +166,6 @@ public class BoardManager : MonoBehaviour
 
     void InstantiateTiles(Vector3 medidasTablero, float tamTile)
     {
-        Debug.Log(medidasTablero);
-
         for(int i = 0; i < dimensiones.y; i++)
         {
             for (int j = 0; j < dimensiones.x; j++)
@@ -207,6 +200,8 @@ public class BoardManager : MonoBehaviour
                         path.Push(new Vector2(j, i));
 
                         board[i, j].GetComponent<Tile>().ActivateColor();
+
+                        origin = board[i, j];
                     }
                 }
             }
@@ -281,7 +276,6 @@ public class BoardManager : MonoBehaviour
     #endregion
 
     #region GamePlay
-
     public void Touched(Vector2 position)
     {
         float degrees;
@@ -302,7 +296,6 @@ public class BoardManager : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log(tile.getPositionInBoard());
                     // Si no, comprobamos si alrededor tiene tiles activados y el que está activo es el último
                     if(CheckTile(new Vector2 (tile.getPositionInBoard().x - 1, tile.getPositionInBoard().y)))
                     {
@@ -339,7 +332,6 @@ public class BoardManager : MonoBehaviour
 
     public bool CheckTile(Vector2 position)
     {
-        Debug.Log(position);
         if(position.x >= dimensiones.x || position.x < 0 || position.y >= dimensiones.y || position.y < 0)
         {
             return false;
@@ -358,6 +350,45 @@ public class BoardManager : MonoBehaviour
         else
         {
             return false;
+        }
+    }
+
+    public void HintGiven()
+    {
+        float degrees = 0.0f;
+        int i;
+
+        for (i = lastHint; i < (lastHint + 4) && i < _level.path.Length; i++)
+        {
+            if ((int)_level.path[i].x == (int)_level.path[i - 1].x - 1)
+            {
+                degrees = -90.0f;
+            }
+            else if ((int)_level.path[i].x == (int)_level.path[i - 1].x + 1)
+            {
+                degrees = 90.0f;
+            }
+            else if ((int)_level.path[i].y == (int)_level.path[i - 1].y - 1)
+            {
+                degrees = 0.0f;
+            }
+            else if ((int)_level.path[i].y == (int)_level.path[i - 1].y + 1)
+            {
+                degrees = 180.0f;
+            }
+
+            board[(int)_level.path[i].x, (int)_level.path[i].y].GetComponent<Tile>().RotateHintPath(degrees);
+        }
+
+        lastHint = i;
+    }
+
+    public void ResetLevel()
+    {
+        while (path.Peek() != origin.GetComponent<Tile>().getPositionInBoard())
+        {
+            board[(int)path.Peek().y, (int)path.Peek().x].GetComponent<Tile>().ResetTile();
+            path.Pop();
         }
     }
 

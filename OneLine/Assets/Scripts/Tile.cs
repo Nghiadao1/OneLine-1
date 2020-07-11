@@ -49,17 +49,16 @@ public class Tile : MonoBehaviour
 
     public void RotateHintPath(float rotation)
     {
+        hintPivot.transform.Rotate(new Vector3(0, 0, rotation));
         hintPivot.SetActive(true);
     }
 
     public void ResetTile()
     {
         pathPivot.transform.rotation = origRotPath;
-        hintPivot.transform.rotation = origRotHint;
 
         colorSpr.SetActive(false);
         pathPivot.SetActive(false);
-        hintPivot.SetActive(false);
     }
 
     public Vector2 getPositionInBoard()

@@ -3,13 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-[System.Serializable]
-public class TilePosition
-{
-    public int y;
-    public int x;
-}
-
 /// <summary>
 /// Struct that stores the information of 1 level. This can be used to load
 /// different levels from the JSON file "levels" and save them in an array
@@ -20,7 +13,7 @@ public class Levels
 {
     public int index; // Level number or index
     public string[] layout; // Map of the level 
-    public TilePosition[] path; // Solution
+    public Vector2[] path; // Solution
 }
 
 [System.Serializable]

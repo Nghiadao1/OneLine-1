@@ -11,6 +11,7 @@ public enum InterfaceType
     ChallengeInferior
 }
 
+// CAMBIAR INFERIOR Y SUPERIOR POR BOTTOM Y TOP
 public class LevelInterfaceController : MonoBehaviour
 {
     public InterfaceType _type;
@@ -43,48 +44,111 @@ public class LevelInterfaceController : MonoBehaviour
 
     public void SetLevelSuperior(int difficulty, int level, int numCoins)
     {
-        for (int i = 0; i < this.transform.childCount; i++)
-        {
-            Text t = null;
-            if (this.transform.GetChild(i).name == "Difficulty")
-            { 
-                t = this.transform.GetChild(i).GetComponent<Text>();
-                if (t != null)
-                {
-                    t.text = difficulties[difficulty];
-                }
-            }
-            else if(this.transform.GetChild(i).name == "Level")
-            {
-                t = this.transform.GetChild(i).GetComponent<Text>();
-                if (t != null)
-                {
-                    t.text = level.ToString();
-                }
-            }
-            else if(this.transform.GetChild(i).name == "Coins")
-            {
-                t = this.transform.GetChild(i).transform.GetChild(0).GetComponent<Text>();
-                if (t != null)
-                {
-                    _numCoins = numCoins;
-                    t.text = numCoins.ToString();
-                }
-            }
+        this.gameObject.SetActive(true);
 
+        Text t = null;
+        GameObject temp;
+
+        if ((temp = SearchChild("Difficulty")) != null)
+        {
+            t = temp.transform.GetComponent<Text>();
             if (t != null)
             {
-                t.fontStyle = FontStyle.Bold;
-                t.fontSize = 40;
+                t.text = difficulties[difficulty];
             }
+        }
+        else
+        {
+            ErrorObjectNotFound("Difficulty");
+        }
+
+        if ((temp = SearchChild("Level")) != null)
+        {
+            t = temp.transform.GetComponent<Text>();
+            if (t != null)
+            {
+                t.text = level.ToString();
+            }
+        }
+        else
+        {
+            ErrorObjectNotFound("Level");
+        }
+
+        if ((temp = SearchChild("Coins")) != null)
+        {
+            t = temp.transform.GetChild(0).GetComponent<Text>();
+            if (t != null)
+            {
+                _numCoins = numCoins;
+                t.text = numCoins.ToString();
+            }
+        }
+        else
+        {
+            ErrorObjectNotFound("Coins");
+        }
+
+        if (t != null)
+        {
+            t.fontStyle = FontStyle.Bold;
+            t.fontSize = 40;
+        }
+    }
+
+    public void SetLevelInferior(int coinsPrice)
+    {
+        this.gameObject.SetActive(true);
+
+        GameObject h;
+
+        if ((h = SearchChild("Hint")) != null)
+        {
+            Text t = h.transform.GetChild(0).GetComponent<Text>();
+            t.text = coinsPrice.ToString();
+            t.fontStyle = FontStyle.Bold;
+            t.fontSize = 30;
+        }
+        else
+        {
+            ErrorObjectNotFound("Hint");
         }
     }
 
     public void ChangeCoins(int coins)
     {
         _numCoins = coins;
+        GameObject c;
+        if ((c = SearchChild("Coins")) != null)
+        {
+            Text t = c.transform.GetChild(0).GetComponent<Text>();
 
-        // Actualizar el texto de coins
+            if (t != null)
+            {
+                t.text = _numCoins.ToString();
+            }
+        }
+        else
+        {
+            ErrorObjectNotFound("Coins");
+        }
+    }
+
+    public GameObject SearchChild(string name)
+    {
+        GameObject child = null;
+
+        for (int i = 0; i < this.transform.childCount; i++)
+        {
+            child = this.transform.GetChild(i).gameObject;
+
+            if (child.name == name)
+            {
+                return child;
+            }
+        }
+
+        return null;
     }
     #endregion
 
@@ -92,9 +156,12 @@ public class LevelInterfaceController : MonoBehaviour
     // COMENTAR
     public void SetChallengeSuperior()
     {
-        for (int i = 0; i < this.transform.childCount; i++)
+        this.gameObject.SetActive(true);
+
+        GameObject temp;
+        if (temp = SearchChild("Challenge"))
         {
-            Text t = this.transform.GetChild(i).GetComponent<Text>();
+            Text t = temp.GetComponent<Text>();
             if (t != null)
             {
                 t.text = "Challenge";
@@ -102,13 +169,33 @@ public class LevelInterfaceController : MonoBehaviour
                 t.fontSize = 50;
             }
         }
+        else
+        {
+            ErrorObjectNotFound("Challenge");
+        }
     }
 
     public void SetChallengeInferior()
     {
-        challengeCounter = this.transform.GetChild(0).GetComponent<Text>();
+        this.gameObject.SetActive(true);
+
+        GameObject temp;
+
+        if((temp = SearchChild("Counter")) != null)
+        {
+            challengeCounter = temp.GetComponent<Text>();
+        }
+        else
+        {
+            ErrorObjectNotFound("Counter");
+        }
     }
     #endregion
+
+    void ErrorObjectNotFound(string objectName)
+    {
+        Debug.LogError("Missing interface object: " + objectName + ". In interface component: " + _type);
+    }
 
     public InterfaceType getType()
     {

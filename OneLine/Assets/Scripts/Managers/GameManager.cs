@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
+// Ordenar este coso
 public class GameManager : MonoBehaviour
 {
     #region Variables
@@ -33,6 +34,13 @@ public class GameManager : MonoBehaviour
     LevelManager lm;
 
     int _lastScene;
+
+    public int hintPrice;
+
+    int maxDifficulty = 4;
+
+    // Referentes al jogador
+    int coins;
     #endregion
 
     #region StartUpGameManager
@@ -64,21 +72,26 @@ public class GameManager : MonoBehaviour
             }
 
             // Buscamos los paneles para luego realizar los cálculos
-            foreach (Transform child in cnv.transform)
-            {
-                if (child.name == "Superior")
-                {
-                    panelSuperior = child.GetComponent<RectTransform>();
-                }
-                else if (child.name == "Inferior")
-                {
-                    panelInferior = child.GetComponent<RectTransform>();
-                }
-            }
+            ReloadPanels();
         }
         else if (instance != this)
         {
             Destroy(gameObject);
+        }
+    }
+
+    public void ReloadPanels()
+    {
+        foreach (Transform child in cnv.transform)
+        {
+            if (child.name == "Superior")
+            {
+                panelSuperior = child.GetComponent<RectTransform>();
+            }
+            else if (child.name == "Inferior")
+            {
+                panelInferior = child.GetComponent<RectTransform>();
+            }
         }
     }
 
@@ -137,6 +150,13 @@ public class GameManager : MonoBehaviour
     {
         lm.ReloadLevel();
     }
+
+    public int AdRewarded()
+    {
+        // Llamar al AdManager para que haga cosas
+
+        return 100;
+    }
     #endregion
 
     #region SceneManagement
@@ -148,9 +168,27 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(_lastScene);
     }
 
+    public void ReturnToMenu()
+    {
+        SceneManager.LoadScene(0);
+    }
+
     public void NextLevel()
     {
+        GetInstance().level += 1;
 
+        if(GetInstance().level > 100)
+        {
+            GetInstance().level = 1;
+
+            GetInstance().difficulty += 1;
+            if(GetInstance().difficulty > GetInstance().maxDifficulty)
+            {
+                GetInstance().difficulty = 0;
+            }
+        }
+
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     public void ChangeToLevelSelection(int difficulty)
@@ -169,6 +207,21 @@ public class GameManager : MonoBehaviour
     public void setLevelManager(LevelManager man)
     {
         instance.lm = man;
+    }
+
+    public void CoinsUsed()
+    {
+        coins -= hintPrice;
+    }
+
+    public void SetCanvas(Canvas can)
+    {
+        cnv = can;
+    }
+
+    public void SetCamera(Camera c)
+    {
+        cam = c;
     }
 
     #endregion
@@ -217,6 +270,11 @@ public class GameManager : MonoBehaviour
     public int getLevel()
     {
         return level;
+    }
+
+    public int getPrice()
+    {
+        return hintPrice;
     }
 
     #endregion

@@ -1,7 +1,10 @@
 ManifestFileVersion: 0
-CRC: 3732587082
+CRC: 1452251190
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
       Name: skins
+      Dependencies: {}
+    Info_1:
+      Name: config
       Dependencies: {}

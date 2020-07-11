@@ -12,7 +12,7 @@ public class InputManager : MonoBehaviour
 
     public void CheckInput()
     {
-        // Faltaría hacerlo para que funcione en Android
+
 
         if (Input.GetMouseButton(0))
         {
