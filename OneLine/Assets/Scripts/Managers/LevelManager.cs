@@ -195,7 +195,7 @@ public class LevelManager : MonoBehaviour
 
     public void LoadLevels(int difficulty)
     {
-        lr = new LevelReader(Application.dataPath + "/Levels/" + difficulty + ".json");
+        lr = new LevelReader(Application.dataPath + "/Levels/Difficulties/" + difficulty + ".json");
     }
 
     public void ReloadLevel()

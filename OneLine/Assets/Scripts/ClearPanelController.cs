@@ -14,7 +14,23 @@ public class ClearPanelController : MonoBehaviour
     private void Start()
     {
         challengeComplete.SetActive(false);
+
+        SetButtons(challengeComplete);
+
         levelComplete.SetActive(false);
+
+        SetButtons(levelComplete);
+    }
+
+    void SetButtons(GameObject set)
+    {
+        for (int i = 0; i < set.transform.childCount; i++)
+        {
+            if (set.transform.GetChild(i).name == "OK" || set.transform.GetChild(i).name == "Home")
+            {
+                set.transform.GetChild(i).GetComponent<Button>().onClick.AddListener(GameManager.GetInstance().ReturnToMenu);
+            }
+        }
     }
 
     public void ChallengeComplete()

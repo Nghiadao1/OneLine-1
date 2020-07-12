@@ -313,7 +313,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1279002143}
+      - m_Target: {fileID: 7036815280557020028, guid: 757bb80882482564e87587d326e652d0,
+          type: 3}
         m_MethodName: ReturnToLastScene
         m_Mode: 1
         m_Arguments:
@@ -878,18 +879,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 757bb80882482564e87587d326e652d0, type: 3}
---- !u!114 &1279002143 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7036815280557020028, guid: 757bb80882482564e87587d326e652d0,
-    type: 3}
-  m_PrefabInstance: {fileID: 1279002142}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7fa390f09b1367b43878b647293899b7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1508907315
 GameObject:
   m_ObjectHideFlags: 0

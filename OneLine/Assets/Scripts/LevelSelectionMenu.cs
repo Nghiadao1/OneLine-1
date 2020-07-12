@@ -33,6 +33,8 @@ public class LevelSelectionMenu : MonoBehaviour
         // Obtener los datos necesarios para la instancia de botones
         diff = GameManager.GetInstance().getDifficulty();
 
+        completedLevels = GameManager.GetInstance().getCompletedLevelsInDifficulty(diff);
+
         lr = new LevelReader(Application.dataPath + "/Levels/" + diff + ".json");
 
         levelTilePrefab = GameManager.GetInstance().getConfig().LoadAsset<GameObject>("PrefabLevelSelectionButton");

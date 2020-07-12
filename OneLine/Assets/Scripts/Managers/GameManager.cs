@@ -1,11 +1,46 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-// Ordenar este coso
+using System.IO;
+
+// Referentes al jugador
+[System.Serializable]
+public struct PlayerData
+{
+    public int _coinsPlayer;
+    public int[] _completedLevelsInDifficulty;
+    public int _challengesCompleted;
+    public int _timeForNextChallenge;
+    public int _dateForNextChallenge;
+    public int _lastClosed;
+
+    public bool _paid;
+
+    public PlayerData(int coins, int[] completed, int challengesComp, int timeNextChallenge, int dateForChallenge, int dateClosed, bool paid)
+    {
+        _coinsPlayer = coins;
+        _completedLevelsInDifficulty = completed;
+        _challengesCompleted = challengesComp;
+        _timeForNextChallenge = timeNextChallenge;
+        _dateForNextChallenge = dateForChallenge;
+        _lastClosed = dateClosed;
+        _paid = paid;
+    }
+}
+
+/// <summary>
+/// GameManager class. Manages all changes between scenes, the levels that will be
+/// played and the challenges. 
+/// 
+/// Has all the information about the player: how many coins they have, levels completed
+/// per difficulty and medals gained in challenges. 
+/// 
+/// Serializes this information and stores it in a file. 
+/// 
+/// Has the instance of the different AssetBundles. All the scripts will access this instance
+/// to retrieve this information. 
+/// </summary>
 public class GameManager : MonoBehaviour
 {
     #region Variables
@@ -15,10 +50,14 @@ public class GameManager : MonoBehaviour
     public Camera cam;
 
     public string[] difficulties;
+    public int[] _levelsInDifficulty;
 
 
     [Header("Public only for debugging")]
     public bool challenge = false;
+    public int _challengeTime = 30;
+    public int _challengeReward = 50;
+    public int _challengePrice = 25;
     public int difficulty = 0;
     public int level;
 
@@ -37,14 +76,35 @@ public class GameManager : MonoBehaviour
 
     LevelManager lm;
 
+    Random rnd;
+
     int _lastScene;
 
     public int hintPrice;
 
     int maxDifficulty = 4;
 
-    // Referentes al jogador
-    int coins;
+    bool _challengeCompleted;
+
+
+    PlayerData currentPlayerData;
+    #endregion
+
+    #region Utilities
+
+    int ConvertDateToSecond()
+    {
+        int totalHours = 0;
+
+        totalHours += System.DateTime.Now.Second;
+        totalHours += System.DateTime.Now.Minute * 60;
+        totalHours += System.DateTime.Now.Hour * 60 * 60;
+        totalHours += System.DateTime.Now.Day * 24 * 60 * 60;
+        totalHours += System.DateTime.Now.Month * 30 * 24 * 60 * 60;
+
+        return 0;
+    }
+
     #endregion
 
     #region StartUpGameManager
@@ -78,10 +138,34 @@ public class GameManager : MonoBehaviour
 
             // Buscamos los paneles para luego realizar los cálculos
             ReloadPanels();
+
+            rnd = new Random();
+
+            SetGameInfo();
+
+            // GetPlayer information
+            ReadPlayerData();
         }
         else if (instance != this)
         {
             Destroy(gameObject);
+        }
+    }
+
+    public void SetGameInfo()
+    {
+        DirectoryInfo dir = new DirectoryInfo(Application.dataPath + "/Levels/Difficulties/");
+        FileInfo[] info = dir.GetFiles("*.*");
+
+        maxDifficulty = info.Length;
+
+        _levelsInDifficulty = new int[maxDifficulty];
+
+        for (int i = 0; i < _levelsInDifficulty.Length; i++)
+        {
+            LevelReader temp = new LevelReader(Application.dataPath + "/Levels/Difficulties/" + i + ".json");
+
+            _levelsInDifficulty[i] = temp.GetNumLevels();
         }
     }
 
@@ -111,18 +195,7 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region GameManagement
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    
 
     public void ScreenTouched(Vector2 touchPosition)
     {
@@ -152,7 +225,15 @@ public class GameManager : MonoBehaviour
 
     public void LevelCompleted()
     {
-        SceneManager.LoadScene(0);
+        GetInstance().currentPlayerData._completedLevelsInDifficulty[GetInstance().difficulty] += 1;
+    }
+
+    public void ChallengeCompleted()
+    {
+        GetInstance().currentPlayerData._challengesCompleted += 1;
+        GetInstance().challenge = false;
+
+        ReturnToMenu();
     }
 
     public void ResetLevel()
@@ -195,6 +276,11 @@ public class GameManager : MonoBehaviour
 
     public void ReturnToMenu()
     {
+        if(ConvertDateToSecond() > currentPlayerData._dateForNextChallenge)
+        {
+            currentPlayerData._timeForNextChallenge = 0;
+        }
+
         SceneManager.LoadScene(0);
     }
 
@@ -224,16 +310,35 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(2);
     }
 
-    public void ChangeToLevelSelection(int difficulty)
+    public void ChangeToLevelSelection(int diff)
     {
+        GetInstance().difficulty = diff;
 
+        SceneManager.LoadScene(1);
+    }
+
+    public void AfterAdChallenge()
+    {
+        // Llamar al AdManager para que meta anunsios
+
+        InitChallenge();
+    }
+
+    public void PaidChallenge()
+    {
+        GetInstance().currentPlayerData._coinsPlayer -= GetInstance()._challengePrice;
+
+        InitChallenge();
     }
 
     public void InitChallenge()
     {
+        GetInstance().challenge = true;
+        GetInstance().difficulty = Random.Range(0, maxDifficulty + 1);
+        GetInstance().level = Random.Range(1, _levelsInDifficulty[GetInstance().difficulty] + 1);
 
+        SceneManager.LoadScene(2);
     }
-
     #endregion
 
     #region Setters
@@ -244,7 +349,7 @@ public class GameManager : MonoBehaviour
 
     public void CoinsUsed()
     {
-        GetInstance().coins -= GetInstance().hintPrice;
+        GetInstance().currentPlayerData._coinsPlayer -= GetInstance().hintPrice;
     }
 
     public void SetCanvas(Canvas can)
@@ -259,6 +364,11 @@ public class GameManager : MonoBehaviour
         GetInstance().cam = c;
     }
 
+    public void SetChallengeTimeRemaining(int timing)
+    {
+        GetInstance().currentPlayerData._timeForNextChallenge = timing;
+        GetInstance().currentPlayerData._dateForNextChallenge = GetInstance().ConvertDateToSecond() + timing;
+    }
     #endregion
 
     #region Getters
@@ -312,6 +422,19 @@ public class GameManager : MonoBehaviour
         return GetInstance().difficulty;
     }
 
+    public int getLevelsInDifficulty(int diff)
+    {
+        if (difficulty < _levelsInDifficulty.Length)
+        {
+            return GetInstance()._levelsInDifficulty[diff];
+        }
+        else
+        {
+            Debug.LogError("Difficulty level not defined");
+            return 0;
+        }
+    }
+
     public int getLevel()
     {
         return GetInstance().level;
@@ -320,6 +443,60 @@ public class GameManager : MonoBehaviour
     public int getPrice()
     {
         return GetInstance().hintPrice;
+    }
+
+    // Challenge
+    public bool getChallenge()
+    {
+        return GetInstance().challenge;
+    }
+
+    public int getChallengeTime()
+    {
+        return GetInstance()._challengeTime;
+    }
+
+    public int getChallengeReward()
+    {
+        return GetInstance()._challengeReward;
+    }
+
+    public int getChallengePrice()
+    {
+        return GetInstance()._challengePrice;
+    }
+
+    public float getTimeRemaining()
+    {
+        return _timeForNextChallenge;
+    }
+
+    public bool getChallengeCompleted()
+    {
+        return _challengeCompleted;
+    }
+    // Player stats getters
+    public int getPlayerCoins()
+    {
+        return GetInstance()._playerCoins;
+    }
+
+    public int getCompletedLevelsInDifficulty(int difficulty)
+    {
+        if (difficulty < _levelsCompletedInDifficulty.Length)
+        {
+            return GetInstance()._levelsCompletedInDifficulty[difficulty];
+        }
+        else
+        {
+            Debug.LogError("Difficulty level not defined");
+            return 0;
+        }
+    }
+
+    public int getChallengesCompleted()
+    {
+        return GetInstance()._challengesCompleted;
     }
 
     #endregion
@@ -332,7 +509,7 @@ public class GameManager : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        // Salvar el estado del juego
+        
     }
     #endregion 
 }
