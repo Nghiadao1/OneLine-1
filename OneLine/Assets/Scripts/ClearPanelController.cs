@@ -7,6 +7,7 @@ public class ClearPanelController : MonoBehaviour
 {
     public GameObject challengeComplete;
     public GameObject levelComplete;
+    public GameObject challengeFailed;
 
     public Text difficultyText;
     public Text levelText;
@@ -17,9 +18,15 @@ public class ClearPanelController : MonoBehaviour
 
         SetButtons(challengeComplete);
 
+        challengeFailed.SetActive(false);
+
+        SetButtons(challengeFailed);
+
         levelComplete.SetActive(false);
 
         SetButtons(levelComplete);
+
+
     }
 
     void SetButtons(GameObject set)
@@ -36,6 +43,11 @@ public class ClearPanelController : MonoBehaviour
     public void ChallengeComplete()
     {
         challengeComplete.SetActive(true);
+    }
+
+    public void ChallengeFailed()
+    {
+        challengeFailed.SetActive(true);
     }
 
     public void LevelComplete()

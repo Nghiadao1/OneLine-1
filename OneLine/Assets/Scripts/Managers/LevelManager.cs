@@ -15,6 +15,9 @@ public class LevelManager : MonoBehaviour
     public GameObject[] levelInterface = new GameObject[2];
     public GameObject[] challengeInterface = new GameObject[2];
 
+    // Touch feedback
+    GameObject _touchFB;
+
     // Se consultan en GM
     int level = 0;
     int difficulty = 0;
@@ -50,9 +53,20 @@ public class LevelManager : MonoBehaviour
         SetCanvas();
 
         // Consultar el nivel que hay que poner al GM
+        int color = 0;
+        for (int i = 0; i < 300; i++)
+        {
+            color = Random.Range(1, 8);
+
+            Debug.Log(color);
+        }
+
+        _touchFB = Instantiate(GameManager.GetInstance().getSkins().LoadAsset<GameObject>("block_0" + color + "_touch"));
+
+        _touchFB.SetActive(false);
 
         // Cargar ese nivel 
-        bm.Init(lr.GetLevel(level));
+        bm.Init(lr.GetLevel(level), color);
 
         // Inicializar el BM con ese nivel 
     }
@@ -61,7 +75,7 @@ public class LevelManager : MonoBehaviour
     {
         level = GameManager.GetInstance().getLevel();
         difficulty = GameManager.GetInstance().getDifficulty();
-        challenge = GameManager.GetInstance().challenge;
+        challenge = GameManager.GetInstance().getChallenge();
 
         // Comprobamos que las interfaces están desactivadas para luego activarlas según pida el GM
         if (levelInterface != null && challengeInterface != null)
@@ -205,16 +219,23 @@ public class LevelManager : MonoBehaviour
 
     public void ScreenReleased()
     {
+        _touchFB.SetActive(false);
+
         if (bm.Ended())
         {
             EndGame();
         }
-
-        // HAcemos desaparecer al coso del touch
     }
 
     public void ScreenTouched(Vector2 position)
     {
+        if (!_touchFB.active)
+        {
+            _touchFB.SetActive(true);
+        }
+
+        _touchFB.transform.SetPositionAndRotation(position, Quaternion.identity);
+
         // Avisar al BoardManager de que se ha tocado la pantalla en una posición concreta
         bm.Touched(position);
     }
@@ -228,10 +249,21 @@ public class LevelManager : MonoBehaviour
 
             cpc.SetDifficultyText(GameManager.GetInstance().getDifficultyText());
             cpc.SetLevelNumber(level);
+
+            GameManager.GetInstance().LevelCompleted();
         }
         else
         {
-            cpc.ChallengeComplete();
+            if (bm.Ended())
+            {
+                cpc.ChallengeComplete();
+                GetInterfacePart(InterfaceType.ChallengeInferior).ChallengeCompleted();
+                GameManager.GetInstance().ChallengeCompleted();
+            }
+            else
+            {
+                cpc.ChallengeFailed();
+            }
         }
     }
 }

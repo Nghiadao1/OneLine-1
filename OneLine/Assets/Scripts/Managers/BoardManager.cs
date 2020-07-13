@@ -65,7 +65,7 @@ public class BoardManager : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    public void Init(Levels level)
+    public void Init(Levels level, int c)
     {
         _level = level;
 
@@ -78,7 +78,7 @@ public class BoardManager : MonoBehaviour
         margenSuperior = (int)(7.5 * dimensiones.y);
         margenLateral = (int)(11.7 * dimensiones.x);
 
-        InitGameObjects(2);
+        InitGameObjects(c);
 
         CalculateSpace();
 

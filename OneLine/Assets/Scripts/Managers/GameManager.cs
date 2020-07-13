@@ -4,31 +4,6 @@ using UnityEngine.SceneManagement;
 
 using System.IO;
 
-// Referentes al jugador
-[System.Serializable]
-public struct PlayerData
-{
-    public int _coinsPlayer;
-    public int[] _completedLevelsInDifficulty;
-    public int _challengesCompleted;
-    public int _timeForNextChallenge;
-    public int _dateForNextChallenge;
-    public int _lastClosed;
-
-    public bool _paid;
-
-    public PlayerData(int coins, int[] completed, int challengesComp, int timeNextChallenge, int dateForChallenge, int dateClosed, bool paid)
-    {
-        _coinsPlayer = coins;
-        _completedLevelsInDifficulty = completed;
-        _challengesCompleted = challengesComp;
-        _timeForNextChallenge = timeNextChallenge;
-        _dateForNextChallenge = dateForChallenge;
-        _lastClosed = dateClosed;
-        _paid = paid;
-    }
-}
-
 /// <summary>
 /// GameManager class. Manages all changes between scenes, the levels that will be
 /// played and the challenges. 
@@ -49,19 +24,18 @@ public class GameManager : MonoBehaviour
     public Canvas cnv;
     public Camera cam;
 
+    [Header("Game Configuration")]
     public string[] difficulties;
     public int[] _levelsInDifficulty;
-
-
-    [Header("Public only for debugging")]
-    public bool challenge = false;
+    public int hintPrice;
     public int _challengeTime = 30;
     public int _challengeReward = 50;
     public int _challengePrice = 25;
-    public int difficulty = 0;
-    public int level;
 
     // Privadas
+    public bool challenge = false;
+    public int difficulty = 0;
+    public int level = 0;
     Vector2 scalingReferenceResolution;
 
     RectTransform panelSuperior;
@@ -80,9 +54,7 @@ public class GameManager : MonoBehaviour
 
     int _lastScene;
 
-    public int hintPrice;
-
-    int maxDifficulty = 4;
+    int _maxDifficulty = 4;
 
     bool _challengeCompleted;
 
@@ -142,9 +114,9 @@ public class GameManager : MonoBehaviour
             rnd = new Random();
 
             SetGameInfo();
-
+            
             // GetPlayer information
-            ReadPlayerData();
+            currentPlayerData = LoadingFiles.ReadPlayerData(_maxDifficulty);
         }
         else if (instance != this)
         {
@@ -157,15 +129,29 @@ public class GameManager : MonoBehaviour
         DirectoryInfo dir = new DirectoryInfo(Application.dataPath + "/Levels/Difficulties/");
         FileInfo[] info = dir.GetFiles("*.*");
 
-        maxDifficulty = info.Length;
+        GetInstance()._maxDifficulty = info.Length / 2;
 
-        _levelsInDifficulty = new int[maxDifficulty];
+        _levelsInDifficulty = new int[GetInstance()._maxDifficulty];
 
         for (int i = 0; i < _levelsInDifficulty.Length; i++)
         {
             LevelReader temp = new LevelReader(Application.dataPath + "/Levels/Difficulties/" + i + ".json");
 
             _levelsInDifficulty[i] = temp.GetNumLevels();
+        }
+
+        if (SceneManager.GetActiveScene().buildIndex == 2)
+        {
+            difficulty = Random.Range(0, _maxDifficulty);
+
+            LevelReader temp = new LevelReader(Application.dataPath + "/Levels/Difficulties/" + difficulty + ".json");
+
+            level = Random.Range(1, temp.GetNumLevels() + 1);
+        }
+
+        if(SceneManager.GetActiveScene().buildIndex == 1)
+        {
+            difficulty = Random.Range(0, _maxDifficulty);
         }
     }
 
@@ -199,13 +185,16 @@ public class GameManager : MonoBehaviour
 
     public void ScreenTouched(Vector2 touchPosition)
     {
-        // Comprobar si el click ha sido dentro de la zona de juego
-        if(IsInPlayZone(touchPosition))
+        if (SceneManager.GetActiveScene().buildIndex == 2)
         {
-            // Si es así, informar al level manager
-            touchPosition = GetInstance().scalator.ScreenToWorldPosition(touchPosition);
+            // Comprobar si el click ha sido dentro de la zona de juego
+            if (IsInPlayZone(touchPosition))
+            {
+                // Si es así, informar al level manager
+                touchPosition = GetInstance().scalator.ScreenToWorldPosition(touchPosition);
 
-            GetInstance().lm.ScreenTouched(touchPosition);
+                GetInstance().lm.ScreenTouched(touchPosition);
+            }
         }
     }
 
@@ -232,8 +221,11 @@ public class GameManager : MonoBehaviour
     {
         GetInstance().currentPlayerData._challengesCompleted += 1;
         GetInstance().challenge = false;
+    }
 
-        ReturnToMenu();
+    public void TimeIsUp()
+    {
+        GetInstance().lm.EndGame();
     }
 
     public void ResetLevel()
@@ -293,7 +285,7 @@ public class GameManager : MonoBehaviour
             GetInstance().level = 1;
 
             GetInstance().difficulty += 1;
-            if(GetInstance().difficulty > GetInstance().maxDifficulty)
+            if(GetInstance().difficulty > GetInstance()._maxDifficulty)
             {
                 GetInstance().difficulty = 0;
             }
@@ -313,6 +305,8 @@ public class GameManager : MonoBehaviour
     public void ChangeToLevelSelection(int diff)
     {
         GetInstance().difficulty = diff;
+
+        GetInstance()._lastScene = SceneManager.GetActiveScene().buildIndex;
 
         SceneManager.LoadScene(1);
     }
@@ -334,8 +328,8 @@ public class GameManager : MonoBehaviour
     public void InitChallenge()
     {
         GetInstance().challenge = true;
-        GetInstance().difficulty = Random.Range(0, maxDifficulty + 1);
-        GetInstance().level = Random.Range(1, _levelsInDifficulty[GetInstance().difficulty] + 1);
+        GetInstance().difficulty = Random.Range(0, GetInstance()._maxDifficulty + 1);
+        GetInstance().level = Random.Range(1, GetInstance()._levelsInDifficulty[GetInstance().difficulty] + 1);
 
         SceneManager.LoadScene(2);
     }
@@ -468,7 +462,7 @@ public class GameManager : MonoBehaviour
 
     public float getTimeRemaining()
     {
-        return _timeForNextChallenge;
+        return GetInstance().currentPlayerData._timeForNextChallenge;
     }
 
     public bool getChallengeCompleted()
@@ -478,14 +472,14 @@ public class GameManager : MonoBehaviour
     // Player stats getters
     public int getPlayerCoins()
     {
-        return GetInstance()._playerCoins;
+        return GetInstance().currentPlayerData._coinsPlayer;
     }
 
     public int getCompletedLevelsInDifficulty(int difficulty)
     {
-        if (difficulty < _levelsCompletedInDifficulty.Length)
+        if (difficulty < GetInstance().currentPlayerData._completedLevelsInDifficulty.Length)
         {
-            return GetInstance()._levelsCompletedInDifficulty[difficulty];
+            return GetInstance().currentPlayerData._completedLevelsInDifficulty[difficulty];
         }
         else
         {
@@ -496,9 +490,8 @@ public class GameManager : MonoBehaviour
 
     public int getChallengesCompleted()
     {
-        return GetInstance()._challengesCompleted;
+        return GetInstance().currentPlayerData._challengesCompleted;
     }
-
     #endregion
 
     #region ApplicationLifeManagement
@@ -509,7 +502,7 @@ public class GameManager : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        
+        LoadingFiles.SavePlayerData(currentPlayerData);
     }
     #endregion 
 }

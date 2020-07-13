@@ -31,19 +31,27 @@ public class LevelInterfaceController : MonoBehaviour
 
     private float challengeTimer = 30.0f;
 
+    private bool _playing = false;
+
     // Update is called once per frame
     void Update()
     {
-        if(_type == InterfaceType.ChallengeInferior)
+        if(_playing && _type == InterfaceType.ChallengeInferior)
         {
             challengeTimer -= Time.deltaTime;
+            
+            if(challengeTimer <= 0)
+            {
+                _playing = false;
+                GameManager.GetInstance().TimeIsUp();
+            }
+            else
+            {
+                string minutes = Mathf.Floor(challengeTimer / 60).ToString("00");
+                string seconds = Mathf.RoundToInt(challengeTimer % 60).ToString("00");
 
-            string minutes = Mathf.Floor(challengeTimer / 60).ToString("00");
-            string seconds = Mathf.RoundToInt(challengeTimer % 60).ToString("00");
-
-            challengeCounter.text = minutes + ":" + seconds;
-
-            // Comprobar si es 0 y esas mierdas 
+                challengeCounter.text = minutes + ":" + seconds;
+            }
         }
     }
 
@@ -196,6 +204,13 @@ public class LevelInterfaceController : MonoBehaviour
         {
             ErrorObjectNotFound("Counter");
         }
+
+        _playing = true;
+    }
+
+    public void ChallengeCompleted()
+    {
+        _playing = false;
     }
     #endregion
 
