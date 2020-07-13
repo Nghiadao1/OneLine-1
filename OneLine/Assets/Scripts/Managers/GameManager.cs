@@ -262,7 +262,10 @@ public class GameManager : MonoBehaviour
     public void ReturnToLastScene()
     {
         // Comprobar si estamos en un nivel para 
-
+        if (GetInstance().challenge)
+        {
+            GetInstance().challenge = false;
+        }
         SceneManager.LoadScene(GetInstance()._lastScene);
     }
 
@@ -327,6 +330,7 @@ public class GameManager : MonoBehaviour
 
     public void InitChallenge()
     {
+        GetInstance()._lastScene = SceneManager.GetActiveScene().buildIndex;
         GetInstance().challenge = true;
         GetInstance().difficulty = Random.Range(0, GetInstance()._maxDifficulty + 1);
         GetInstance().level = Random.Range(1, GetInstance()._levelsInDifficulty[GetInstance().difficulty] + 1);

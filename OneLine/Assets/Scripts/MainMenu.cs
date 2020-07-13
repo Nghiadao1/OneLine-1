@@ -123,4 +123,9 @@ public class MainMenu : MonoBehaviour
         _challenge.interactable = false;
     }
 
+    public void CloseChallengePanel()
+    {
+        _challengePanel.SetActive(false);
+    }
+
 }

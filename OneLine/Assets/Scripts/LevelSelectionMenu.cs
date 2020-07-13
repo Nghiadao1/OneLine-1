@@ -35,7 +35,7 @@ public class LevelSelectionMenu : MonoBehaviour
 
         completedLevels = GameManager.GetInstance().getCompletedLevelsInDifficulty(diff);
 
-        lr = new LevelReader(Application.dataPath + "/Levels/" + diff + ".json");
+        lr = new LevelReader(Application.dataPath + "/Levels/Difficulties/" + diff + ".json");
 
         levelTilePrefab = GameManager.GetInstance().getConfig().LoadAsset<GameObject>("PrefabLevelSelectionButton");
 
@@ -60,6 +60,7 @@ public class LevelSelectionMenu : MonoBehaviour
         InstantiateRaws(rawsNumber);
 
         raws.transform.parent = null;
+
         raws.gameObject.SetActive(false);
     }
 
