@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+
 using UnityEngine;
 
 public class LevelManager : MonoBehaviour
@@ -53,15 +55,9 @@ public class LevelManager : MonoBehaviour
         SetCanvas();
 
         // Consultar el nivel que hay que poner al GM
-        int color = 0;
-        for (int i = 0; i < 300; i++)
-        {
-            color = Random.Range(1, 8);
-
-            Debug.Log(color);
-        }
-
-        _touchFB = Instantiate(GameManager.GetInstance().getSkins().LoadAsset<GameObject>("block_0" + color + "_touch"));
+        int color = Random.Range(1, 8);
+        
+        _touchFB = Instantiate(Resources.Load<GameObject>("Prefabs/Game/Touch/block_0" + color + "_touch"));
 
         _touchFB.SetActive(false);
 
@@ -209,7 +205,7 @@ public class LevelManager : MonoBehaviour
 
     public void LoadLevels(int difficulty)
     {
-        lr = new LevelReader(Application.dataPath + "/Levels/Difficulties/" + difficulty + ".json");
+        lr = new LevelReader(Path.Combine(Application.streamingAssetsPath + "/Levels/Difficulties/" + difficulty + ".json"));
     }
 
     public void ReloadLevel()

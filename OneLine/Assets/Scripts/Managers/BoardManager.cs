@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+
 using UnityEngine;
-using UnityEngine.UI;
 
 
 /// <summary>
@@ -88,10 +89,10 @@ public class BoardManager : MonoBehaviour
     #region Calculate and create Board
     void InitGameObjects(int color)
     {
-        tile = GameManager.GetInstance().getSkins().LoadAsset<GameObject>("Tile");
-        playerPath = GameManager.GetInstance().getSkins().LoadAsset<GameObject>("block_00_hint");
-        colorTile = GameManager.GetInstance().getSkins().LoadAsset<GameObject>("block_0" + color);
-        pathColor = GameManager.GetInstance().getSkins().LoadAsset<GameObject>("block_0" + color + "_hint");
+        tile = Resources.Load<GameObject>("Prefabs/Game/Tiles/Tile");
+        playerPath = Resources.Load<GameObject>("Prefabs/Game/Paths/block_00_hint");
+        colorTile = Resources.Load<GameObject>("Prefabs/Game/Tiles/TileSkin/block_0" + color);
+        pathColor = Resources.Load<GameObject>("Prefabs/Game/Paths/PathSkin/block_0" + color + "_hint");
     }
 
     /// <summary>

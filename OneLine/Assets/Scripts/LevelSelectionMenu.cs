@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
-
 /// <summary>
 /// Crea e instancia los botones, no mucho más 
 /// </summary>
@@ -35,9 +36,9 @@ public class LevelSelectionMenu : MonoBehaviour
 
         completedLevels = GameManager.GetInstance().getCompletedLevelsInDifficulty(diff);
 
-        lr = new LevelReader(Application.dataPath + "/Levels/Difficulties/" + diff + ".json");
+        lr = new LevelReader(Path.Combine(Application.streamingAssetsPath + "/Levels/Difficulties/" + diff + ".json"));
 
-        levelTilePrefab = GameManager.GetInstance().getConfig().LoadAsset<GameObject>("PrefabLevelSelectionButton");
+        levelTilePrefab = Resources.Load<GameObject>("Prefabs/UI/PrefabLevelSelectionButton");
 
         int rawsNumber = lr.GetNumLevels() / numButtons;
 

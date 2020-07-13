@@ -45,9 +45,6 @@ public class GameManager : MonoBehaviour
 
     Vector2 lastTouchPosition;
 
-    AssetBundle skins;
-    AssetBundle config;
-
     LevelManager lm;
 
     Random rnd;
@@ -99,15 +96,7 @@ public class GameManager : MonoBehaviour
 
             // Aquí iría la inicialización de los datos del jugador
             scalator = new Scaling(new Vector2 (Screen.width, Screen.height), scalingReferenceResolution, (int)cam.orthographicSize);
-
-            skins = AssetBundle.LoadFromFile(Path.Combine(Application.dataPath, "AssetBundles/skins"));
-            config = AssetBundle.LoadFromFile(Path.Combine(Application.dataPath, "AssetBundles/config"));
-
-            if (skins == null)
-            {
-                Debug.Log("Failed to load AssetBundle!");
-            }
-
+            
             // Buscamos los paneles para luego realizar los cálculos
             ReloadPanels();
 
@@ -126,7 +115,7 @@ public class GameManager : MonoBehaviour
 
     public void SetGameInfo()
     {
-        DirectoryInfo dir = new DirectoryInfo(Application.dataPath + "/Levels/Difficulties/");
+        DirectoryInfo dir = new DirectoryInfo(Path.Combine(Application.streamingAssetsPath + "/Levels/Difficulties/"));
         FileInfo[] info = dir.GetFiles("*.*");
 
         GetInstance()._maxDifficulty = info.Length / 2;
@@ -135,7 +124,7 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < _levelsInDifficulty.Length; i++)
         {
-            LevelReader temp = new LevelReader(Application.dataPath + "/Levels/Difficulties/" + i + ".json");
+            LevelReader temp = new LevelReader(Path.Combine(Application.streamingAssetsPath + "/Levels/Difficulties/" + i + ".json"));
 
             _levelsInDifficulty[i] = temp.GetNumLevels();
         }
@@ -144,7 +133,7 @@ public class GameManager : MonoBehaviour
         {
             difficulty = Random.Range(0, _maxDifficulty);
 
-            LevelReader temp = new LevelReader(Application.dataPath + "/Levels/Difficulties/" + difficulty + ".json");
+            LevelReader temp = new LevelReader(Path.Combine(Application.streamingAssetsPath + "/Levels/Difficulties/" + difficulty + ".json"));
 
             level = Random.Range(1, temp.GetNumLevels() + 1);
         }
@@ -178,9 +167,9 @@ public class GameManager : MonoBehaviour
     {
         return instance;
     }
-    #endregion
+#endregion
 
-    #region GameManagement
+#region GameManagement
     
 
     public void ScreenTouched(Vector2 touchPosition)
@@ -239,9 +228,9 @@ public class GameManager : MonoBehaviour
 
         return 100;
     }
-    #endregion
+#endregion
 
-    #region LevelSelectionManagement
+#region LevelSelectionManagement
 
     // Primero hay que gestionar la creación del menú
     public void CreateTextLevelSelectionMenu()
@@ -255,9 +244,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    #endregion
+#endregion
 
-    #region SceneManagement
+#region SceneManagement
 
     public void ReturnToLastScene()
     {
@@ -332,14 +321,14 @@ public class GameManager : MonoBehaviour
     {
         GetInstance()._lastScene = SceneManager.GetActiveScene().buildIndex;
         GetInstance().challenge = true;
-        GetInstance().difficulty = Random.Range(0, GetInstance()._maxDifficulty + 1);
-        GetInstance().level = Random.Range(1, GetInstance()._levelsInDifficulty[GetInstance().difficulty] + 1);
+        GetInstance().difficulty = Random.Range(0, GetInstance()._maxDifficulty);
+        GetInstance().level = Random.Range(1, GetInstance()._levelsInDifficulty[GetInstance().difficulty]);
 
         SceneManager.LoadScene(2);
     }
-    #endregion
+#endregion
 
-    #region Setters
+#region Setters
     public void setLevelManager(LevelManager man)
     {
         GetInstance().lm = man;
@@ -367,9 +356,9 @@ public class GameManager : MonoBehaviour
         GetInstance().currentPlayerData._timeForNextChallenge = timing;
         GetInstance().currentPlayerData._dateForNextChallenge = GetInstance().ConvertDateToSecond() + timing;
     }
-    #endregion
+#endregion
 
-    #region Getters
+#region Getters
     public Scaling GetScaling()
     {
         return GetInstance().scalator;
@@ -403,16 +392,6 @@ public class GameManager : MonoBehaviour
     public float panelInferiorHeight()
     {
         return GetInstance().panelInferior.rect.height;
-    }
-    
-    public AssetBundle getSkins()
-    {
-        return GetInstance().skins;
-    }
-
-    public AssetBundle getConfig()
-    {
-        return GetInstance().config;
     }
 
     public int getDifficulty()
@@ -496,9 +475,9 @@ public class GameManager : MonoBehaviour
     {
         return GetInstance().currentPlayerData._challengesCompleted;
     }
-    #endregion
+#endregion
 
-    #region ApplicationLifeManagement
+#region ApplicationLifeManagement
     public void ExitGame()
     {
         Application.Quit();
@@ -508,5 +487,5 @@ public class GameManager : MonoBehaviour
     {
         LoadingFiles.SavePlayerData(currentPlayerData);
     }
-    #endregion 
+#endregion
 }
