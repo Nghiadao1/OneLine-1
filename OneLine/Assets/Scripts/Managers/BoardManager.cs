@@ -89,10 +89,10 @@ public class BoardManager : MonoBehaviour
     #region Calculate and create Board
     void InitGameObjects(int color)
     {
-        tile = Resources.Load<GameObject>("Prefabs/Game/Tiles/Tile");
-        playerPath = Resources.Load<GameObject>("Prefabs/Game/Paths/block_00_hint");
-        colorTile = Resources.Load<GameObject>("Prefabs/Game/Tiles/TileSkin/block_0" + color);
-        pathColor = Resources.Load<GameObject>("Prefabs/Game/Paths/PathSkin/block_0" + color + "_hint");
+        tile = GameManager.GetInstance().getPrefabFromTileAssetBundle("Tile");
+        playerPath = GameManager.GetInstance().getPrefabFromPathAssetBundle("block_00_hint");
+        colorTile = GameManager.GetInstance().getPrefabFromTileAssetBundle("block_0" + color);
+        pathColor = GameManager.GetInstance().getPrefabFromPathAssetBundle("block_0" + color + "_hint");
     }
 
     /// <summary>

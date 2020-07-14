@@ -3,6 +3,18 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 using UnityEngine;
 
+/// <summary>
+/// Toda esta parte es una fumada de narices eh, pero no pasa nada
+/// </summary>
+[System.Serializable]
+public class GameInfo
+{
+    public int _numDifficulties;
+    public int _numPathSkins;
+    public int _numTouchSkins;
+    public int _numTileSkins;
+}
+
 // Referentes al jugador
 [System.Serializable]
 public struct PlayerData
@@ -44,18 +56,50 @@ public struct PlayerData
     }
 }
 
-
 public static class LoadingFiles
 {
     static private int fileNum = 0573;
+    
+    public static GameInfo ReadGameInfo()
+    {
+        GameInfo info = new GameInfo();
+        string path = Application.streamingAssetsPath + "/game_data.json";
+        string gameData = null;
+
+#if !UNITY_EDITOR && UNITY_ANDROID
+        WWW loadingAssets = new WWW(path);
+        while (!loadingAssets.isDone) { }
+
+        gameData = loadingAssets.text;
+#else
+        if (File.Exists(path))
+        {
+            gameData = File.ReadAllText(path);
+        }
+        else
+        {
+            Debug.LogError("game_data.json Not Found, File not Created");
+        }
+#endif
+        if (gameData != null)
+        {
+            info = JsonUtility.FromJson<GameInfo>(gameData);
+        }
+        else
+        {
+            Debug.LogError("File not read correctly");
+        }
+
+        return info;
+    }
 
     public static PlayerData ReadPlayerData(int maxDifficulty)
     {
-        if (File.Exists(Application.persistentDataPath + "/surrender.dat"))
+        if (File.Exists(Application.persistentDataPath + "/misc/surrender.dat"))
         {
             BinaryFormatter bf = new BinaryFormatter();
 
-            FileStream file = File.Open(Application.persistentDataPath + "/surrender.dat", FileMode.Open);
+            FileStream file = File.Open(Application.persistentDataPath + "/misc/surrender.dat", FileMode.Open);
 
             PlayerData data = (PlayerData)bf.Deserialize(file);
 
@@ -99,7 +143,7 @@ public static class LoadingFiles
     {
         BinaryFormatter bf = new BinaryFormatter();
 
-        FileStream file = File.Create(Application.persistentDataPath + "surrender.dat");
+        FileStream file = File.Create(Application.persistentDataPath + "/misc/surrender.dat");
 
         pd._levelsPlayed = fileNum + pd._coinsPlayer;
 

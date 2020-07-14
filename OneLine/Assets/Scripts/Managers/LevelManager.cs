@@ -57,7 +57,7 @@ public class LevelManager : MonoBehaviour
         // Consultar el nivel que hay que poner al GM
         int color = Random.Range(1, 8);
         
-        _touchFB = Instantiate(Resources.Load<GameObject>("Prefabs/Game/Touch/block_0" + color + "_touch"));
+        _touchFB = Instantiate(GameManager.GetInstance().getPrefabFromTouchAssetBundle("block_0" + color + "_touch"));
 
         _touchFB.SetActive(false);
 
@@ -205,7 +205,7 @@ public class LevelManager : MonoBehaviour
 
     public void LoadLevels(int difficulty)
     {
-        lr = new LevelReader(Path.Combine(Application.streamingAssetsPath + "/Levels/Difficulties/" + difficulty + ".json"));
+        lr = new LevelReader(difficulty);
     }
 
     public void ReloadLevel()

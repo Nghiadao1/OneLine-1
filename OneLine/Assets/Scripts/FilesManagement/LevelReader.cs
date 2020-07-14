@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using UnityEngine;
 
 /// <summary>
@@ -26,19 +24,30 @@ public class LevelReader
 {
     LevelList list;
 
-    public LevelReader(string filePath)
+    public LevelReader(int diff)
     {
+        string filePath = Application.streamingAssetsPath + "/Levels/Difficulties/" + diff + ".json";
+        string data = null;
+
+#if !UNITY_EDITOR && UNITY_ANDROID
+        WWW readLevel = new WWW(filePath);
+        while (!readLevel.isDone) {  }
+
+        data = readLevel.text;
+#else
         if (File.Exists(filePath))
         {
-            string data = File.ReadAllText(filePath);
-
-            list = JsonUtility.FromJson<LevelList>(data);
+            data = File.ReadAllText(filePath);
         }
         else
         {
             Debug.LogError("Can not find data");
         }
+#endif
+
+        list = JsonUtility.FromJson<LevelList>(data);
     }
+
     public int GetNumLevels()
     {
         return list.Levels.Length;

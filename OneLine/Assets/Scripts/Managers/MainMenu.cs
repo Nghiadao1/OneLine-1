@@ -47,6 +47,7 @@ public class MainMenu : MonoBehaviour
         InitTexts();
 
         _challengePanel.SetActive(false);
+        _challengeBlocked.SetActive(false);
 
         if (_challengeWaiting || GameManager.GetInstance().getTimeRemaining() > 0.0f)
         {

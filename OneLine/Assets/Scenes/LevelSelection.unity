@@ -967,6 +967,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cnv: {fileID: 1950778852}
+  levelTilePrefab: {fileID: 8347619320465183136, guid: d07a38e5291d0ef4a8a04576b3d718cc,
+    type: 3}
   buttonZone: {fileID: 116474838}
   column: {fileID: 1009368601}
   raws: {fileID: 1977875257}

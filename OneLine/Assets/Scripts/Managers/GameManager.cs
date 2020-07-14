@@ -55,8 +55,9 @@ public class GameManager : MonoBehaviour
 
     bool _challengeCompleted;
 
-
+    LoadAssetBundle lab;
     PlayerData currentPlayerData;
+    GameInfo _gi;
     #endregion
 
     #region Utilities
@@ -100,7 +101,17 @@ public class GameManager : MonoBehaviour
             // Buscamos los paneles para luego realizar los cálculos
             ReloadPanels();
 
+            lab = new LoadAssetBundle();
+
+#if !UNITY_EDITOR && UNITY_ANDROID
+            lab.LoadBundlesAndroid(Application.streamingAssetsPath + "/AssetBundles/");
+#else
+            lab.LoadBundlesWindows(Application.streamingAssetsPath + "/AssetBundles/");
+#endif
+
             rnd = new Random();
+
+            _gi = LoadingFiles.ReadGameInfo();
 
             SetGameInfo();
             
@@ -115,32 +126,28 @@ public class GameManager : MonoBehaviour
 
     public void SetGameInfo()
     {
-        DirectoryInfo dir = new DirectoryInfo(Path.Combine(Application.streamingAssetsPath + "/Levels/Difficulties/"));
-        FileInfo[] info = dir.GetFiles("*.*");
+        int difficulties = GetInstance()._gi._numDifficulties;
 
-        GetInstance()._maxDifficulty = info.Length / 2;
+        GetInstance()._maxDifficulty = difficulties;
 
         _levelsInDifficulty = new int[GetInstance()._maxDifficulty];
 
         for (int i = 0; i < _levelsInDifficulty.Length; i++)
         {
-            LevelReader temp = new LevelReader(Path.Combine(Application.streamingAssetsPath + "/Levels/Difficulties/" + i + ".json"));
-
+            LevelReader temp = new LevelReader(i);
             _levelsInDifficulty[i] = temp.GetNumLevels();
         }
 
         if (SceneManager.GetActiveScene().buildIndex == 2)
         {
-            difficulty = Random.Range(0, _maxDifficulty);
-
-            LevelReader temp = new LevelReader(Path.Combine(Application.streamingAssetsPath + "/Levels/Difficulties/" + difficulty + ".json"));
-
-            level = Random.Range(1, temp.GetNumLevels() + 1);
+            GetInstance().difficulty = Random.Range(0, _maxDifficulty);
+            LevelReader temp = new LevelReader(GetInstance().difficulty);
+            GetInstance().level = Random.Range(1, temp.GetNumLevels() + 1);
         }
 
         if(SceneManager.GetActiveScene().buildIndex == 1)
         {
-            difficulty = Random.Range(0, _maxDifficulty);
+            GetInstance().difficulty = Random.Range(0, _maxDifficulty);
         }
     }
 
@@ -422,6 +429,38 @@ public class GameManager : MonoBehaviour
         return GetInstance().hintPrice;
     }
 
+    // Info and prefab getters
+
+    public int getNumPathSkins()
+    {
+        return GetInstance()._gi._numPathSkins;
+    }
+
+    public int getNumTouchSkins()
+    {
+        return GetInstance()._gi._numTouchSkins;
+    }
+
+    public int getNumTileSkins()
+    {
+        return GetInstance()._gi._numTileSkins;
+    }
+
+    public GameObject getPrefabFromTileAssetBundle(string name)
+    {
+        return GetInstance().lab.getTileSkins().LoadAsset<GameObject>(name);
+    }
+
+    public GameObject getPrefabFromPathAssetBundle(string name)
+    {
+        return GetInstance().lab.getPathSkins().LoadAsset<GameObject>(name);
+    }
+
+    public GameObject getPrefabFromTouchAssetBundle(string name)
+    {
+        return GetInstance().lab.getTouchSkins().LoadAsset<GameObject>(name);
+    }
+
     // Challenge
     public bool getChallenge()
     {
@@ -450,7 +489,7 @@ public class GameManager : MonoBehaviour
 
     public bool getChallengeCompleted()
     {
-        return _challengeCompleted;
+        return GetInstance()._challengeCompleted;
     }
     // Player stats getters
     public int getPlayerCoins()

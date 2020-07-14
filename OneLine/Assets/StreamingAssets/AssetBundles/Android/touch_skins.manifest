@@ -1,0 +1,34 @@
+ManifestFileVersion: 0
+CRC: 974975808
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 5871e48c0fdfece87cfd1c6a665ef45e
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 126876f166a721f71efe197e8580157b
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 212
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+Assets:
+- Assets/Prefabs/Game/Touch/block_02_touch.prefab
+- Assets/Prefabs/Game/Touch/block_04_touch.prefab
+- Assets/Prefabs/Game/Touch/block_06_touch.prefab
+- Assets/Prefabs/Game/Touch/block_03_touch.prefab
+- Assets/Prefabs/Game/Touch/block_07_touch.prefab
+- Assets/Prefabs/Game/Touch/block_01_touch.prefab
+- Assets/Prefabs/Game/Touch/block_05_touch.prefab
+Dependencies: []
