@@ -56,6 +56,8 @@ public class MainMenu : MonoBehaviour
                 _timeChallengeWait = GameManager.GetInstance().getTimeRemaining();
                 _challengeWaiting = true;
             }
+
+            GameManager.GetInstance().SetChallengeTimeRemaining((int)_timeChallengeWait);
             _challengeBlocked.SetActive(true);
             _challenge.interactable = false;
         }
@@ -107,7 +109,9 @@ public class MainMenu : MonoBehaviour
                 _timeChallengeWait = _timeReset;
                 _challenge.interactable = true;
                 _challengeBlocked.SetActive(false);
-                _challengeWaiting = false; 
+                _challengeWaiting = false;
+
+                GameManager.GetInstance().SetChallengeWaiting(false);
             }
         }
     }

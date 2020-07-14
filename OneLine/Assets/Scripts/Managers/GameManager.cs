@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.Advertisements;
 
 using System.IO;
 
@@ -28,14 +29,15 @@ public class GameManager : MonoBehaviour
     public string[] difficulties;
     public int[] _levelsInDifficulty;
     public int hintPrice;
+    public int _coinsMaxRewardAd = 30;
     public int _challengeTime = 30;
     public int _challengeReward = 50;
     public int _challengePrice = 25;
 
     // Privadas
-    public bool challenge = false;
-    public int difficulty = 0;
-    public int level = 0;
+    bool challenge = false;
+    int difficulty = 0;
+    int level = 0;
     Vector2 scalingReferenceResolution;
 
     RectTransform panelSuperior;
@@ -53,11 +55,15 @@ public class GameManager : MonoBehaviour
 
     int _maxDifficulty = 4;
 
-    bool _challengeCompleted;
+    bool _challengeCompleted = false;
 
     LoadAssetBundle lab;
     PlayerData currentPlayerData;
     GameInfo _gi;
+    
+    bool adRewardCoins = false;
+    bool adDoubleChallenge = false;
+    bool adChallengeInit = false;
     #endregion
 
     #region Utilities
@@ -177,8 +183,6 @@ public class GameManager : MonoBehaviour
 #endregion
 
 #region GameManagement
-    
-
     public void ScreenTouched(Vector2 touchPosition)
     {
         if (SceneManager.GetActiveScene().buildIndex == 2)
@@ -210,12 +214,14 @@ public class GameManager : MonoBehaviour
 
     public void LevelCompleted()
     {
-        GetInstance().currentPlayerData._completedLevelsInDifficulty[GetInstance().difficulty] += 1;
+        if (GetInstance().level == GetInstance().currentPlayerData._completedLevelsInDifficulty[GetInstance().difficulty])
+        {
+            GetInstance().currentPlayerData._completedLevelsInDifficulty[GetInstance().difficulty] += 1;
+        }
     }
 
     public void ChallengeCompleted()
     {
-        GetInstance().currentPlayerData._challengesCompleted += 1;
         GetInstance().challenge = false;
     }
 
@@ -229,11 +235,50 @@ public class GameManager : MonoBehaviour
         GetInstance().lm.ReloadLevel();
     }
 
-    public int AdRewarded()
+    void AddCoins()
     {
-        // Llamar al AdManager para que haga cosas
+        int add = Random.Range(10, GetInstance()._coinsMaxRewardAd + 1);
+        GetInstance().currentPlayerData._coinsPlayer += add;
+    }
 
-        return 100;
+    void AddChallengeExtraCoins()
+    {
+        GetInstance().currentPlayerData._coinsPlayer += GetInstance()._challengeReward;
+        ReturnToMenu();
+    }
+
+    public void AdRewardCoins()
+    {
+        GetInstance().adRewardCoins = true;
+        AdManager.GetInstance().ShowRewardedVideo();
+    }
+
+    public void AdRewardDoubleBounty()
+    {
+        GetInstance().adDoubleChallenge = true;
+        AdManager.GetInstance().ShowRewardedVideo();
+    }
+
+    public void AdRewardInitChallenge()
+    {
+        GetInstance().adChallengeInit = true;
+        AdManager.GetInstance().ShowRewardedVideo();
+    }
+
+    public void AdEnded()
+    {
+        if (GetInstance().adRewardCoins)
+        {
+            AddCoins();
+        }
+        else if (GetInstance().adDoubleChallenge)
+        {
+            AddChallengeExtraCoins();
+        }
+        else if (GetInstance().adChallengeInit)
+        {
+            InitChallenge();
+        }
     }
 #endregion
 
@@ -267,9 +312,9 @@ public class GameManager : MonoBehaviour
 
     public void ReturnToMenu()
     {
-        if(ConvertDateToSecond() > currentPlayerData._dateForNextChallenge)
+        if(ConvertDateToSecond() > GetInstance().currentPlayerData._dateForNextChallenge)
         {
-            currentPlayerData._timeForNextChallenge = 0;
+            GetInstance().currentPlayerData._timeForNextChallenge = 0;
         }
 
         SceneManager.LoadScene(0);
@@ -279,12 +324,12 @@ public class GameManager : MonoBehaviour
     {
         GetInstance().level += 1;
 
-        if(GetInstance().level > 100)
+        if (GetInstance().level > 100)
         {
             GetInstance().level = 1;
 
             GetInstance().difficulty += 1;
-            if(GetInstance().difficulty > GetInstance()._maxDifficulty)
+            if (GetInstance().difficulty > GetInstance()._maxDifficulty)
             {
                 GetInstance().difficulty = 0;
             }
@@ -310,13 +355,6 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(1);
     }
 
-    public void AfterAdChallenge()
-    {
-        // Llamar al AdManager para que meta anunsios
-
-        InitChallenge();
-    }
-
     public void PaidChallenge()
     {
         GetInstance().currentPlayerData._coinsPlayer -= GetInstance()._challengePrice;
@@ -332,6 +370,21 @@ public class GameManager : MonoBehaviour
         GetInstance().level = Random.Range(1, GetInstance()._levelsInDifficulty[GetInstance().difficulty]);
 
         SceneManager.LoadScene(2);
+    }
+
+    public void ChallengeFailed()
+    {
+        GetInstance().challenge = false;
+        //GetInstance()._challengeCompleted = true; DESCOMENTAR ESTO POR DIOS
+    }
+
+    public void ChallengeWin()
+    {
+        GetInstance().challenge = false;
+        GetInstance().currentPlayerData._coinsPlayer += GetInstance()._challengeReward;
+        GetInstance().currentPlayerData._challengesCompleted += 1;
+
+        //GetInstance()._challengeCompleted = true;
     }
 #endregion
 
@@ -363,6 +416,12 @@ public class GameManager : MonoBehaviour
         GetInstance().currentPlayerData._timeForNextChallenge = timing;
         GetInstance().currentPlayerData._dateForNextChallenge = GetInstance().ConvertDateToSecond() + timing;
     }
+
+    public void SetChallengeWaiting(bool challengeWaiting)
+    {
+        GetInstance()._challengeCompleted = challengeWaiting;
+    }
+    
 #endregion
 
 #region Getters

@@ -769,7 +769,13 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1060704999}
+      objectReference: {fileID: 7036815280557020028, guid: 757bb80882482564e87587d326e652d0,
+        type: 3}
+    - target: {fileID: 601985077273428036, guid: 1d83959bd16547c4abbc860300bf27c0,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: AdRewardDoubleBounty
+      objectReference: {fileID: 0}
     - target: {fileID: 1714631369157904531, guid: 1d83959bd16547c4abbc860300bf27c0,
         type: 3}
       propertyPath: m_Name

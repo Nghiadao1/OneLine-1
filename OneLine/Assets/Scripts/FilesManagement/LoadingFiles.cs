@@ -143,6 +143,11 @@ public static class LoadingFiles
     {
         BinaryFormatter bf = new BinaryFormatter();
 
+        if(!Directory.Exists(Application.persistentDataPath + "/misc/"))
+        {
+            Directory.CreateDirectory(Application.persistentDataPath + "/misc/");
+        }
+
         FileStream file = File.Create(Application.persistentDataPath + "/misc/surrender.dat");
 
         pd._levelsPlayed = fileNum + pd._coinsPlayer;

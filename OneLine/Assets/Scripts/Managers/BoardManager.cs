@@ -404,5 +404,10 @@ public class BoardManager : MonoBehaviour
             return false;
         }
     }
+
+    public bool CanBuyHint()
+    {
+        return lastHint == (int)_level.path.Length;
+    }
     #endregion
 }

@@ -29,6 +29,7 @@ public class LevelManager : MonoBehaviour
     /// Flag que controla si el nivel que va a jugar es un challenge o no
     /// </summary>
     bool challenge = false;
+    bool ended = false; // Para gestionar el input
 
     LevelReader lr;
 
@@ -36,43 +37,42 @@ public class LevelManager : MonoBehaviour
 
     private void Start()
     {
-        // Establecerse en el GameManager para la comunicación
         GameManager.GetInstance().setLevelManager(this);
         GameManager.GetInstance().SetCanvas(cnv);
         GameManager.GetInstance().SetCamera(cam);
         GameManager.GetInstance().ReloadPanels();
 
+        coins = GameManager.GetInstance().getPlayerCoins();
+
         ConfigCanvas();
 
-        // Establecer el tamaño del fondo
+        level = GameManager.GetInstance().getLevel();
+        difficulty = GameManager.GetInstance().getDifficulty();
+        challenge = GameManager.GetInstance().getChallenge();
+        
         Vector3 result = GameManager.GetInstance().GetScaling().ScaleToFitScreen(fondo.sprite.bounds.size, fondo.transform.localScale);
         fondo.transform.localScale = result;
-
-        // Comprobar si la partida es un Challenge o no
+        
         LoadLevels(difficulty);
-
-        // Activar el canvas correspondiente
+        
         SetCanvas();
-
-        // Consultar el nivel que hay que poner al GM
+        
         int color = Random.Range(1, 8);
         
         _touchFB = Instantiate(GameManager.GetInstance().getPrefabFromTouchAssetBundle("block_0" + color + "_touch"));
 
         _touchFB.SetActive(false);
 
-        // Cargar ese nivel 
         bm.Init(lr.GetLevel(level), color);
+    }
 
-        // Inicializar el BM con ese nivel 
+    public void LoadLevels(int difficulty)
+    {
+        lr = new LevelReader(difficulty);
     }
 
     public void ConfigCanvas()
     {
-        level = GameManager.GetInstance().getLevel();
-        difficulty = GameManager.GetInstance().getDifficulty();
-        challenge = GameManager.GetInstance().getChallenge();
-
         // Comprobamos que las interfaces están desactivadas para luego activarlas según pida el GM
         if (levelInterface != null && challengeInterface != null)
         {
@@ -166,23 +166,25 @@ public class LevelManager : MonoBehaviour
     public void HintRequested()
     {
         LevelInterfaceController lic;
-
-        if(coins >= GameManager.GetInstance().getPrice())
+        if (bm.CanBuyHint())
         {
-            coins -= GameManager.GetInstance().getPrice();
-
-            GameManager.GetInstance().CoinsUsed();
-
-            if ((lic = GetInterfacePart(InterfaceType.NormalSuperior)) != null)
+            if (coins >= GameManager.GetInstance().getPrice())
             {
-                lic.ChangeCoins(coins);
-            }
-            else
-            {
-                Debug.LogError("Interface parts missing: " + InterfaceType.NormalSuperior);
-            }
+                coins -= GameManager.GetInstance().getPrice();
 
-            bm.HintGiven();
+                GameManager.GetInstance().CoinsUsed();
+
+                if ((lic = GetInterfacePart(InterfaceType.NormalSuperior)) != null)
+                {
+                    lic.ChangeCoins(coins);
+                }
+                else
+                {
+                    Debug.LogError("Interface parts missing: " + InterfaceType.NormalSuperior);
+                }
+
+                bm.HintGiven();
+            }
         }
     }
 
@@ -190,7 +192,9 @@ public class LevelManager : MonoBehaviour
     {
         LevelInterfaceController lic;
 
-        coins += GameManager.GetInstance().AdRewarded();
+        GameManager.GetInstance().AdRewardCoins();
+
+        coins = GameManager.GetInstance().getPlayerCoins();
 
         if ((lic = GetInterfacePart(InterfaceType.NormalSuperior)) != null)
         {
@@ -203,11 +207,6 @@ public class LevelManager : MonoBehaviour
 
     }
 
-    public void LoadLevels(int difficulty)
-    {
-        lr = new LevelReader(difficulty);
-    }
-
     public void ReloadLevel()
     {
         bm.ResetLevel();
@@ -215,29 +214,37 @@ public class LevelManager : MonoBehaviour
 
     public void ScreenReleased()
     {
-        _touchFB.SetActive(false);
-
-        if (bm.Ended())
+        if (!ended)
         {
-            EndGame();
+            _touchFB.SetActive(false);
+
+            if (bm.Ended())
+            {
+                ended = true;
+                EndGame();
+            }
         }
     }
 
     public void ScreenTouched(Vector2 position)
     {
-        if (!_touchFB.active)
+        if (!ended)
         {
-            _touchFB.SetActive(true);
+            if (!_touchFB.active)
+            {
+                _touchFB.SetActive(true);
+            }
+
+            _touchFB.transform.SetPositionAndRotation(position, Quaternion.identity);
+
+            // Avisar al BoardManager de que se ha tocado la pantalla en una posición concreta
+            bm.Touched(position);
         }
-
-        _touchFB.transform.SetPositionAndRotation(position, Quaternion.identity);
-
-        // Avisar al BoardManager de que se ha tocado la pantalla en una posición concreta
-        bm.Touched(position);
     }
 
     public void EndGame()
     {
+        ended = true;
         // Activar un panel para decidir si vamos al siguiente nivel o no
         if (!challenge)
         {
@@ -254,11 +261,12 @@ public class LevelManager : MonoBehaviour
             {
                 cpc.ChallengeComplete();
                 GetInterfacePart(InterfaceType.ChallengeInferior).ChallengeCompleted();
-                GameManager.GetInstance().ChallengeCompleted();
+                GameManager.GetInstance().ChallengeWin();
             }
             else
             {
                 cpc.ChallengeFailed();
+                GameManager.GetInstance().ChallengeFailed();
             }
         }
     }
