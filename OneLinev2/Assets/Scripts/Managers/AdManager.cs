@@ -7,12 +7,16 @@ public class AdManager : MonoBehaviour, IUnityAdsListener
 {
     private static AdManager instance;
 
-    private string gameID = "1234567";
+#if UNITY_ANDROID
+    private string gameID = "3714873";
+#elif UNITY_IOS
+    private string gameID = "3714872";
+#endif
 
     // Ad type 
     string placementVideo = "video";
     string placementIdRewardedVideo = "rewardedVideo";
-    string placementBannerID = "bannerPlacement";
+    string placementBannerID = "bannerID";
 
     private void Awake()
     {

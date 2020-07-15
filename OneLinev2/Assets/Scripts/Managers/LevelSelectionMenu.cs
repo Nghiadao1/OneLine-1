@@ -58,10 +58,6 @@ public class LevelSelectionMenu : MonoBehaviour
 
         // Instanciar líneas
         InstantiateRaws(rawsNumber);
-
-        raws.transform.parent = null;
-
-        raws.gameObject.SetActive(false);
     }
 
     public void InstantiateRaws(int num)
@@ -80,8 +76,6 @@ public class LevelSelectionMenu : MonoBehaviour
 
             InstantiateButtons(r);
         }
-
-        //r = Instantiate(raws.gameObject, column.transform);
     }
 
     public void InstantiateButtons(GameObject raw)
