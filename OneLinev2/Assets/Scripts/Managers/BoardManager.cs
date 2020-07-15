@@ -408,7 +408,7 @@ public class BoardManager : MonoBehaviour
 
     public bool CanBuyHint()
     {
-        return lastHint == (int)_level.path.Length;
+        return lastHint != (int)_level.path.Length;
     }
     #endregion
 }
