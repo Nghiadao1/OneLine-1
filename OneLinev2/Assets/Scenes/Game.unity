@@ -233,6 +233,31 @@ Prefab:
       propertyPath: fondo
       value: 
       objectReference: {fileID: 77529674}
+    - target: {fileID: 114734381551545044, guid: eb84b1d26948b7e46b6af23d9ea91dd4,
+        type: 2}
+      propertyPath: levelInterface.Array.data[0]
+      value: 
+      objectReference: {fileID: 1168152253}
+    - target: {fileID: 114734381551545044, guid: eb84b1d26948b7e46b6af23d9ea91dd4,
+        type: 2}
+      propertyPath: levelInterface.Array.data[1]
+      value: 
+      objectReference: {fileID: 2053927291}
+    - target: {fileID: 114734381551545044, guid: eb84b1d26948b7e46b6af23d9ea91dd4,
+        type: 2}
+      propertyPath: challengeInterface.Array.data[0]
+      value: 
+      objectReference: {fileID: 1850012252}
+    - target: {fileID: 114734381551545044, guid: eb84b1d26948b7e46b6af23d9ea91dd4,
+        type: 2}
+      propertyPath: challengeInterface.Array.data[1]
+      value: 
+      objectReference: {fileID: 1091374729}
+    - target: {fileID: 114734381551545044, guid: eb84b1d26948b7e46b6af23d9ea91dd4,
+        type: 2}
+      propertyPath: cpc
+      value: 
+      objectReference: {fileID: 2049814133}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: eb84b1d26948b7e46b6af23d9ea91dd4, type: 2}
   m_IsPrefabAsset: 0
@@ -400,6 +425,11 @@ Prefab:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 114754983935229232, guid: 2778ff1afe9d7e9498edab7309524cfd,
+        type: 2}
+      propertyPath: difficulties.Array.size
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 4058573857908502, guid: 2778ff1afe9d7e9498edab7309524cfd, type: 2}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -442,9 +472,39 @@ Prefab:
       propertyPath: cam
       value: 
       objectReference: {fileID: 1238454631}
+    - target: {fileID: 114754983935229232, guid: 2778ff1afe9d7e9498edab7309524cfd,
+        type: 2}
+      propertyPath: difficulties.Array.data[0]
+      value: Beginner
+      objectReference: {fileID: 0}
+    - target: {fileID: 114754983935229232, guid: 2778ff1afe9d7e9498edab7309524cfd,
+        type: 2}
+      propertyPath: difficulties.Array.data[1]
+      value: Regular
+      objectReference: {fileID: 0}
+    - target: {fileID: 114754983935229232, guid: 2778ff1afe9d7e9498edab7309524cfd,
+        type: 2}
+      propertyPath: difficulties.Array.data[2]
+      value: Advanced
+      objectReference: {fileID: 0}
+    - target: {fileID: 114754983935229232, guid: 2778ff1afe9d7e9498edab7309524cfd,
+        type: 2}
+      propertyPath: difficulties.Array.data[3]
+      value: Expert
+      objectReference: {fileID: 0}
+    - target: {fileID: 114754983935229232, guid: 2778ff1afe9d7e9498edab7309524cfd,
+        type: 2}
+      propertyPath: difficulties.Array.data[4]
+      value: Master
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2778ff1afe9d7e9498edab7309524cfd, type: 2}
   m_IsPrefabAsset: 0
+--- !u!1 &1091374729 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1160697809238218, guid: 6022dd7805b0b9d4281928fa03f7765e,
+    type: 2}
+  m_PrefabInternal: {fileID: 1167998840}
 --- !u!1 &1118778130
 GameObject:
   m_ObjectHideFlags: 0
@@ -588,6 +648,11 @@ Canvas:
   m_CorrespondingSourceObject: {fileID: 223838524020442380, guid: 6022dd7805b0b9d4281928fa03f7765e,
     type: 2}
   m_PrefabInternal: {fileID: 1167998840}
+--- !u!1 &1168152253 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1696566051936684, guid: 6022dd7805b0b9d4281928fa03f7765e,
+    type: 2}
+  m_PrefabInternal: {fileID: 1167998840}
 --- !u!20 &1238454631 stripped
 Camera:
   m_CorrespondingSourceObject: {fileID: 20137899317694458, guid: 94b3e204858588c479ad519857f05392,
@@ -635,3 +700,19 @@ Prefab:
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 736989bc1d4334f44a324c489879d564, type: 2}
   m_IsPrefabAsset: 0
+--- !u!1 &1850012252 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1588030131565678, guid: 6022dd7805b0b9d4281928fa03f7765e,
+    type: 2}
+  m_PrefabInternal: {fileID: 1167998840}
+--- !u!114 &2049814133 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 114370682048503908, guid: 6022dd7805b0b9d4281928fa03f7765e,
+    type: 2}
+  m_PrefabInternal: {fileID: 1167998840}
+  m_Script: {fileID: 11500000, guid: 374a991ae5e0311498dffadefbf76ca6, type: 3}
+--- !u!1 &2053927291 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1122465655815722, guid: 6022dd7805b0b9d4281928fa03f7765e,
+    type: 2}
+  m_PrefabInternal: {fileID: 1167998840}
