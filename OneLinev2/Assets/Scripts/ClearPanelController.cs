@@ -28,6 +28,23 @@ public class ClearPanelController : MonoBehaviour {
 
     }
 
+    void SetChallengeComplete(GameObject cc)
+    {
+        for (int i = 0; i < cc.transform.childCount; i++)
+        {
+            if(cc.transform.GetChild(i).name == "Coin")
+            {
+                for (int j = 0; j < cc.transform.GetChild(i).childCount; j++)
+                {
+                    if(cc.transform.GetChild(i).GetChild(j).name == "Reward")
+                    {
+                        cc.transform.GetChild(i).GetChild(j).GetComponent<Text>().text = "+" + GameManager.GetInstance().getChallengeReward();
+                    }
+                }
+            }
+        }
+    }
+
     void SetButtons(GameObject set)
     {
         for (int i = 0; i < set.transform.childCount; i++)
