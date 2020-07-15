@@ -799,12 +799,11 @@ Prefab:
         type: 2}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 114754983935229232, guid: 2778ff1afe9d7e9498edab7309524cfd,
-        type: 2}
+      objectReference: {fileID: 320619168}
     - target: {fileID: 114095402274746308, guid: 6022dd7805b0b9d4281928fa03f7765e,
         type: 2}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: AdRewardCoins
+      value: AdRequested
       objectReference: {fileID: 0}
     - target: {fileID: 114095402274746308, guid: 6022dd7805b0b9d4281928fa03f7765e,
         type: 2}

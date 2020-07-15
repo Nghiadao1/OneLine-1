@@ -7,64 +7,93 @@ using UnityEngine.SceneManagement;
 /// played and the challenges. 
 /// 
 /// Has all the information about the player: how many coins they have, levels completed
-/// per difficulty and medals gained in challenges. 
+/// per difficulty and medals gained in challenges. Manages the changes in their stats
+/// and saves it when the app is closed. 
 /// 
-/// Serializes this information and stores it in a file. 
+/// Manages the time left for a challenge and notifies the MainMenu when a challenge is 
+/// available. 
 /// 
-/// Has the instance of the different AssetBundles. All the scripts will access this instance
-/// to retrieve this information. 
+/// Has the instance of the different AssetBundles. All the scripts will access this instances
+/// to retrieve all prefab information.
 /// </summary>
 public class GameManager : MonoBehaviour {
 
     #region Variables
-    // Públicas    
-    [Header("ImportantObjects")]
-    public Canvas cnv;
-    public Camera cam;
+    // Public
+    /// <summary>
+    /// Variables needed to set the scaling class for scaling all objects in the scene 
+    /// correctly. 
+    /// 
+    /// The canvas is used for getting the reference resolution and for calculating the 
+    /// space left for the Board and Game to establish. 
+    /// 
+    /// Camera is needed for calculating the translation factor between Unity Units and
+    /// pixels. 
+    /// </summary>
+    [Header("Resolution Configuration")]
+    // Canvas of the scene
+    public Canvas _cnv;
+    // Camera of the scene
+    public Camera _cam;
 
+    /// <summary>
+    /// This variables are used to set the game configuration that will be used in the
+    /// next build of the game. 
+    /// 
+    /// They can also be used for debugging. 
+    /// </summary>
     [Header("Game Configuration")]
-    public string[] difficulties;
+    // Names of the different difficulties, can be configurated through code
+    public string[] _difficulties;
+    // How many levels are in a certain difficulty
     public int[] _levelsInDifficulty;
-    public int hintPrice;
-    public int _coinsMaxRewardAd = 30;
-    public int _challengeTime = 30;
-    public int _challengeReward = 50;
-    public int _challengePrice = 25;
+    // Values of different things needed in the game, set in default values
+    public int _hintPrice = 25;            // Price to be paid for a hint
+    public int _coinsMaxRewardAd = 30;     // Coins maximum reward after ad
+    public int _challengeTime = 30;        // Time player must wait between challenges
+    public int _challengeReward = 50;      // Coins reward after winning a challenge
+    public int _challengePrice = 25;       // Price to pay for a challenge without seeing an ad
 
-    // Privadas
-    bool challenge = false;
-    int difficulty = 0;
-    int level = 0;
-    Vector2 scalingReferenceResolution;
+    /// <summary>
+    /// This variables are only public for debugging a concrete scene or gamemode. They
+    /// are later set in the different functions with the values needed or random values 
+    /// if debugging is just for certain things. 
+    /// </summary>
+    [Header("Debugging")]
+    public bool _debugging = false;         // Sets if debug mode is on, for avoiding some changes
+    public bool _challenge = false;         // Sets if gamemode is a challenge
+    public int _difficulty = 0;             // Sets game difficulty
+    public int _level = 0;                  // Sets the level to be loaded
 
-    RectTransform panelSuperior;
-    RectTransform panelInferior;
+    // Private
+    // GAME DATA
+    LoadAssetBundle _lab;                   // LoadAssetBundle instance
+    PlayerData _currentPlayerData;          // CurrentPlayer data
+    GameInfo _gi;                           // Info about the game, for calculations and data config
 
-    Scaling scalator;
+    // SCALING DATA
+    Vector2 _scalingReferenceResolution;    // Reference resolution for scaling
+    RectTransform _panelSuperior;           // Top panel in the canvas
+    RectTransform _panelInferior;           // Bottom panel in canvas
+    Scaling _scalator;                      // Scaling instance, simplify some things
 
-    Vector2 lastTouchPosition;
-
-    LevelManager lm;
-
-    Random rnd;
-
-    int _lastScene;
-
-    int _maxDifficulty = 4;
-
-    bool _challengeCompleted = false;
-
-    LoadAssetBundle lab;
-    PlayerData currentPlayerData;
-    GameInfo _gi;
-
-    bool adRewardCoins = false;
-    bool adDoubleChallenge = false;
-    bool adChallengeInit = false;
+    // GAME/SCENE MANAGEMENT
+    Vector2 _lastTouchPosition;             // Last position touched
+    LevelManager _lm;                       // LevelManager, for communication in-game
+    Random _rnd;                            // Random instance for generating random levels
+    int _lastScene;                         // Scene before actual scene
+    int _maxDifficulty = 4;                 // Max difficulty in game (data driven)
+    bool _challengeCompleted = false;       // Challenge completed flag
+    bool _adRewardCoins = false;            // Flag to control when ad is requested
+    bool _adDoubleChallenge = false;        // Flag to double challenge win bounty
+    bool _adChallengeInit = false;          // After ad init challenge
     #endregion
 
     #region Utilities
-
+    /// <summary>
+    /// Converts the actual date and hour into seconds.
+    /// </summary>
+    /// <returns>Date transformed in seconds</returns>
     int ConvertDateToSecond()
     {
         int totalHours = 0;
@@ -75,64 +104,86 @@ public class GameManager : MonoBehaviour {
         totalHours += System.DateTime.Now.Day * 24 * 60 * 60;
         totalHours += System.DateTime.Now.Month * 30 * 24 * 60 * 60;
 
-        return 0;
+        return totalHours;
     }
-
     #endregion
 
     #region StartUpGameManager
     /// <summary>
-    /// Variable que establece el singleton del GameManager.
+    /// Variable that stores the instance of the GameManager, Singleton
     /// </summary>
-    private static GameManager instance;
+    private static GameManager _instance;
 
+    /// <summary>
+    /// Awake function of GameManager. Checks if another instance of this GameObject exists and 
+    /// if not, initializes all required atributes and values of the GameManager, creating a new
+    /// one. 
+    /// 
+    /// If the GameManager already exists, destroy this gameObject. 
+    /// </summary>
     private void Awake()
     {
-        // Si no se ha inicializado el GameManager en ningún momento, lo crea e inicializa
-        if (instance == null)
+        // If GameManager is not created and initialized...
+        if (_instance == null)
         {
-            instance = this;
+            // Set this GameManager as instance
+            _instance = this;
 
+            // Set this gameObject to not Destroy when changing between scenes
             DontDestroyOnLoad(gameObject);
 
-            // Nos aseguramos que el canvas tenga la resolución de referencia correcta
-            scalingReferenceResolution = cnv.GetComponent<CanvasScaler>().referenceResolution;
+            // Store canvas' scaling reference resolution
+            _scalingReferenceResolution = _cnv.GetComponent<CanvasScaler>().referenceResolution;
 
-            // Aquí iría la inicialización de los datos del jugador
-            scalator = new Scaling(new Vector2(Screen.width, Screen.height), scalingReferenceResolution, (int)cam.orthographicSize);
+            // Initialize Scaling with cam values and scalingreference values
+            _scalator = new Scaling(new Vector2(Screen.width, Screen.height), _scalingReferenceResolution, (int)_cam.orthographicSize);
 
-            // Buscamos los paneles para luego realizar los cálculos
+            // Search all panels for later calculation
             ReloadPanels();
 
-            lab = new LoadAssetBundle();
+            // Load all AssetBundles 
+            _lab = new LoadAssetBundle();
 
-#if !UNITY_EDITOR && UNITY_ANDROID
-            lab.LoadBundlesAndroid(Application.streamingAssetsPath + "/AssetBundles/");
+            // Depending on OS system, load from a different path and using different techniques
+#if !UNITY_EDITOR && UNITY_ANDROID 
+            _lab.LoadBundlesAndroid(Application.streamingAssetsPath + "/AssetBundles/");
 #else
-            lab.LoadBundlesWindows(Application.streamingAssetsPath + "/AssetBundles/");
+            _lab.LoadBundlesWindows(Application.streamingAssetsPath + "/AssetBundles/");
 #endif
 
-            rnd = new Random();
+            // Initialize random value
+            _rnd = new Random();
 
+            // Load gameInfo previously generated, data driven information
             _gi = LoadingFiles.ReadGameInfo();
 
+            // Set all values of this information
             SetGameInfo();
 
-            // GetPlayer information
-            currentPlayerData = LoadingFiles.ReadPlayerData(_maxDifficulty);
+            // Get Player information and store it
+            _currentPlayerData = LoadingFiles.ReadPlayerData(_maxDifficulty);
         }
-        else if (instance != this)
+        else if (_instance != this)
         {
             Destroy(gameObject);
         }
     }
 
+    /// <summary>
+    /// Sets all the necessary Game information. If no values were assigned previously, 
+    /// generates some random values. 
+    /// 
+    /// If DebugMode is true, changes nothing.
+    /// </summary>
     public void SetGameInfo()
     {
+        // Get how many difficulties are
         int difficulties = GetInstance()._gi._numDifficulties;
 
+        // Establishes maximum difficulty for random generated level
         GetInstance()._maxDifficulty = difficulties;
 
+        // Gets how many levels per difficulty are
         _levelsInDifficulty = new int[GetInstance()._maxDifficulty];
 
         for (int i = 0; i < _levelsInDifficulty.Length; i++)
@@ -141,138 +192,230 @@ public class GameManager : MonoBehaviour {
             _levelsInDifficulty[i] = temp.GetNumLevels();
         }
 
+        // If the actual scene is Game scene generate random ones
         if (SceneManager.GetActiveScene().buildIndex == 2)
         {
-            GetInstance().difficulty = Random.Range(0, _maxDifficulty);
-            LevelReader temp = new LevelReader(GetInstance().difficulty);
-            GetInstance().level = Random.Range(1, temp.GetNumLevels() + 1);
+            // Check debugmode
+            if (!_debugging)
+            {
+                GetInstance()._difficulty = Random.Range(0, _maxDifficulty);
+                LevelReader temp = new LevelReader(GetInstance()._difficulty);
+                GetInstance()._level = Random.Range(1, temp.GetNumLevels() + 1);
+            }
         }
 
+        // If the actual scene is LevelSelection, generate random difficulty
         if (SceneManager.GetActiveScene().buildIndex == 1)
         {
-            GetInstance().difficulty = Random.Range(0, _maxDifficulty);
-        }
-    }
-
-    public void ReloadPanels()
-    {
-        foreach (Transform child in cnv.transform)
-        {
-            if (child.name == "Top")
+            // Check debugmode
+            if (!_debugging)
             {
-                GetInstance().panelSuperior = child.GetComponent<RectTransform>();
-            }
-            else if (child.name == "Bottom")
-            {
-                GetInstance().panelInferior = child.GetComponent<RectTransform>();
+                GetInstance()._difficulty = Random.Range(0, _maxDifficulty);
             }
         }
     }
 
     /// <summary>
-    /// Da acceso al resto de objetos y clases a la información del GameManager.
+    /// Load all panels in scene for dimensions info. 
     /// </summary>
-    /// <returns></returns>
-    public static GameManager GetInstance()
+    public void ReloadPanels()
     {
-        return instance;
-    }
-    #endregion
-
-    #region GameManagement
-    public void ScreenTouched(Vector2 touchPosition)
-    {
-        if (SceneManager.GetActiveScene().buildIndex == 2)
+        // Search in the canvas and check names
+        foreach (Transform child in GetInstance()._cnv.transform)
         {
-            // Comprobar si el click ha sido dentro de la zona de juego
-            if (IsInPlayZone(touchPosition))
+            if (child.name == "Top")
             {
-                // Si es así, informar al level manager
-                touchPosition = GetInstance().scalator.ScreenToWorldPosition(touchPosition);
-
-                GetInstance().lm.ScreenTouched(touchPosition);
+                GetInstance()._panelSuperior = child.GetComponent<RectTransform>();
+            }
+            else if (child.name == "Bottom")
+            {
+                GetInstance()._panelInferior = child.GetComponent<RectTransform>();
             }
         }
     }
 
-    public void ScreenReleased()
+    /// <summary>
+    /// Gives access to the GameManager instance for the rest of scripts and objects, 
+    /// also is used for changing some values in the gameManager only by the GameManager.
+    /// </summary>
+    /// <returns>Actual instance of the GameManager</returns>
+    public static GameManager GetInstance()
     {
+        return _instance;
+    }
+    #endregion
+
+    #region GameManagement
+    /// <summary>
+    /// Function called by the InputManager when the player touches the 
+    /// screen. Checks if the actual scene is the Game one, and manages all
+    /// necesary communication with the LevelManager. 
+    /// </summary>
+    /// <param name="touchPosition">Position of the Input in Screen</param>
+    public void ScreenTouched(Vector2 touchPosition)
+    {
+        // Check if the actual scene is the game scene
         if (SceneManager.GetActiveScene().buildIndex == 2)
-            GetInstance().lm.ScreenReleased();
+        {
+            // Check if the Input happened in the play zone
+            if (IsInPlayZone(touchPosition))
+            {
+                // Inform the LevelManager
+                touchPosition = GetInstance()._scalator.ScreenToWorldPosition(touchPosition);
+                GetInstance()._lm.ScreenTouched(touchPosition);
+            }
+        }
+        // If not, the GameManager doesn't have to manage the input
     }
 
+    /// <summary>
+    /// Function called when the InputManager detects that the player has 
+    /// released the scren (stopped touching it). Informs the LevelManager
+    /// if the current scene is the Game scene. 
+    /// </summary>
+    public void ScreenReleased()
+    {
+        // Check actual scene is GameScene
+        if (SceneManager.GetActiveScene().buildIndex == 2)
+            GetInstance()._lm.ScreenReleased();
+    }
+
+    /// <summary>
+    /// Checks if some coordinates are between the two panels, top and bottom.
+    /// </summary>
+    /// <param name="position">Coordinates to check</param>
+    /// <returns>Whether position is in PlayZone or not</returns>
     public bool IsInPlayZone(Vector2 position)
     {
+        // Check if actual scene is GameScene
         if (SceneManager.GetActiveScene().buildIndex == 2)
-            return position.y < (GetInstance().scalator.CurrentResolution().y - panelSuperiorHeight() * GetInstance().cnv.scaleFactor) && position.y > (panelInferiorHeight() * GetInstance().cnv.scaleFactor);
+            // Return if the coordinates are in the PlayZone
+            return position.y < (GetInstance()._scalator.CurrentResolution().y - panelSuperiorHeight() 
+                * GetInstance()._cnv.scaleFactor) && position.y > (panelInferiorHeight() * GetInstance()._cnv.scaleFactor);
         else
             return false;
     }
 
+    /// <summary>
+    /// Function called when the Level is completed. Updates player information
+    /// with the new level completed. 
+    /// </summary>
     public void LevelCompleted()
     {
-        if (GetInstance().level == GetInstance().currentPlayerData._completedLevelsInDifficulty[GetInstance().difficulty])
+        // Checks if the actual level is the last one completed
+        if (GetInstance()._level == GetInstance()._currentPlayerData._completedLevelsInDifficulty[GetInstance()._difficulty])
         {
-            GetInstance().currentPlayerData._completedLevelsInDifficulty[GetInstance().difficulty] += 1;
+            // If so, unlocks the next level
+            GetInstance()._currentPlayerData._completedLevelsInDifficulty[GetInstance()._difficulty] += 1;
         }
     }
 
+    /// <summary>
+    /// Function that manages the challenge state. Called when the challenge has ended, 
+    /// no matter if player won or not. 
+    /// </summary>
     public void ChallengeCompleted()
     {
-        GetInstance().challenge = false;
+        // Update challenge value
+        GetInstance()._challenge = false;
     }
 
+    /// <summary>
+    /// Called when the time available to complete a challenge has ended. 
+    /// </summary>
     public void TimeIsUp()
     {
-        GetInstance().lm.EndGame();
+        // Inform LevelManager that Game has ended when no more time is left
+        GetInstance()._lm.EndGame();
     }
 
+    /// <summary>
+    /// Function called by Buttons to return the level to it's initial state. 
+    /// </summary>
     public void ResetLevel()
     {
-        GetInstance().lm.ReloadLevel();
+        // Call LevelManager to reset the level
+        GetInstance()._lm.ReloadLevel();
     }
 
+    /// <summary>
+    /// Add coins to the player when an ad has ended. Gives the player a random number
+    /// of coins between 10 and a maximum established in editor after watching an ad. 
+    /// </summary>
     void AddCoins()
     {
+        // Generate the random amount of coins
         int add = Random.Range(10, GetInstance()._coinsMaxRewardAd + 1);
-        GetInstance().currentPlayerData._coinsPlayer += add;
+        // Update player coins with those new coins
+        GetInstance()._currentPlayerData._coinsPlayer += add;
     }
 
+    /// <summary>
+    /// Function called after watching an ad for givin the player an extra amount of 
+    /// coins when winning a challenge. 
+    /// </summary>
     void AddChallengeExtraCoins()
     {
-        GetInstance().currentPlayerData._coinsPlayer += GetInstance()._challengeReward;
+        // Update player data, then return to Main Menu
+        GetInstance()._currentPlayerData._coinsPlayer += GetInstance()._challengeReward;
         ReturnToMenu();
     }
 
+    /// <summary>
+    /// Function called when the player presses the button in a normal Game to win coins
+    /// for buying some hints later. 
+    /// </summary>
     public void AdRewardCoins()
     {
-        GetInstance().adRewardCoins = true;
+        // Set the flag true for later checking
+        GetInstance()._adRewardCoins = true;
+        // Call AdManager to initiate the ad
         AdManager.GetInstance().ShowRewardedVideo();
     }
 
+    /// <summary>
+    /// Function called when the player presses the button in Challenge Victory screen. 
+    /// Gives them more coins after winning. 
+    /// </summary>
     public void AdRewardDoubleBounty()
     {
-        GetInstance().adDoubleChallenge = true;
+        // Activate the flag
+        GetInstance()._adDoubleChallenge = true;
+        // Call AdManager to initiate the ad
         AdManager.GetInstance().ShowRewardedVideo();
     }
 
+    /// <summary>
+    /// Function called when the player watches an ad to play the challenge. 
+    /// </summary>
     public void AdRewardInitChallenge()
     {
-        GetInstance().adChallengeInit = true;
+        // Activate the flag
+        GetInstance()._adChallengeInit = true;
+        // Calls AdManager to initiate Ad process
         AdManager.GetInstance().ShowRewardedVideo();
     }
 
+    /// <summary>
+    /// Function that notifies when an ad has ended and manages what happens next. 
+    /// If the ad played was a rewarded ad, gives coins to the player. If the ad 
+    /// was for doubling the bounty earned in a challenge, calls that function. 
+    /// If the ad was for initiating a challenge, calls all necessary functions. 
+    /// </summary>
     public void AdEnded()
     {
-        if (GetInstance().adRewardCoins)
+        // Ad for coins reward
+        if (GetInstance()._adRewardCoins)
         {
             AddCoins();
         }
-        else if (GetInstance().adDoubleChallenge)
+        // Ad for double reward in challenge
+        else if (GetInstance()._adDoubleChallenge)
         {
             AddChallengeExtraCoins();
         }
-        else if (GetInstance().adChallengeInit)
+        // Ad for playing a Challenge
+        else if (GetInstance()._adChallengeInit)
         {
             InitChallenge();
         }
@@ -280,12 +423,16 @@ public class GameManager : MonoBehaviour {
     #endregion
 
     #region LevelSelectionManagement
-
-    // Primero hay que gestionar la creación del menú
+    /// <summary>
+    /// Sets the top text for the LevelSelection menu. Selects the right name 
+    /// from the collection of difficulty names and puts it in the Text.
+    /// </summary>
     public void CreateTextLevelSelectionMenu()
     {
-        foreach (Transform t in panelSuperior.transform)
+        // Search for the Text child
+        foreach (Transform t in GetInstance()._panelSuperior.transform)
         {
+            // Set the corresponding text
             if (t.name == "Difficulty")
             {
                 t.GetComponent<Text>().text = getDifficultyText();
@@ -296,292 +443,502 @@ public class GameManager : MonoBehaviour {
     #endregion
 
     #region SceneManagement
-
+    /// <summary>
+    /// Function called by the Back buttons. Loads the last scene that was playing. 
+    /// </summary>
     public void ReturnToLastScene()
     {
-        // Comprobar si estamos en un nivel para 
-        if (GetInstance().challenge)
+        // Check if the level is a challenge to change it's value
+        if (GetInstance()._challenge)
         {
-            GetInstance().challenge = false;
+            GetInstance()._challenge = false;
         }
+        // Loads the last scene
         SceneManager.LoadScene(GetInstance()._lastScene);
     }
 
+    /// <summary>
+    /// Return to the MainMenu Scene. 
+    /// </summary>
     public void ReturnToMenu()
     {
-        if (ConvertDateToSecond() > GetInstance().currentPlayerData._dateForNextChallenge)
+        // Checks the time for the next challenge
+        if (ConvertDateToSecond() > GetInstance()._currentPlayerData._dateForNextChallenge)
         {
-            GetInstance().currentPlayerData._timeForNextChallenge = 0;
+            GetInstance()._currentPlayerData._timeForNextChallenge = 0;
         }
 
+        // Load MainMenu scene
         SceneManager.LoadScene(0);
     }
 
+    /// <summary>
+    /// Loads the next level after completing one. Checks if it is the last level of it's
+    /// difficulty and if so, loads the next difficulty and it's first level. If the difficuñty
+    /// is the last one, returns to the first difficulty.
+    /// </summary>
     public void NextLevel()
     {
-        GetInstance().level += 1;
+        // Increase actual level
+        GetInstance()._level += 1;
 
-        if (GetInstance().level > 100)
+        // Check which level is the next one
+        if (GetInstance()._level > 100)
         {
-            GetInstance().level = 1;
+            // Load the level 1
+            GetInstance()._level = 1;
 
-            GetInstance().difficulty += 1;
-            if (GetInstance().difficulty > GetInstance()._maxDifficulty)
+            // Increase difficulty
+            GetInstance()._difficulty += 1;
+            // Check difficulty after increase
+            if (GetInstance()._difficulty > GetInstance()._maxDifficulty)
             {
-                GetInstance().difficulty = 0;
+                // Return to first difficulty
+                GetInstance()._difficulty = 0;
             }
         }
 
+        // Reloads the LevelScene
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    /// <summary>
+    /// Loads the Game scene with a concrete level selected. 
+    /// </summary>
+    /// <param name="l">Level to be loaded</param>
     public void InitLevel(int l)
     {
+        // Store last scene for later loading it if necessary
         GetInstance()._lastScene = SceneManager.GetActiveScene().buildIndex;
-        GetInstance().level = l;
+        // Establish the level
+        GetInstance()._level = l;
 
+        // Load Game scene
         SceneManager.LoadScene(2);
     }
 
+    /// <summary>
+    /// Change scene to LevelSelection with a concrete difficulty to load it's information
+    /// </summary>
+    /// <param name="diff">Difficulty to be loaded</param>
     public void ChangeToLevelSelection(int diff)
     {
-        GetInstance().difficulty = diff;
+        // Update instance's difficulty
+        GetInstance()._difficulty = diff;
 
+        // Update last Scene
         GetInstance()._lastScene = SceneManager.GetActiveScene().buildIndex;
 
+        // Load LevelSelection scene
         SceneManager.LoadScene(1);
     }
 
+    /// <summary>
+    /// Function called when the player pays to play a challenge. Take coins from the player
+    /// current amount of them. Then, load the challenge.
+    /// </summary>
     public void PaidChallenge()
     {
-        GetInstance().currentPlayerData._coinsPlayer -= GetInstance()._challengePrice;
+        // Take the coins from the player
+        GetInstance()._currentPlayerData._coinsPlayer -= GetInstance()._challengePrice;
 
         InitChallenge();
     }
 
+    /// <summary>
+    /// Init Game Scene with challenge configuration. Called when a challenge is going to be 
+    /// initiated. 
+    /// </summary>
     public void InitChallenge()
     {
+        // Store last scene index
         GetInstance()._lastScene = SceneManager.GetActiveScene().buildIndex;
-        GetInstance().challenge = true;
-        GetInstance().difficulty = Random.Range(0, GetInstance()._maxDifficulty);
-        GetInstance().level = Random.Range(1, GetInstance()._levelsInDifficulty[GetInstance().difficulty]);
+        // Set challenge 
+        GetInstance()._challenge = true;
+        // Generate random difficulty and random level
+        GetInstance()._difficulty = Random.Range(0, GetInstance()._maxDifficulty);
+        GetInstance()._level = Random.Range(1, GetInstance()._levelsInDifficulty[GetInstance()._difficulty]);
 
+        // Load Game scene
         SceneManager.LoadScene(2);
     }
 
+    /// <summary>
+    /// Function called when a challenge has ended and the player could not complete it.
+    /// </summary>
     public void ChallengeFailed()
     {
-        GetInstance().challenge = false;
-        //GetInstance()._challengeCompleted = true; DESCOMENTAR ESTO POR DIOS
+        // Reset challenge value
+        GetInstance()._challenge = false;
+        // Set challenge completed for timers
+        GetInstance()._challengeCompleted = true;
     }
 
+    /// <summary>
+    /// Function called when the player completes a challenge successfully. 
+    /// </summary>
     public void ChallengeWin()
     {
-        GetInstance().challenge = false;
-        GetInstance().currentPlayerData._coinsPlayer += GetInstance()._challengeReward;
-        GetInstance().currentPlayerData._challengesCompleted += 1;
+        // Update challenge value
+        GetInstance()._challenge = false;
+        // Update player information with the rewards
+        GetInstance()._currentPlayerData._coinsPlayer += GetInstance()._challengeReward;
+        GetInstance()._currentPlayerData._challengesCompleted += 1;
 
-        //GetInstance()._challengeCompleted = true;
+        GetInstance()._challengeCompleted = true;
     }
     #endregion
 
     #region Setters
+    /// <summary>
+    /// Function called to set instance's LevelManager for future communication. 
+    /// </summary>
+    /// <param name="man">LevelManager to set</param>
     public void setLevelManager(LevelManager man)
     {
-        GetInstance().lm = man;
+        GetInstance()._lm = man;
     }
 
+    /// <summary>
+    /// Function called when the player pays for a Hint in a level. Takes the amount
+    /// of coins set in the editor as a hintprice. 
+    /// </summary>
     public void CoinsUsed()
     {
-        GetInstance().currentPlayerData._coinsPlayer -= GetInstance().hintPrice;
+        // Take the coins from the player
+        GetInstance()._currentPlayerData._coinsPlayer -= GetInstance()._hintPrice;
     }
 
+    /// <summary>
+    /// Sets the canvas of the scene as the instance's canvas for calculations and reference
+    /// resolutions. Reloads the information of the panels. 
+    /// </summary>
+    /// <param name="can">Canvas to set as Instance's canvas</param>
     public void SetCanvas(Canvas can)
     {
-        GetInstance().cnv = can;
+        // Set canvas
+        GetInstance()._cnv = can;
 
+        // Reload the instance's panels for lates use
         ReloadPanels();
     }
 
+    /// <summary>
+    /// Set the camera of the scene as the instance's camera. 
+    /// </summary>
+    /// <param name="c">Camera to be set</param>
     public void SetCamera(Camera c)
     {
-        GetInstance().cam = c;
+        // Set the camera
+        GetInstance()._cam = c;
     }
 
+    /// <summary>
+    /// Sets the remaining time for the next challenge. Stores it for later use. 
+    /// </summary>
+    /// <param name="timing">Time for the next challenge</param>
     public void SetChallengeTimeRemaining(int timing)
     {
-        GetInstance().currentPlayerData._timeForNextChallenge = timing;
-        GetInstance().currentPlayerData._dateForNextChallenge = GetInstance().ConvertDateToSecond() + timing;
+        // Store time left fot next challenge
+        GetInstance()._currentPlayerData._timeForNextChallenge = timing;
+        // Calculate the date for it
+        GetInstance()._currentPlayerData._dateForNextChallenge = GetInstance().ConvertDateToSecond() + timing;
     }
 
+    /// <summary>
+    /// Set the GameManager to wait for challenge timer to end.
+    /// </summary>
+    /// <param name="challengeWaiting"></param>
     public void SetChallengeWaiting(bool challengeWaiting)
     {
         GetInstance()._challengeCompleted = challengeWaiting;
     }
-
     #endregion
 
     #region Getters
+    /// <summary>
+    /// Gives access to the scalator instance.
+    /// </summary>
+    /// <returns>Scaling scaling instance stored in GM instance</returns>
     public Scaling GetScaling()
     {
-        return GetInstance().scalator;
+        return GetInstance()._scalator;
     }
 
+    /// <summary>
+    /// Gives access to the canvas stored in instance.
+    /// </summary>
+    /// <returns>Canvas canvas access</returns>
     public Canvas GetCanvas()
     {
-        return GetInstance().cnv;
+        return GetInstance()._cnv;
     }
-
+    
+    /// <summary>
+    /// Gives the screen resolution for lates use.
+    /// </summary>
+    /// <returns>Vector2 Screen resolution</returns>
     public Vector2 getResolution()
     {
         return new Vector2(Screen.width, Screen.height);
     }
 
+    /// <summary>
+    /// Gives the text associated with a difficulty level.
+    /// </summary>
+    /// <returns>string Difficulty text</returns>
     public string getDifficultyText()
     {
-        return GetInstance().difficulties[difficulty];
+        return GetInstance()._difficulties[GetInstance()._difficulty];
     }
-
-    // COMENTAAAAAAR
+    
+    /// <summary>
+    /// Gives the reference resolution used when scaling things for later use. 
+    /// </summary>
+    /// <returns>Vector2 Reference resolution</returns>
     public Vector2 getReferenceResolution()
     {
-        return GetInstance().scalingReferenceResolution;
+        return GetInstance()._scalingReferenceResolution;
     }
 
+    /// <summary>
+    /// Gives the value of the top panel height. 
+    /// </summary>
+    /// <returns>float Top panel height</returns>
     public float panelSuperiorHeight()
     {
-        return GetInstance().panelSuperior.rect.height;
+        return GetInstance()._panelSuperior.rect.height;
     }
 
+    /// <summary>
+    /// Gives the value of the bottom panel height. 
+    /// </summary>
+    /// <returns>float Bottom panel height</returns>
     public float panelInferiorHeight()
     {
-        return GetInstance().panelInferior.rect.height;
+        return GetInstance()._panelInferior.rect.height;
     }
 
+    /// <summary>
+    /// Gives the actual difficulty of the game.
+    /// </summary>
+    /// <returns>int Actual difficulty</returns>
     public int getDifficulty()
     {
-        return GetInstance().difficulty;
+        return GetInstance()._difficulty;
     }
 
+    /// <summary>
+    /// Get the number of levels in a specific difficulty. 
+    /// </summary>
+    /// <param name="diff">Difficulty to access</param>
+    /// <returns>int Number of levels</returns>
     public int getLevelsInDifficulty(int diff)
     {
-        if (difficulty < _levelsInDifficulty.Length)
+        // Check if the difficulty to be accessed is registered
+        if (GetInstance()._difficulty < GetInstance()._levelsInDifficulty.Length)
         {
+            // Return how many levels there are
             return GetInstance()._levelsInDifficulty[diff];
         }
         else
         {
+            // If not, inform
             Debug.LogError("Difficulty level not defined");
             return 0;
         }
     }
 
+    /// <summary>
+    /// Get actual level of the game
+    /// </summary>
+    /// <returns>int Actual level to be played</returns>
     public int getLevel()
     {
-        return GetInstance().level;
+        return GetInstance()._level;
     }
 
+    /// <summary>
+    /// Get the cost of a hint. 
+    /// </summary>
+    /// <returns>int Hintprice</returns>
     public int getPrice()
     {
-        return GetInstance().hintPrice;
+        return GetInstance()._hintPrice;
     }
 
     // Info and prefab getters
-
+    /// <summary>
+    /// Get how many path skins are created for the game and included in the 
+    /// assetBundles
+    /// </summary>
+    /// <returns>int Number of skins</returns>
     public int getNumPathSkins()
     {
         return GetInstance()._gi._numPathSkins;
     }
 
+    /// <summary>
+    /// Get how many Touch skins are for the game. 
+    /// </summary>
+    /// <returns>int Number of Touch skins</returns>
     public int getNumTouchSkins()
     {
         return GetInstance()._gi._numTouchSkins;
     }
 
+    /// <summary>
+    /// Get how many Tile skins there are and use them for random generation.
+    /// </summary>
+    /// <returns>int Num of skins</returns>
     public int getNumTileSkins()
     {
         return GetInstance()._gi._numTileSkins;
     }
 
+    /// <summary>
+    /// Loads a tile prefab from the AssetBundles and returns it to be used later in the game. 
+    /// </summary>
+    /// <param name="name">Prefab to be loaded</param>
+    /// <returns>GameObject Prefab of the tile chosen</returns>
     public GameObject getPrefabFromTileAssetBundle(string name)
     {
-        return GetInstance().lab.getTileSkins().LoadAsset<GameObject>(name);
+        return GetInstance()._lab.getTileSkins().LoadAsset<GameObject>(name);
     }
 
+    /// <summary>
+    /// Loads a path prefab from the AssetBundle and returns it to be used in the game. 
+    /// </summary>
+    /// <param name="name">Prefab to be loaded</param>
+    /// <returns>GameObject Prefab of the path skin chosen</returns>
     public GameObject getPrefabFromPathAssetBundle(string name)
     {
-        return GetInstance().lab.getPathSkins().LoadAsset<GameObject>(name);
+        return GetInstance()._lab.getPathSkins().LoadAsset<GameObject>(name);
     }
 
+    /// <summary>
+    /// Loads a touch prefab from the AssetBundle and returns it to use in the game. 
+    /// </summary>
+    /// <param name="name">Prefab to be loaded</param>
+    /// <returns>GameObject Prefab of the touch skin chosen</returns>
     public GameObject getPrefabFromTouchAssetBundle(string name)
     {
-        return GetInstance().lab.getTouchSkins().LoadAsset<GameObject>(name);
+        return GetInstance()._lab.getTouchSkins().LoadAsset<GameObject>(name);
     }
 
     // Challenge
+    /// <summary>
+    /// Function that gives information about the challenge status. Used for intializing 
+    /// a challenge. 
+    /// </summary>
+    /// <returns>bool Challenge status</returns>
     public bool getChallenge()
     {
-        return GetInstance().challenge;
+        return GetInstance()._challenge;
     }
 
+    /// <summary>
+    /// Gives the number of minutes that the player has to complete the challenge. 
+    /// </summary>
+    /// <returns>int Time in minutes</returns>
     public int getChallengeTime()
     {
         return GetInstance()._challengeTime;
     }
 
+    /// <summary>
+    /// Gives the value of the reward after winning a challenge. 
+    /// </summary>
+    /// <returns>int Challenge reward value</returns>
     public int getChallengeReward()
     {
         return GetInstance()._challengeReward;
     }
 
+    /// <summary>
+    /// Amount of coins to pay in order to enter a challenge. 
+    /// </summary>
+    /// <returns>int Coins needed to play</returns>
     public int getChallengePrice()
     {
         return GetInstance()._challengePrice;
     }
 
+    /// <summary>
+    /// Gives the time remaining for the player to play a challenge. 
+    /// </summary>
+    /// <returns>float Time remaining in seconds</returns>
     public float getTimeRemaining()
     {
-        return GetInstance().currentPlayerData._timeForNextChallenge;
+        return GetInstance()._currentPlayerData._timeForNextChallenge;
     }
 
+    /// <summary>
+    /// Gets challenge status, if completed or not, to activate the time 
+    /// counter in the main menu. 
+    /// </summary>
+    /// <returns>bool If challenge has been completed or not</returns>
     public bool getChallengeCompleted()
     {
         return GetInstance()._challengeCompleted;
     }
+
     // Player stats getters
+    /// <summary>
+    /// Gives how many coins does the player have. 
+    /// </summary>
+    /// <returns>int Amount of coins the player still has</returns>
     public int getPlayerCoins()
     {
-        return GetInstance().currentPlayerData._coinsPlayer;
+        return GetInstance()._currentPlayerData._coinsPlayer;
     }
 
+    /// <summary>
+    /// Gives how many levels has the player completed in some difficulty. 
+    /// </summary>
+    /// <param name="difficulty">Difficulty to be checked</param>
+    /// <returns>int Number of levels completed in that difficulty</returns>
     public int getCompletedLevelsInDifficulty(int difficulty)
     {
-        if (difficulty < GetInstance().currentPlayerData._completedLevelsInDifficulty.Length)
+        // Check if the difficulty is correct
+        if (difficulty < GetInstance()._currentPlayerData._completedLevelsInDifficulty.Length)
         {
-            return GetInstance().currentPlayerData._completedLevelsInDifficulty[difficulty];
+            return GetInstance()._currentPlayerData._completedLevelsInDifficulty[difficulty];
         }
         else
         {
+            // If not, informs
             Debug.LogError("Difficulty level not defined");
             return 0;
         }
     }
 
+    /// <summary>
+    /// Gives how many challenges has the player completed successfully. 
+    /// </summary>
+    /// <returns>int Number of challenges completed</returns>
     public int getChallengesCompleted()
     {
-        return GetInstance().currentPlayerData._challengesCompleted;
+        return GetInstance()._currentPlayerData._challengesCompleted;
     }
     #endregion
 
     #region ApplicationLifeManagement
+    /// <summary>
+    /// Function called by buttons to quit application.
+    /// </summary>
     public void ExitGame()
     {
         Application.Quit();
     }
 
+    /// <summary>
+    /// Function that will manage the close of the app, saving the player's current status.
+    /// </summary>
     private void OnApplicationQuit()
     {
-        LoadingFiles.SavePlayerData(currentPlayerData);
+        // Save player information
+        LoadingFiles.SavePlayerData(GetInstance()._currentPlayerData);
     }
     #endregion
 }

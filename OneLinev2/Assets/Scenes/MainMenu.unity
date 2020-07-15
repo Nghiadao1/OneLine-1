@@ -2087,7 +2087,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_TargetDisplay: 0
 --- !u!224 &829206839
 RectTransform:
@@ -2158,6 +2158,11 @@ Prefab:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 114754983935229232, guid: 2778ff1afe9d7e9498edab7309524cfd,
+        type: 2}
+      propertyPath: difficulties.Array.size
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 4058573857908502, guid: 2778ff1afe9d7e9498edab7309524cfd, type: 2}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -2200,6 +2205,31 @@ Prefab:
       propertyPath: cnv
       value: 
       objectReference: {fileID: 2055148455}
+    - target: {fileID: 114754983935229232, guid: 2778ff1afe9d7e9498edab7309524cfd,
+        type: 2}
+      propertyPath: difficulties.Array.data[0]
+      value: Beginner
+      objectReference: {fileID: 0}
+    - target: {fileID: 114754983935229232, guid: 2778ff1afe9d7e9498edab7309524cfd,
+        type: 2}
+      propertyPath: difficulties.Array.data[1]
+      value: Regular
+      objectReference: {fileID: 0}
+    - target: {fileID: 114754983935229232, guid: 2778ff1afe9d7e9498edab7309524cfd,
+        type: 2}
+      propertyPath: difficulties.Array.data[2]
+      value: Advanced
+      objectReference: {fileID: 0}
+    - target: {fileID: 114754983935229232, guid: 2778ff1afe9d7e9498edab7309524cfd,
+        type: 2}
+      propertyPath: difficulties.Array.data[3]
+      value: Expert
+      objectReference: {fileID: 0}
+    - target: {fileID: 114754983935229232, guid: 2778ff1afe9d7e9498edab7309524cfd,
+        type: 2}
+      propertyPath: difficulties.Array.data[4]
+      value: Master
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2778ff1afe9d7e9498edab7309524cfd, type: 2}
   m_IsPrefabAsset: 0
