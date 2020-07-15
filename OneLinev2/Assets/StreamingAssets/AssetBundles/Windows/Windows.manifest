@@ -1,0 +1,13 @@
+ManifestFileVersion: 0
+CRC: 3025177343
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: touch_skins
+      Dependencies: {}
+    Info_1:
+      Name: tile_set
+      Dependencies: {}
+    Info_2:
+      Name: paths_set
+      Dependencies: {}
