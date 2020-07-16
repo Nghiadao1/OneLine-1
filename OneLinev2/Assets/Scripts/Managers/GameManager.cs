@@ -67,12 +67,14 @@ public class GameManager : MonoBehaviour {
     Vector2 _lastTouchPosition;             // Last position touched
     LevelManager _lm;                       // LevelManager, for communication in-game
     Random _rnd;                            // Random instance for generating random levels
+    MainMenu _mm;
     int _lastScene;                         // Scene before actual scene
     int _maxDifficulty = 4;                 // Max difficulty in game (data driven)
-    bool _challengeCompleted = false;       // Challenge completed flag
     bool _adRewardCoins = false;            // Flag to control when ad is requested
     bool _adDoubleChallenge = false;        // Flag to double challenge win bounty
     bool _adChallengeInit = false;          // After ad init challenge
+    bool _challengeWaiting = false;         // Flag to check if challenge has been completed
+    float _timeChallengeWait = 0.0f;        // Time for the next challenge 
     #endregion
 
     #region Utilities
@@ -150,10 +152,33 @@ public class GameManager : MonoBehaviour {
 
             // Get Player information and store it
             _currentPlayerData = LoadingFiles.ReadPlayerData(_maxDifficulty);
+
+            // Set the time waiting for challenge info
+            SetTimeForChallenge();
         }
         else if (_instance != this)
         {
             Destroy(gameObject);
+        }
+    }
+
+    /// <summary>
+    /// Calculates time reamining for a new challenge. Checks if the actual
+    /// time is less than the challenge date. 
+    /// </summary>
+    public void SetTimeForChallenge()
+    {
+        if(GetInstance().ConvertDateToSecond() < GetInstance()._currentPlayerData._dateForNextChallenge)
+        {
+            int challengeTimeRemaining = GetInstance()._currentPlayerData._dateForNextChallenge - GetInstance().ConvertDateToSecond();
+
+            GetInstance()._timeChallengeWait = challengeTimeRemaining;
+            GetInstance()._challengeWaiting = true;
+        }
+        else
+        {
+            GetInstance()._timeChallengeWait = (GetInstance()._gc._challengeWaitTime * 60.0f);
+            GetInstance()._challengeWaiting = false;
         }
     }
 
@@ -243,6 +268,33 @@ public class GameManager : MonoBehaviour {
     #endregion
 
     #region GameManagement
+
+    /// <summary>
+    /// Updates the time remaining for the next challenge. Notifies the 
+    /// MainMenu to update the time left text. 
+    /// </summary>
+    private void Update()
+    {
+        // If is waiting time
+        if (GetInstance()._challengeWaiting)
+        {
+            // Calculates the elapsed time since the last frame
+            GetInstance()._timeChallengeWait -= Time.deltaTime;
+
+            if(SceneManager.GetActiveScene().buildIndex == 0)
+                GetInstance()._mm.UpdateTime(GetInstance()._timeChallengeWait);
+
+            // If the timer ends
+            if (GetInstance()._timeChallengeWait <= 0)
+            {
+                // Restart the time information and the original state of the main menu
+                // The challenge button is active and not blocked again 
+                GetInstance()._timeChallengeWait = GetInstance()._gc._challengeWaitTime;
+                GetInstance()._challengeWaiting = false;
+            }
+        }
+    }
+
     /// <summary>
     /// Function called by the InputManager when the player touches the 
     /// screen. Checks if the actual scene is the Game one, and manages all
@@ -315,6 +367,8 @@ public class GameManager : MonoBehaviour {
     {
         // Update challenge value
         GetInstance()._challenge = false;
+        GetInstance()._challengeWaiting = true;
+        GetInstance()._timeChallengeWait = GetInstance()._gc._challengeWaitTime * 60.0f;
     }
 
     /// <summary>
@@ -461,12 +515,6 @@ public class GameManager : MonoBehaviour {
     /// </summary>
     public void ReturnToMenu()
     {
-        // Checks the time for the next challenge
-        if (ConvertDateToSecond() > GetInstance()._currentPlayerData._dateForNextChallenge)
-        {
-            GetInstance()._currentPlayerData._timeForNextChallenge = 0;
-        }
-
         // Load MainMenu scene
         SceneManager.LoadScene(0);
     }
@@ -570,7 +618,7 @@ public class GameManager : MonoBehaviour {
         // Reset challenge value
         GetInstance()._challenge = false;
         // Set challenge completed for timers
-        GetInstance()._challengeCompleted = true;
+        GetInstance().ChallengeCompleted();
     }
 
     /// <summary>
@@ -583,8 +631,8 @@ public class GameManager : MonoBehaviour {
         // Update player information with the rewards
         GetInstance()._currentPlayerData._coinsPlayer += GetInstance()._gc._challengeReward;
         GetInstance()._currentPlayerData._challengesCompleted += 1;
-
-        GetInstance()._challengeCompleted = true;
+        
+        GetInstance().ChallengeCompleted();
     }
     #endregion
 
@@ -596,6 +644,15 @@ public class GameManager : MonoBehaviour {
     public void setLevelManager(LevelManager man)
     {
         GetInstance()._lm = man;
+    }
+
+    /// <summary>
+    /// Function called to set the Main Menu instance for changing some things. 
+    /// </summary>
+    /// <param name="mm"></param>
+    public void setMainMenu(MainMenu mm)
+    {
+        GetInstance()._mm = mm;
     }
 
     /// <summary>
@@ -638,19 +695,8 @@ public class GameManager : MonoBehaviour {
     /// <param name="timing">Time for the next challenge</param>
     public void SetChallengeTimeRemaining(int timing)
     {
-        // Store time left fot next challenge
-        GetInstance()._currentPlayerData._timeForNextChallenge = timing;
         // Calculate the date for it
         GetInstance()._currentPlayerData._dateForNextChallenge = GetInstance().ConvertDateToSecond() + timing;
-    }
-
-    /// <summary>
-    /// Set the GameManager to wait for challenge timer to end.
-    /// </summary>
-    /// <param name="challengeWaiting"></param>
-    public void SetChallengeWaiting(bool challengeWaiting)
-    {
-        GetInstance()._challengeCompleted = challengeWaiting;
     }
     #endregion
 
@@ -869,17 +915,17 @@ public class GameManager : MonoBehaviour {
     /// <returns>float Time remaining in seconds</returns>
     public float getTimeRemaining()
     {
-        return GetInstance()._currentPlayerData._timeForNextChallenge;
+        return GetInstance()._timeChallengeWait;
     }
 
     /// <summary>
-    /// Gets challenge status, if completed or not, to activate the time 
-    /// counter in the main menu. 
+    /// Gives the status of the challenge. If the player played a challenge
+    /// recently, they must wait for time to end.
     /// </summary>
-    /// <returns>bool If challenge has been completed or not</returns>
-    public bool getChallengeCompleted()
+    /// <returns></returns>
+    public bool getChallengeWaiting()
     {
-        return GetInstance()._challengeCompleted;
+        return GetInstance()._challengeWaiting;
     }
 
     // Player stats getters
@@ -936,6 +982,9 @@ public class GameManager : MonoBehaviour {
     /// </summary>
     private void OnApplicationQuit()
     {
+        // Update _currentPlayerData 
+        GetInstance()._currentPlayerData._dateForNextChallenge = (int)(ConvertDateToSecond() + GetInstance()._timeChallengeWait);
+
         // Save player information
         LoadingFiles.SavePlayerData(GetInstance()._currentPlayerData);
     }

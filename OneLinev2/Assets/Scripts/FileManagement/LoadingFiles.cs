@@ -52,10 +52,8 @@ public struct PlayerData
     // Player's information 
     public int _coinsPlayer;                   // Coins that the player has
     public int[] _completedLevelsInDifficulty; // levels completed by the player
-    public int _challengesCompleted;           // challenges completed succesfully
-    public int _timeForNextChallenge;          // time left for the next challenge 
+    public int _challengesCompleted;           // challenges completed succesfully 
     public int _dateForNextChallenge;          // date for the next challenge
-    public int _lastClosed;                    // date last closed
     public int _levelsPlayed;                  // how many levels played in this match
     public bool _paid;                         // if the player paid for no ads
     private int _hash;                         // hash code 
@@ -67,18 +65,14 @@ public struct PlayerData
     /// <param name="coins">Coins the player has</param>
     /// <param name="completed">Levels completed in each difficulty</param>
     /// <param name="challengesComp">Number of challenges completed</param>
-    /// <param name="timeNextChallenge">Time remaining for a challenge</param>
     /// <param name="dateForChallenge">Date for the next challenge</param>
-    /// <param name="dateClosed">Date the app is closed</param>
     /// <param name="paid">If player paid or not for the game</param>
-    public PlayerData(int coins, int[] completed, int challengesComp, int timeNextChallenge, int dateForChallenge, int dateClosed, bool paid)
+    public PlayerData(int coins, int[] completed, int challengesComp, int dateForChallenge, bool paid)
     {
         _coinsPlayer = coins;
         _completedLevelsInDifficulty = completed;
         _challengesCompleted = challengesComp;
-        _timeForNextChallenge = timeNextChallenge;
         _dateForNextChallenge = dateForChallenge;
-        _lastClosed = dateClosed;
         _paid = paid;
 
         _hash = 0;
@@ -263,7 +257,7 @@ public class LoadingFiles
     public static PlayerData NewPlayerData(int maxDifficulty)
     {
         // The new player
-        PlayerData data = new PlayerData(0, new int[maxDifficulty], 0, 0, 0, 0, false);
+        PlayerData data = new PlayerData(0, new int[maxDifficulty], 0, 0, false);
 
         // Initialize the levels so that they can play the first level
         for (int i = 0; i < data._completedLevelsInDifficulty.Length; i++)

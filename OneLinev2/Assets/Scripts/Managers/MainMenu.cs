@@ -30,10 +30,7 @@ public class MainMenu : MonoBehaviour
     public Button _challenge;                   // Calls the activation of the challenges panel
     public GameObject _challengeBlocked;        // Image that shows the timer to next challenge upon the challenge button
     public Text _challengeTimeLeft;             // Shows the timer to next challenge
- 
-    [Header("Time waiting in minutes")]
-    public float _timeChallengeWait = 30.0f;    // Number of minutes that needs the challenge timer to allow a new challenge
-    float _timeReset;                           // Keep the initial minutes of the challenge timer to reset them when is needed
+    
     bool _challengeWaiting = false;             // If is needed to wait for the next challenge or not
 
     // Start is called before the first frame update
@@ -43,15 +40,11 @@ public class MainMenu : MonoBehaviour
     /// </summary>
     void Start()
     {
+        GameManager.GetInstance().setMainMenu(this);
         GameManager.GetInstance().SetCanvas(_mainMenuCanvas);
         GameManager.GetInstance().SetCamera(_mainCamera);
 
-        // Calculates the time to next challenge in seconds
-        _timeChallengeWait *= 60.0f;
-        // Sets the reset time value with the initial time to wait for next player
-        _timeReset = _timeChallengeWait;
-
-        _challengeWaiting = GameManager.GetInstance().getChallengeCompleted();
+        _challengeWaiting = GameManager.GetInstance().getChallengeWaiting();
 
         InitTexts();
 
@@ -60,18 +53,8 @@ public class MainMenu : MonoBehaviour
         _challengeBlocked.SetActive(false);
 
         // If the timer not finish yet
-        if (_challengeWaiting || GameManager.GetInstance().getTimeRemaining() > 0.0f)
+        if (_challengeWaiting)
         {
-            // And not stating waiting
-            if (!_challengeWaiting)
-            {
-                // Gets the seconds left to next challenge and start the waiting boolean
-                _timeChallengeWait = GameManager.GetInstance().getTimeRemaining();
-                _challengeWaiting = true;
-            }
-
-            // Sets the actual seconds to next challenge, activates the blocked image and set the challenge button not interactable
-            GameManager.GetInstance().SetChallengeTimeRemaining((int)_timeChallengeWait);
             _challengeBlocked.SetActive(true);
             _challenge.interactable = false;
         }
@@ -117,32 +100,23 @@ public class MainMenu : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        // If is waiting time
-        if (_challengeWaiting)
-        {
-            // Calculates the elapsed time since the last frame
-            _timeChallengeWait -= Time.deltaTime;
+        _challengeWaiting = GameManager.GetInstance().getChallengeWaiting();
+    }
 
-            // Sets the seconds to minutes and second in the 00:00 format
-            string minutes = Mathf.Floor(_timeChallengeWait / 60).ToString("00");
-            string seconds = Mathf.RoundToInt(_timeChallengeWait % 60).ToString("00");
+    public void ChallengeAvailable()
+    {
+        _challenge.interactable = true;
+        _challengeBlocked.SetActive(false);
+        _challengeWaiting = false;
+    }
 
-            _challengeTimeLeft.text = minutes + ":" + seconds;
+    public void UpdateTime(float time)
+    {
+        // Sets the seconds to minutes and second in the 00:00 format
+        string minutes = Mathf.Floor(time / 60).ToString("00");
+        string seconds = Mathf.RoundToInt(time % 60).ToString("00");
 
-            // If the timer ends
-            if (_timeChallengeWait <= 0)
-            {
-                // Restart the time information and the original state of the main menu
-                // The challenge button is active and not blocked again 
-                _timeChallengeWait = _timeReset;
-                _challenge.interactable = true;
-                _challengeBlocked.SetActive(false);
-                _challengeWaiting = false;
-
-                // Stops the waiting time
-                GameManager.GetInstance().SetChallengeWaiting(false);
-            }
-        }
+        _challengeTimeLeft.text = minutes + ":" + seconds;
     }
 
     /// <summary>
