@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This class is the one that keep all the information and state of each tile:
+/// its position on the board and if its children are activated or not
+/// Also changes the player and the hint path when is needed.
+/// </summary>
 public class Tile : MonoBehaviour
 {
 
