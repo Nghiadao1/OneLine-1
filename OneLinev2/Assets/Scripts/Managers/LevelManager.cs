@@ -188,45 +188,45 @@ public class LevelManager : MonoBehaviour
         if (!_challenge)
         {
             // Set the top panel with the corresponding texts
-            if ((lic = GetInterfacePart(InterfaceType.NormalSuperior)) != null)
+            if ((lic = GetInterfacePart(InterfaceType.NormalTop)) != null)
             {
-                lic.SetLevelSuperior(_difficulty, _level, _coins);
+                lic.SetLevelSuperior( _level, _coins);
             }
             else
             {
-                Debug.LogError("Interface parts missing: " + InterfaceType.NormalSuperior);
+                Debug.LogError("Interface parts missing: " + InterfaceType.NormalTop);
             }
             // Set the hint price in the buy hint button
-            if ((lic = GetInterfacePart(InterfaceType.NormalInferior)) != null)
+            if ((lic = GetInterfacePart(InterfaceType.NormalBottom)) != null)
             {
                 lic.SetLevelInferior(GameManager.GetInstance().getPrice());
             }
             else
             {
-                Debug.LogError("Interface parts missing: " + InterfaceType.NormalInferior);
+                Debug.LogError("Interface parts missing: " + InterfaceType.NormalBottom);
             }
         }
         // Set the challenge configurations
         else
         {
             // Set the top interface for the challenge
-            if ((lic = GetInterfacePart(InterfaceType.ChallengeSuperior)) != null)
+            if ((lic = GetInterfacePart(InterfaceType.ChallengeTop)) != null)
             {
                 lic.SetChallengeSuperior();
             }
             else
             {
-                Debug.LogError("Interface parts missing: " + InterfaceType.ChallengeSuperior);
+                Debug.LogError("Interface parts missing: " + InterfaceType.ChallengeTop);
             }
 
             // Set bottom timer and interface
-            if ((lic = GetInterfacePart(InterfaceType.ChallengeInferior)) != null)
+            if ((lic = GetInterfacePart(InterfaceType.ChallengeBottom)) != null)
             {
                 lic.SetChallengeInferior();
             }
             else
             {
-                Debug.LogError("Interface parts missing: " + InterfaceType.ChallengeInferior);
+                Debug.LogError("Interface parts missing: " + InterfaceType.ChallengeBottom);
             }
         }
     }
@@ -259,13 +259,13 @@ public class LevelManager : MonoBehaviour
                 GameManager.GetInstance().CoinsUsed();
 
                 // Update the coins text shown in the interface
-                if ((lic = GetInterfacePart(InterfaceType.NormalSuperior)) != null)
+                if ((lic = GetInterfacePart(InterfaceType.NormalTop)) != null)
                 {
                     lic.ChangeCoins(_coins);
                 }
                 else
                 {
-                    Debug.LogError("Interface parts missing: " + InterfaceType.NormalSuperior);
+                    Debug.LogError("Interface parts missing: " + InterfaceType.NormalTop);
                 }
 
                 // Notify BoardManager to show the hint
@@ -296,13 +296,13 @@ public class LevelManager : MonoBehaviour
         _coins = GameManager.GetInstance().getPlayerCoins();
 
         // Update Interface
-        if ((lic = GetInterfacePart(InterfaceType.NormalSuperior)) != null)
+        if ((lic = GetInterfacePart(InterfaceType.NormalTop)) != null)
         {
             lic.ChangeCoins(_coins);
         }
         else
         {
-            Debug.LogError("Interface parts missing: " + InterfaceType.NormalSuperior);
+            Debug.LogError("Interface parts missing: " + InterfaceType.NormalTop);
         }
     }
 
@@ -397,7 +397,7 @@ public class LevelManager : MonoBehaviour
             {
                 // If so, show winning panel
                 _clearPanelController.ChallengeComplete();
-                GetInterfacePart(InterfaceType.ChallengeInferior).ChallengeCompleted();
+                GetInterfacePart(InterfaceType.ChallengeBottom).ChallengeCompleted();
                 GameManager.GetInstance().ChallengeWin();
             }
             else
