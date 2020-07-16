@@ -18,36 +18,33 @@ public class BoardManager : MonoBehaviour
     Vector2 _resolution;
 
     // Margins
-    public int _topMargin = 5;
-    public int _sideMargin = 45;
+    public int _topMargin;              // Margin between the top and the bottom panel and the game space
+    public int _sideMargin;             // Margin between the side points and the game space
 
-    // Object that will contain the Board
-    public Transform _boardPanel;
-    GameObject[,] _board;
+    public Transform _boardPanel;       // Empty game object that will contains the board and that will set its position
+    GameObject[,] _board;               // Matrix with the tiles of the board
 
-    Stack<Vector2> _path;
+    Stack<Vector2> _path;               // Stack with the path of the player (the tiles that the player pressed in order)
 
     // Tile's prefab
-    GameObject _tile;
-    GameObject _playerPath;
-    GameObject _colorTile;
-    GameObject _pathColor;
+    GameObject _tile;                   // Gray tile's prefab (not pressed) and father of the tile colors and paths
+    GameObject _playerPath;             // Dotted road showing the actual path of the player matching one tile with the previus one
+    GameObject _colorTile;              // Colored tile to mark a tile like pressed
+    GameObject _pathColor;              // Dotted colored road showing the right path given by the hints
 
-    // Tile Origen del nivel
-    GameObject _origin;
+    GameObject _origin;                 // Starting level's tile
 
     // Panels to calculate the space for the board
-    private float _topPanel;
-    private float _bottomPanel;
+    private float _topPanel;            // Top canvas panel
+    private float _bottomPanel;         // Bottom canvas panel
 
-    // Variables del tablero
-    Levels _level;
+    Levels _level;                      // Class with all the level info
 
-    // How many tiles will be in the current level (WidthxHeight)
-    Vector2 _dimensions; // Cuantos tiles hay a lo alto y a lo ancho
+    
+    Vector2 _dimensions;                // How many tiles will be in the current level (WidthxHeight)
 
     // Hint management
-    int _lastHint = 1;
+    int _lastHint = 1;                  // Last position of the hints array
 
 
     /// <summary>
@@ -310,18 +307,27 @@ public class BoardManager : MonoBehaviour
     #endregion
 
     #region GamePlay
+
+    /// <summary>
+    /// Checks out if the input position (mouse click or touched screen) is on a tile
+    /// and change the tile state and information 
+    /// </summary>
+    /// <param name="position">World position of the input</param>
     public void Touched(Vector2 position)
     {
         float degrees;
         RaycastHit2D ray = Physics2D.Raycast(position, Vector2.zero);
         if (ray)
         {
+            // If the ray collides with a tile
             if (ray.collider.gameObject.GetComponent<Tile>())
             {
                 Tile tile = ray.collider.gameObject.GetComponent<Tile>();
 
+                // Cheks out if the pressed tile is on the path stack already
                 if (_path.Contains(tile.getPositionInBoard()))
                 {
+                    // Reset all the following tiles in the path to not pressed and pop it from the stack
                     while (_path.Peek() != tile.getPositionInBoard())
                     {
                         _board[(int)_path.Peek().y, (int)_path.Peek().x].GetComponent<Tile>().ResetTile();
@@ -330,24 +336,33 @@ public class BoardManager : MonoBehaviour
                 }
                 else
                 {
-                    // Si no, comprobamos si alrededor tiene tiles activados y el que está activo es el último
+                    // If the tile is not in the path stack, checks out if there are some pressed tile around
+                    // and if one of these is the last one in the path
+                    // If the last one is the left one
                     if (CheckTile(new Vector2(tile.getPositionInBoard().x - 1, tile.getPositionInBoard().y)))
                     {
+                        // Activates tile and rotates its path to the left
                         degrees = 180.0f;
                         TileAdded(tile, degrees);
                     }
+                    // If the last one is the right one
                     else if (CheckTile(new Vector2(tile.getPositionInBoard().x + 1, tile.getPositionInBoard().y)))
                     {
+                        // Activates tile and rotates its path to the right (default)
                         degrees = 0.0f;
                         TileAdded(tile, degrees);
                     }
+                    // If the last one is the under one
                     else if (CheckTile(new Vector2(tile.getPositionInBoard().x, tile.getPositionInBoard().y - 1)))
                     {
+                        // Activates tile and rotates its path to down
                         degrees = 90.0f;
                         TileAdded(tile, degrees);
                     }
+                    // If the last one is the uppper one
                     else if (CheckTile(new Vector2(tile.getPositionInBoard().x, tile.getPositionInBoard().y + 1)))
                     {
+                        // Activates tile and rotates its path to up
                         degrees = -90.0f;
                         TileAdded(tile, degrees);
                     }
@@ -356,6 +371,12 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Push the new tile position in the stack and activates the tile's children
+    /// with the random color and its path
+    /// </summary>
+    /// <param name="t">Tile class with all the information of each tile</param>
+    /// <param name="degrees">Degrees to rotate the player path when is active</param>
     public void TileAdded(Tile t, float degrees)
     {
         _path.Push(t.getPositionInBoard());
@@ -364,14 +385,22 @@ public class BoardManager : MonoBehaviour
         t.RotatePlayerPath(degrees);
     }
 
+    /// <summary>
+    /// Checks if a tile's position is on the path stack
+    /// </summary>
+    /// <param name="position">Tile's position in the board</param>
+    /// <returns>If the tile's position is in the path stack or not</returns>
     public bool CheckTile(Vector2 position)
     {
+        // Checks if the tile's position is in the board and is not out of limits
         if (position.x >= _dimensions.x || position.x < 0 || position.y >= _dimensions.y || position.y < 0)
         {
             return false;
         }
+        // If there is a tile in the board's position
         else if (_board[(int)position.y, (int)position.x] != null)
         {
+            // Checks if this position is alredy in the path stack
             if (_path.Peek() == position)
             {
                 return true;
@@ -387,25 +416,34 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// The player ask for a hint to know the right path of the level.
+    /// Checks the last hint given and activates the following right paths
+    /// </summary>
     public void HintGiven()
     {
         float degrees = 0.0f;
         int i;
 
+        // Activates 3 new hints path if them fit in the board
         for (i = _lastHint; i < (_lastHint + 4) && i < _level.path.Length; i++)
         {
+            // If the previus hint is on the left, rotate the next hint to the left
             if ((int)_level.path[i].x == (int)_level.path[i - 1].x - 1)
             {
                 degrees = -90.0f;
             }
+            // If the previus hint is on the right, rotate the next hint to the right
             else if ((int)_level.path[i].x == (int)_level.path[i - 1].x + 1)
             {
                 degrees = 90.0f;
             }
+            // If the previus hint is under, rotate the next hint to down
             else if ((int)_level.path[i].y == (int)_level.path[i - 1].y - 1)
             {
                 degrees = 0.0f;
             }
+            // If the previus hint is upper, rotate the next hint to up
             else if ((int)_level.path[i].y == (int)_level.path[i - 1].y + 1)
             {
                 degrees = 180.0f;
@@ -414,9 +452,13 @@ public class BoardManager : MonoBehaviour
             _board[(int)_level.path[i].x, (int)_level.path[i].y].GetComponent<Tile>().RotateHintPath(degrees);
         }
 
+        // Update the last hint
         _lastHint = i;
     }
 
+    /// <summary>
+    /// Reset all the tiles in the level to the original state and pop them from the path stack
+    /// </summary>
     public void ResetLevel()
     {
         while (_path.Peek() != _origin.GetComponent<Tile>().getPositionInBoard())
@@ -426,6 +468,11 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Checks if the player path contains all the tiles and has the same lenth of the hints path.
+    /// That is because it is only a way to press all the tiles in a path
+    /// </summary>
+    /// <returns>If the level is ended or not (all the tiles are pressed)</returns>
     public bool Ended()
     {
         if (_path.ToArray().Length == _level.path.Length)
@@ -438,6 +485,10 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Checks if fits new path hints
+    /// </summary>
+    /// <returns>If new hints fits in the board</returns>
     public bool CanBuyHint()
     {
         return _lastHint != (int)_level.path.Length;
