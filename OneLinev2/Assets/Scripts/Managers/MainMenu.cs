@@ -89,19 +89,19 @@ public class MainMenu : MonoBehaviour
         _playerCoins.text = GameManager.GetInstance().getPlayerCoins().ToString();
 
         // Completed levels of each difficulty
-        _beginnerCompletedLevels.text = GameManager.GetInstance().getCompletedLevelsInDifficulty(0).ToString()
+        _beginnerCompletedLevels.text = (GameManager.GetInstance().getCompletedLevelsInDifficulty(0) - 1).ToString()
             + "/" + GameManager.GetInstance().getLevelsInDifficulty(0).ToString();
 
-        _regularCompletedLevels.text = GameManager.GetInstance().getCompletedLevelsInDifficulty(1).ToString()
+        _regularCompletedLevels.text = (GameManager.GetInstance().getCompletedLevelsInDifficulty(1) - 1).ToString()
             + "/" + GameManager.GetInstance().getLevelsInDifficulty(1).ToString();
 
-        _advancedCompletedLevels.text = GameManager.GetInstance().getCompletedLevelsInDifficulty(2).ToString()
+        _advancedCompletedLevels.text = (GameManager.GetInstance().getCompletedLevelsInDifficulty(2) - 1).ToString()
             + "/" + GameManager.GetInstance().getLevelsInDifficulty(2).ToString();
 
-        _expertCompletedLevels.text = GameManager.GetInstance().getCompletedLevelsInDifficulty(3).ToString()
+        _expertCompletedLevels.text = (GameManager.GetInstance().getCompletedLevelsInDifficulty(3) - 1).ToString()
             + "/" + GameManager.GetInstance().getLevelsInDifficulty(3).ToString();
 
-        _masterCompletedLevels.text = GameManager.GetInstance().getCompletedLevelsInDifficulty(4).ToString()
+        _masterCompletedLevels.text = (GameManager.GetInstance().getCompletedLevelsInDifficulty(4) - 1).ToString()
             + "/" + GameManager.GetInstance().getLevelsInDifficulty(4).ToString();
 
         _challengesCompleted.text = GameManager.GetInstance().getChallengesCompleted().ToString();

@@ -265,6 +265,51 @@ PrefabInstance:
       propertyPath: cpc
       value: 
       objectReference: {fileID: 2049814133}
+    - target: {fileID: 114734381551545044, guid: eb84b1d26948b7e46b6af23d9ea91dd4,
+        type: 3}
+      propertyPath: _canvas
+      value: 
+      objectReference: {fileID: 1167998841}
+    - target: {fileID: 114734381551545044, guid: eb84b1d26948b7e46b6af23d9ea91dd4,
+        type: 3}
+      propertyPath: _camera
+      value: 
+      objectReference: {fileID: 1238454631}
+    - target: {fileID: 114734381551545044, guid: eb84b1d26948b7e46b6af23d9ea91dd4,
+        type: 3}
+      propertyPath: _backGround
+      value: 
+      objectReference: {fileID: 77529674}
+    - target: {fileID: 114734381551545044, guid: eb84b1d26948b7e46b6af23d9ea91dd4,
+        type: 3}
+      propertyPath: _boardManager
+      value: 
+      objectReference: {fileID: 862694577}
+    - target: {fileID: 114734381551545044, guid: eb84b1d26948b7e46b6af23d9ea91dd4,
+        type: 3}
+      propertyPath: _clearPanelController
+      value: 
+      objectReference: {fileID: 2049814133}
+    - target: {fileID: 114734381551545044, guid: eb84b1d26948b7e46b6af23d9ea91dd4,
+        type: 3}
+      propertyPath: _levelInterface.Array.data[0]
+      value: 
+      objectReference: {fileID: 1168152253}
+    - target: {fileID: 114734381551545044, guid: eb84b1d26948b7e46b6af23d9ea91dd4,
+        type: 3}
+      propertyPath: _levelInterface.Array.data[1]
+      value: 
+      objectReference: {fileID: 2053927291}
+    - target: {fileID: 114734381551545044, guid: eb84b1d26948b7e46b6af23d9ea91dd4,
+        type: 3}
+      propertyPath: _challengeInterface.Array.data[0]
+      value: 
+      objectReference: {fileID: 1850012252}
+    - target: {fileID: 114734381551545044, guid: eb84b1d26948b7e46b6af23d9ea91dd4,
+        type: 3}
+      propertyPath: _challengeInterface.Array.data[1]
+      value: 
+      objectReference: {fileID: 1091374729}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: eb84b1d26948b7e46b6af23d9ea91dd4, type: 3}
 --- !u!114 &320619168 stripped
