@@ -75,6 +75,7 @@ public class GameManager : MonoBehaviour {
     bool _adChallengeInit = false;          // After ad init challenge
     bool _challengeWaiting = false;         // Flag to check if challenge has been completed
     float _timeChallengeWait = 0.0f;        // Time for the next challenge 
+    bool isPaused = false;                  // Android focus in the app management
     #endregion
 
     #region Utilities
@@ -587,9 +588,12 @@ public class GameManager : MonoBehaviour {
     public void PaidChallenge()
     {
         // Take the coins from the player
-        GetInstance()._currentPlayerData._coinsPlayer -= GetInstance()._gc._challengeCost;
+        if (GetInstance()._currentPlayerData._coinsPlayer >= GetInstance()._gc._challengeCost)
+        {
+            GetInstance()._currentPlayerData._coinsPlayer -= GetInstance()._gc._challengeCost;
 
-        InitChallenge();
+            InitChallenge();
+        }
     }
 
     /// <summary>
@@ -978,12 +982,62 @@ public class GameManager : MonoBehaviour {
     }
 
     /// <summary>
+    /// Checks if the app has the focus and reloads all the info about the 
+    /// player and the times in case it's needed. 
+    /// </summary>
+    /// <param name="focus"></param>
+    private void OnApplicationFocus(bool focus)
+    {
+        isPaused = !focus;
+
+        if (focus)
+        {
+            // Get Player information and store it
+            GetInstance()._currentPlayerData = LoadingFiles.ReadPlayerData(GetInstance()._maxDifficulty);
+
+            // Set the time waiting for challenge info
+            SetTimeForChallenge();
+        }
+        else
+        {
+            // Update _currentPlayerData 
+            if (GetInstance()._challengeWaiting)
+            {
+                GetInstance()._currentPlayerData._dateForNextChallenge = (int)(ConvertDateToSecond() + GetInstance()._timeChallengeWait);
+            }
+            // Save player information
+            LoadingFiles.SavePlayerData(GetInstance()._currentPlayerData);
+        }
+    }
+
+    /// <summary>
+    /// When the app loses focus, saves the info about the player, because the 
+    /// mobilephone can have the functionality to stop apps that don't have 
+    /// the focus, this way we ensure the player information is safe.
+    /// </summary>
+    /// <param name="pause"></param>
+    private void OnApplicationPause(bool pause)
+    {
+        // Update _currentPlayerData 
+        if (GetInstance()._challengeWaiting)
+        {
+            GetInstance()._currentPlayerData._dateForNextChallenge = (int)(ConvertDateToSecond() + GetInstance()._timeChallengeWait);
+        }
+
+        // Save player information
+        LoadingFiles.SavePlayerData(GetInstance()._currentPlayerData);
+    }
+
+    /// <summary>
     /// Function that will manage the close of the app, saving the player's current status.
     /// </summary>
     private void OnApplicationQuit()
     {
         // Update _currentPlayerData 
-        GetInstance()._currentPlayerData._dateForNextChallenge = (int)(ConvertDateToSecond() + GetInstance()._timeChallengeWait);
+        if (GetInstance()._challengeWaiting)
+        {
+            GetInstance()._currentPlayerData._dateForNextChallenge = (int)(ConvertDateToSecond() + GetInstance()._timeChallengeWait);
+        }
 
         // Save player information
         LoadingFiles.SavePlayerData(GetInstance()._currentPlayerData);

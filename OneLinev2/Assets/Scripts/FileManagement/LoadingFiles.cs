@@ -210,13 +210,13 @@ public class LoadingFiles
     public static PlayerData ReadPlayerData(int maxDifficulty)
     {
         // Check if file exists
-        if (File.Exists(Application.persistentDataPath + "/misc/surrender.dat"))
+        if (File.Exists(Application.persistentDataPath + "/surrender.dat"))
         {
             // Binary formatter for conversion 
             BinaryFormatter bf = new BinaryFormatter();
 
             // File from which will be read the information of the player
-            FileStream file = File.Open(Application.persistentDataPath + "/misc/surrender.dat", FileMode.Open);
+            FileStream file = File.Open(Application.persistentDataPath + "/surrender.dat", FileMode.Open);
 
             // Convert binary to PlayerData information
             PlayerData data = (PlayerData)bf.Deserialize(file);
@@ -278,14 +278,8 @@ public class LoadingFiles
         // Initialize BinaryFormatter
         BinaryFormatter bf = new BinaryFormatter();
 
-        // Check if the directory exists (Just for hidding the file)
-        if (!Directory.Exists(Application.persistentDataPath + "/misc/"))
-        {
-            Directory.CreateDirectory(Application.persistentDataPath + "/misc/");
-        }
-
         // Create the new player save file
-        FileStream file = File.Create(Application.persistentDataPath + "/misc/surrender.dat");
+        FileStream file = File.Create(Application.persistentDataPath + "/surrender.dat");
 
         // Save the levels played with the coins (Salt)
         pd._levelsPlayed = fileNum + pd._coinsPlayer;
