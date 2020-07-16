@@ -4,10 +4,26 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 /// <summary>
-/// Toda esta parte es una fumada de narices eh, pero no pasa nada
+/// Configuración del juego mediante datos
 /// </summary>
 [System.Serializable]
-public class GameInfo
+public class GameConfig
+{
+    //values of different things needed in the game, set in default values
+    public int _maxDifficulty;        // Maximum difficulties, number of difficulties
+    public string[] _difficultyTexts; // name of the difficulties in string
+    public int _hintCost;             // price to be paid for a hint
+    public int _coinsMaxReward;       // coins maximum reward after ad
+    public int _challengeWaitTime;    // time player must wait between challenges
+    public int _challengeReward;      // coins reward after winning a challenge
+    public int _challengeCost;        // price to pay for a challenge without seeing an ad
+}
+
+/// <summary>
+/// Esto es para controlar que la configuración del juego y tal concuerda con los archivos, es sólo de control, 
+/// </summary>
+[System.Serializable]
+public class GameFilesInfo
 {
     public int _numDifficulties;
     public int _numPathSkins;
@@ -60,9 +76,43 @@ public class LoadingFiles
 {
     static private int fileNum = 0573;
 
-    public static GameInfo ReadGameInfo()
+    public static GameConfig ReadGameConfig()
     {
-        GameInfo info = new GameInfo();
+        GameConfig conf = new GameConfig();
+
+        string path = Application.streamingAssetsPath + "/game_config.json";
+        string gameConf = null;
+
+#if !UNITY_EDITOR && UNITY_ANDROID
+        WWW loadingConfig = new WWW(path);
+        while (!loadingConfig.isDone) { }
+
+        gameConf = loadingConfig.text;
+#else
+        if (File.Exists(path))
+        {
+            gameConf = File.ReadAllText(path);
+        }
+        else
+        {
+            Debug.LogError("GameConfiguration not exists, configurate your game pls"); // CAMBIAR ESTO
+        }
+#endif
+        if(gameConf != null)
+        {
+            conf = JsonUtility.FromJson<GameConfig>(gameConf);
+        }
+        else
+        {
+            Debug.LogError("Archivo no leído");
+        }
+
+        return conf;
+    }
+
+    public static GameFilesInfo ReadGameInfo()
+    {
+        GameFilesInfo info = new GameFilesInfo();
         string path = Application.streamingAssetsPath + "/game_data.json";
         string gameData = null;
 
@@ -83,7 +133,7 @@ public class LoadingFiles
 #endif
         if (gameData != null)
         {
-            info = JsonUtility.FromJson<GameInfo>(gameData);
+            info = JsonUtility.FromJson<GameFilesInfo>(gameData);
         }
         else
         {

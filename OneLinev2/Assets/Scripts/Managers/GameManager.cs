@@ -37,24 +37,6 @@ public class GameManager : MonoBehaviour {
     public Camera _cam;
 
     /// <summary>
-    /// This variables are used to set the game configuration that will be used in the
-    /// next build of the game. 
-    /// 
-    /// They can also be used for debugging. 
-    /// </summary>
-    [Header("Game Configuration")]
-    // Names of the different difficulties, can be configurated through code
-    public string[] _difficulties;
-    // How many levels are in a certain difficulty
-    public int[] _levelsInDifficulty;
-    // Values of different things needed in the game, set in default values
-    public int _hintPrice = 25;            // Price to be paid for a hint
-    public int _coinsMaxRewardAd = 30;     // Coins maximum reward after ad
-    public int _challengeTime = 30;        // Time player must wait between challenges
-    public int _challengeReward = 50;      // Coins reward after winning a challenge
-    public int _challengePrice = 25;       // Price to pay for a challenge without seeing an ad
-
-    /// <summary>
     /// This variables are only public for debugging a concrete scene or gamemode. They
     /// are later set in the different functions with the values needed or random values 
     /// if debugging is just for certain things. 
@@ -66,10 +48,14 @@ public class GameManager : MonoBehaviour {
     public int _level = 0;                  // Sets the level to be loaded
 
     // Private
+    // How many levels are in a certain difficulty
+    int[] _levelsInDifficulty;
+
     // GAME DATA
     LoadAssetBundle _lab;                   // LoadAssetBundle instance
     PlayerData _currentPlayerData;          // CurrentPlayer data
-    GameInfo _gi;                           // Info about the game, for calculations and data config
+    GameConfig _gc;                         // Game Configuration read from a file
+    GameFilesInfo _gi;                      // Info about the game, for calculations and data config
 
     // SCALING DATA
     Vector2 _scalingReferenceResolution;    // Reference resolution for scaling
@@ -132,6 +118,8 @@ public class GameManager : MonoBehaviour {
             // Set this gameObject to not Destroy when changing between scenes
             DontDestroyOnLoad(gameObject);
 
+            _gc = LoadingFiles.ReadGameConfig();
+
             // Store canvas' scaling reference resolution
             _scalingReferenceResolution = _cnv.GetComponent<CanvasScaler>().referenceResolution;
 
@@ -177,41 +165,50 @@ public class GameManager : MonoBehaviour {
     /// </summary>
     public void SetGameInfo()
     {
-        // Get how many difficulties are
-        int difficulties = GetInstance()._gi._numDifficulties;
-
-        // Establishes maximum difficulty for random generated level
-        GetInstance()._maxDifficulty = difficulties;
-
-        // Gets how many levels per difficulty are
-        _levelsInDifficulty = new int[GetInstance()._maxDifficulty];
-
-        for (int i = 0; i < _levelsInDifficulty.Length; i++)
+        // Check if maximum difficulty configurated in JSON is the same as the number of files in /StreamingAssets/Levels
+        if (GetInstance()._gi._numDifficulties == GetInstance()._gc._maxDifficulty)
         {
-            LevelReader temp = new LevelReader(i);
-            _levelsInDifficulty[i] = temp.GetNumLevels();
-        }
+            // Get how many difficulties are
+            int difficulties = GetInstance()._gi._numDifficulties;
 
-        // If the actual scene is Game scene generate random ones
-        if (SceneManager.GetActiveScene().buildIndex == 2)
-        {
-            // Check debugmode
-            if (!_debugging)
+            // Establishes maximum difficulty for random generated level
+            GetInstance()._maxDifficulty = difficulties;
+
+            // Gets how many levels per difficulty are
+            GetInstance()._levelsInDifficulty = new int[GetInstance()._maxDifficulty];
+
+            for (int i = 0; i < _levelsInDifficulty.Length; i++)
             {
-                GetInstance()._difficulty = Random.Range(0, _maxDifficulty);
-                LevelReader temp = new LevelReader(GetInstance()._difficulty);
-                GetInstance()._level = Random.Range(1, temp.GetNumLevels() + 1);
+                LevelReader temp = new LevelReader(i);
+                GetInstance()._levelsInDifficulty[i] = temp.GetNumLevels();
+            }
+
+            // If the actual scene is Game scene generate random ones
+            if (SceneManager.GetActiveScene().buildIndex == 2)
+            {
+                // Check debugmode
+                if (!_debugging)
+                {
+                    GetInstance()._difficulty = Random.Range(0, _maxDifficulty);
+                    LevelReader temp = new LevelReader(GetInstance()._difficulty);
+                    GetInstance()._level = Random.Range(1, temp.GetNumLevels() + 1);
+                }
+            }
+
+            // If the actual scene is LevelSelection, generate random difficulty
+            if (SceneManager.GetActiveScene().buildIndex == 1)
+            {
+                // Check debugmode
+                if (!_debugging)
+                {
+                    GetInstance()._difficulty = Random.Range(0, _maxDifficulty);
+                }
             }
         }
-
-        // If the actual scene is LevelSelection, generate random difficulty
-        if (SceneManager.GetActiveScene().buildIndex == 1)
+        else
         {
-            // Check debugmode
-            if (!_debugging)
-            {
-                GetInstance()._difficulty = Random.Range(0, _maxDifficulty);
-            }
+            Debug.LogError("Difficulties not match, check maxDifficulty in " +
+                "game_config or check number of files in Levels folder.");
         }
     }
 
@@ -345,7 +342,7 @@ public class GameManager : MonoBehaviour {
     void AddCoins()
     {
         // Generate the random amount of coins
-        int add = Random.Range(10, GetInstance()._coinsMaxRewardAd + 1);
+        int add = Random.Range(10, GetInstance()._gc._coinsMaxReward + 1);
         // Update player coins with those new coins
         GetInstance()._currentPlayerData._coinsPlayer += add;
     }
@@ -357,7 +354,7 @@ public class GameManager : MonoBehaviour {
     void AddChallengeExtraCoins()
     {
         // Update player data, then return to Main Menu
-        GetInstance()._currentPlayerData._coinsPlayer += GetInstance()._challengeReward;
+        GetInstance()._currentPlayerData._coinsPlayer += GetInstance()._gc._challengeReward;
         ReturnToMenu();
     }
 
@@ -540,7 +537,7 @@ public class GameManager : MonoBehaviour {
     public void PaidChallenge()
     {
         // Take the coins from the player
-        GetInstance()._currentPlayerData._coinsPlayer -= GetInstance()._challengePrice;
+        GetInstance()._currentPlayerData._coinsPlayer -= GetInstance()._gc._challengeCost;
 
         InitChallenge();
     }
@@ -582,7 +579,7 @@ public class GameManager : MonoBehaviour {
         // Update challenge value
         GetInstance()._challenge = false;
         // Update player information with the rewards
-        GetInstance()._currentPlayerData._coinsPlayer += GetInstance()._challengeReward;
+        GetInstance()._currentPlayerData._coinsPlayer += GetInstance()._gc._challengeReward;
         GetInstance()._currentPlayerData._challengesCompleted += 1;
 
         GetInstance()._challengeCompleted = true;
@@ -606,7 +603,7 @@ public class GameManager : MonoBehaviour {
     public void CoinsUsed()
     {
         // Take the coins from the player
-        GetInstance()._currentPlayerData._coinsPlayer -= GetInstance()._hintPrice;
+        GetInstance()._currentPlayerData._coinsPlayer -= GetInstance()._gc._hintCost;
     }
 
     /// <summary>
@@ -689,7 +686,7 @@ public class GameManager : MonoBehaviour {
     /// <returns>string Difficulty text</returns>
     public string getDifficultyText()
     {
-        return GetInstance()._difficulties[GetInstance()._difficulty];
+        return GetInstance()._gc._difficultyTexts[GetInstance()._difficulty];
     }
     
     /// <summary>
@@ -764,7 +761,7 @@ public class GameManager : MonoBehaviour {
     /// <returns>int Hintprice</returns>
     public int getPrice()
     {
-        return GetInstance()._hintPrice;
+        return GetInstance()._gc._hintCost;
     }
 
     // Info and prefab getters
@@ -843,7 +840,7 @@ public class GameManager : MonoBehaviour {
     /// <returns>int Time in minutes</returns>
     public int getChallengeTime()
     {
-        return GetInstance()._challengeTime;
+        return GetInstance()._gc._challengeWaitTime;
     }
 
     /// <summary>
@@ -852,7 +849,7 @@ public class GameManager : MonoBehaviour {
     /// <returns>int Challenge reward value</returns>
     public int getChallengeReward()
     {
-        return GetInstance()._challengeReward;
+        return GetInstance()._gc._challengeReward;
     }
 
     /// <summary>
@@ -861,7 +858,7 @@ public class GameManager : MonoBehaviour {
     /// <returns>int Coins needed to play</returns>
     public int getChallengePrice()
     {
-        return GetInstance()._challengePrice;
+        return GetInstance()._gc._challengeCost;
     }
 
     /// <summary>

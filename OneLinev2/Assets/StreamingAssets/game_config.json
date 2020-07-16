@@ -1,0 +1,15 @@
+{
+    "_maxDifficulty": 5,
+    "_difficultyTexts": [
+        "Beginner",
+        "Regular",
+        "Advanced",
+        "Expert",
+        "Master"
+    ],
+    "_hintCost": 25,
+    "_coinsMaxReward": 30,
+    "_challengeWaitTime": 30,
+    "_challengeReward": 50,
+    "_challengeCost": 25
+}

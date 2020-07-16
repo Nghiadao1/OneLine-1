@@ -21,6 +21,8 @@ public class AdManager : MonoBehaviour, IUnityAdsListener
     private string gameID = "3714873";
 #elif UNITY_IOS
     private string gameID = "3714872";
+#else
+    private string gameID = "3714874";
 #endif
 
     // Ad type 

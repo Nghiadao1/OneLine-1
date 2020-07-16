@@ -7,7 +7,7 @@ public class CreateGameInfo
     [MenuItem("Create/Game Info")]
     static void CreateInfo()
     {
-        GameInfo inf = new GameInfo();
+        GameFilesInfo inf = new GameFilesInfo();
         DirectoryInfo dir;
 
         // Conseguimos el número de dificultades
