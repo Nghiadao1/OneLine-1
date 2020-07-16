@@ -345,6 +345,8 @@ public class GameManager : MonoBehaviour {
         int add = Random.Range(10, GetInstance()._gc._coinsMaxReward + 1);
         // Update player coins with those new coins
         GetInstance()._currentPlayerData._coinsPlayer += add;
+
+        _lm.UpdateCoins();
     }
 
     /// <summary>
