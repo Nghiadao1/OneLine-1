@@ -12,11 +12,11 @@ public class Scaling
 {
 
     // Reference and current resolution
-    Vector2 refResolution;
-    Vector2 currResolution;
+    Vector2 _refResolution;
+    Vector2 _currResolution;
 
     // Value to change between pixels and Unity Units
-    float unityUds;
+    float _unityUds;
 
     /// <summary>
     /// Constructor of the class. Receives the reference resolution and the
@@ -29,11 +29,11 @@ public class Scaling
     public Scaling(Vector2 res, Vector2 refRes, int camSize)
     {
         // Assign resolutions to intern variables for storage
-        currResolution = res;
-        refResolution = refRes;
+        _currResolution = res;
+        _refResolution = refRes;
 
         // Calculate how many pixels per unity unit
-        unityUds = res.y / (2 * camSize);
+        _unityUds = res.y / (2 * camSize);
     }
 
     /// <summary>
@@ -48,18 +48,18 @@ public class Scaling
         Vector3 temp = sizeInUnits;
 
         // Convert units to pixels
-        temp.x *= unityUds;
-        temp.y *= unityUds;
+        temp.x *= _unityUds;
+        temp.y *= _unityUds;
 
         // Set the width of the 
-        temp.x = currResolution.x;
+        temp.x = _currResolution.x;
 
         // Scale the height proportionally
         temp.y = (temp.x * sizeInUnits.y) / sizeInUnits.x;
 
         // Convert to unity units
-        temp.x = temp.x / unityUds;
-        temp.y = temp.y / unityUds;
+        temp.x = temp.x / _unityUds;
+        temp.y = temp.y / _unityUds;
 
         // New scale to apply on the object
         Vector3 nScale;
@@ -165,26 +165,37 @@ public class Scaling
         return scalated;
     }
 
+    /// <summary>
+    /// Find the quadrant of an object to make each determined operation
+    /// </summary>
+    /// <param name="position">The world position (x, y) of the object that will compare</param>
+    /// <returns></returns>
     public Vector2 ScreenToWorldPosition(Vector2 position)
     {
         Vector2 temp = position;
 
-        if (temp.x > (currResolution.x / 2))
+        //If the x position of the object is higher than the middle of the current resolution
+        if (temp.x > (_currResolution.x / 2))
         {
-            temp.x = (0 + (temp.x - (currResolution.x / 2))) / unityUds;
+            //The x position is positive and it is added to the middle in Unity units
+            temp.x = (0 + (temp.x - (_currResolution.x / 2))) / _unityUds;
         }
         else
         {
-            temp.x = (0 - ((currResolution.x / 2) - temp.x)) / unityUds;
+            //If x position is lower then is negative in the operation and will subtract to the middle in Unity units
+            temp.x = (0 - ((_currResolution.x / 2) - temp.x)) / _unityUds;
         }
 
-        if (temp.y > (currResolution.y / 2))
+        //If the y position of the object is higher than the middle of the current resolution
+        if (temp.y > (_currResolution.y / 2))
         {
-            temp.y = (0 + (temp.y - (currResolution.y / 2))) / unityUds;
+            //The y position is positive and it is added to the middle in Unity units
+            temp.y = (0 + (temp.y - (_currResolution.y / 2))) / _unityUds;
         }
         else
         {
-            temp.y = (0 - ((currResolution.y / 2) - temp.y)) / unityUds;
+            //If y position is lower then it is negative in the operation and will subtract to the middle in Unity units
+            temp.y = (0 - ((_currResolution.y / 2) - temp.y)) / _unityUds;
         }
 
         return temp;
@@ -197,7 +208,7 @@ public class Scaling
     /// <returns>The value scaled width the different resolutions</returns>
     public float ResizeX(float x)
     {
-        return (x * currResolution.x) / refResolution.x;
+        return (x * _currResolution.x) / _refResolution.x;
     }
 
     /// <summary>
@@ -207,7 +218,7 @@ public class Scaling
     /// <returns>The new value</returns>
     public float ResizeY(float y)
     {
-        return (y * currResolution.y) / refResolution.y;
+        return (y * _currResolution.y) / _refResolution.y;
     }
 
     /// <summary>
@@ -217,11 +228,16 @@ public class Scaling
     /// <returns>The value calculated in the constructor</returns>
     public float UnityUds()
     {
-        return unityUds;
+        return _unityUds;
     }
 
+    /// <summary>
+    /// Get the value of the actual game resolution (width x height)
+    /// to use it in other operations
+    /// </summary>
+    /// <returns>The value of the actual resolution</returns>
     public Vector2 CurrentResolution()
     {
-        return currResolution;
+        return _currResolution;
     }
 }

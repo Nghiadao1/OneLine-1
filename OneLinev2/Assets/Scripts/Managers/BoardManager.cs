@@ -15,39 +15,39 @@ using UnityEngine;
 public class BoardManager : MonoBehaviour
 {
     // Space that the board will take
-    Vector2 resolution;
+    Vector2 _resolution;
 
     // Margins
-    public int margenSuperior = 5;
-    public int margenLateral = 45;
+    public int _topMargin = 5;
+    public int _sideMargin = 45;
 
     // Object that will contain the Board
-    public Transform panelDePrueba;
-    GameObject[,] board;
+    public Transform _boardPanel;
+    GameObject[,] _board;
 
-    Stack<Vector2> path;
+    Stack<Vector2> _path;
 
     // Tile's prefab
-    GameObject tile;
-    GameObject playerPath;
-    GameObject colorTile;
-    GameObject pathColor;
+    GameObject _tile;
+    GameObject _playerPath;
+    GameObject _colorTile;
+    GameObject _pathColor;
 
     // Tile Origen del nivel
-    GameObject origin;
+    GameObject _origin;
 
     // Panels to calculate the space for the board
-    private float panelSuperior;
-    private float panelInferior;
+    private float _topPanel;
+    private float _bottomPanel;
 
     // Variables del tablero
     Levels _level;
 
     // How many tiles will be in the current level (WidthxHeight)
-    Vector2 dimensiones; // Cuantos tiles hay a lo alto y a lo ancho
+    Vector2 _dimensions; // Cuantos tiles hay a lo alto y a lo ancho
 
     // Hint management
-    int lastHint = 1;
+    int _lastHint = 1;
 
 
     /// <summary>
@@ -62,22 +62,27 @@ public class BoardManager : MonoBehaviour
 
     private void Awake()
     {
-        path = new Stack<Vector2>();
+        // Initiates the tiles stack before is needed
+        _path = new Stack<Vector2>();
     }
 
-    // Start is called before the first frame update
+    /// <summary>
+    /// Initiates all the values and call the functions to make an specific board
+    /// </summary>
+    /// <param name="level">Determined level that will load in the board</param>
+    /// <param name="c">Number of the random color to load a tile</param>
     public void Init(Levels level, int c)
     {
         _level = level;
 
-        dimensiones = new Vector2(_level.layout[0].Length, _level.layout.Length);
+        _dimensions = new Vector2(_level.layout[0].Length, _level.layout.Length);
 
-        // Primero creamos el tablero de un tamaño concreto para que entren X tiles a lo largo y ancho
-        // Le damos ese valor y luego, calculando el espacio disponible, lo ajustamos
-        board = new GameObject[(int)dimensiones.y, (int)dimensiones.x];
+        // Creates the board with an specific size for n tiles in width and m tiles in height
+        // Then it will be adjust with the available space
+        _board = new GameObject[(int)_dimensions.y, (int)_dimensions.x];
 
-        margenSuperior = (int)(7.5 * dimensiones.y);
-        margenLateral = (int)(11.7 * dimensiones.x);
+        _topMargin = (int)(7.5 * _dimensions.y);
+        _sideMargin = (int)(11.7 * _dimensions.x);
 
         InitGameObjects(c);
 
@@ -87,12 +92,16 @@ public class BoardManager : MonoBehaviour
     }
 
     #region Calculate and create Board
+    /// <summary>
+    /// Set each prefab of the tile and its children loading them from AssetBundle
+    /// </summary>
+    /// <param name="color">Number of the random tile color to load it</param>
     void InitGameObjects(int color)
     {
-        tile = GameManager.GetInstance().getPrefabFromTileAssetBundle("block_00");
-        playerPath = GameManager.GetInstance().getPrefabFromPathAssetBundle("block_00_hint");
-        colorTile = GameManager.GetInstance().getPrefabFromTileAssetBundle("block_0" + color);
-        pathColor = GameManager.GetInstance().getPrefabFromPathAssetBundle("block_0" + color + "_hint");
+        _tile = GameManager.GetInstance().getPrefabFromTileAssetBundle("block_00");
+        _playerPath = GameManager.GetInstance().getPrefabFromPathAssetBundle("block_00_hint");
+        _colorTile = GameManager.GetInstance().getPrefabFromTileAssetBundle("block_0" + color);
+        _pathColor = GameManager.GetInstance().getPrefabFromPathAssetBundle("block_0" + color + "_hint");
     }
 
     /// <summary>
@@ -102,128 +111,148 @@ public class BoardManager : MonoBehaviour
     /// </summary>
     void CalculateSpace()
     {
-        // Calculamos el espacio ocupado por los paneles superior e inferior en píxeles
-        panelSuperior = GameManager.GetInstance().panelSuperiorHeight() * GameManager.GetInstance().GetCanvas().scaleFactor;
-        panelInferior = GameManager.GetInstance().panelInferiorHeight() * GameManager.GetInstance().GetCanvas().scaleFactor;
+        // Calculates the space of the top and bottom panels in pixels
+        _topPanel = GameManager.GetInstance().panelSuperiorHeight() * GameManager.GetInstance().GetCanvas().scaleFactor;
+        _bottomPanel = GameManager.GetInstance().panelInferiorHeight() * GameManager.GetInstance().GetCanvas().scaleFactor;
 
         Vector2 actRes = GameManager.GetInstance().getResolution();
 
-        // Calculamos el espacio disponible en la resolución actual 
-        float dispY = (actRes.y - (panelInferior + panelSuperior)) - (2 * GameManager.GetInstance().GetScaling().ResizeY(margenSuperior));
-        float dipsX = actRes.x - (2 * GameManager.GetInstance().GetScaling().ResizeX(margenLateral));
+        // Calculates the available space in the current resolution 
+        float dispY = (actRes.y - (_bottomPanel + _topPanel)) - (2 * GameManager.GetInstance().GetScaling().ResizeY(_topMargin));
+        float dipsX = actRes.x - (2 * GameManager.GetInstance().GetScaling().ResizeX(_sideMargin));
 
-        // Creamos el espacio disponible en pantalla (en píxeles) para el juego
-        resolution = new Vector2(dipsX, dispY);
+        // Creates the available screen space for the game in pixels
+        _resolution = new Vector2(dipsX, dispY);
 
-        resolution /= GameManager.GetInstance().GetScaling().UnityUds();
+        // Change reslution to Unity units
+        _resolution /= GameManager.GetInstance().GetScaling().UnityUds();
 
         DefineTileSize();
     }
 
+    /// <summary>
+    /// Determinates the tiles size considering the width and height dimensions of the level
+    /// and the scaled resolution of the game space
+    /// </summary>
     void DefineTileSize()
     {
-        Vector2 resolutionTemp = resolution * GameManager.GetInstance().GetScaling().UnityUds();
+        Vector2 resolutionTemp = _resolution * GameManager.GetInstance().GetScaling().UnityUds();
 
-        Vector3 medidasTablero = new Vector3();
+        float finalSize;
+        float tileSizeX;
+        float tileSizeY;
 
-        float tamFinal;
-        float tamTilesX;
-        float tamTilesY;
-
-        if (dimensiones.y > 5)
+        // If the level has more than 5 tiles height
+        if (_dimensions.y > 5)
         {
-            tamTilesX = resolutionTemp.x / 6;
-            tamTilesY = resolutionTemp.y / 8;
+            // Fits 6x8 tiles in the  calculated resolution, 
+            // so each tile will have 1/6 x 1/8 size of the resolution
+            tileSizeX = resolutionTemp.x / 6;
+            tileSizeY = resolutionTemp.y / 8;
         }
         else
         {
-            tamTilesX = resolutionTemp.x / 6;
-            tamTilesY = resolutionTemp.y / 5;
+            // Fits 6x5 tiles in the  calculated resolution, 
+            // so each tile will have 1/6 x 1/5 size of the resolution
+            tileSizeX = resolutionTemp.x / 6;
+            tileSizeY = resolutionTemp.y / 5;
 
         }
 
-        if (tamTilesY < tamTilesX)
+        // Chooses the higher size between the new tile height and width
+        if (tileSizeY < tileSizeX)
         {
-            tamFinal = tamTilesY;
+            finalSize = tileSizeY;
         }
         else
         {
-            tamFinal = tamTilesX;
+            finalSize = tileSizeX;
         }
 
-        medidasTablero.x = tamFinal * dimensiones.x;
-        medidasTablero.y = tamFinal * dimensiones.y;
+        InstantiateTiles();
 
-        medidasTablero /= GameManager.GetInstance().GetScaling().UnityUds();
-
-        InstantiateTiles(medidasTablero, tamFinal);
-
-        //Escalado del tablero con los tiles una vez que se han instanciado todos
-        Vector2 nTam = new Vector2(tamFinal, tamFinal);
-        Vector2 nScale = GameManager.GetInstance().GetScaling().resizeObjectScaleKeepingAspectRatio(tile.GetComponent<SpriteRenderer>().bounds.size * GameManager.GetInstance().GetScaling().UnityUds(),
-            nTam, tile.transform.localScale);
-        panelDePrueba.transform.localScale = new Vector3(nScale.x, nScale.y, 1);
+        // Board scaling before all the tiles are instantiate
+        Vector2 nTam = new Vector2(finalSize, finalSize);
+        Vector2 nScale = GameManager.GetInstance().GetScaling().resizeObjectScaleKeepingAspectRatio(_tile.GetComponent<SpriteRenderer>().bounds.size * GameManager.GetInstance().GetScaling().UnityUds(),
+            nTam, _tile.transform.localScale);
+        _boardPanel.transform.localScale = new Vector3(nScale.x, nScale.y, 1);
     }
 
-    void InstantiateTiles(Vector3 medidasTablero, float tamTile)
+
+    /// <summary>
+    /// Generates all the tiles with their children and sets them in their respective position.
+    /// </summary>
+    void InstantiateTiles()
     {
-        for (int i = 0; i < dimensiones.y; i++)
+        // Runs all the tiles in the board
+        for (int i = 0; i < _dimensions.y; i++)
         {
-            for (int j = 0; j < dimensiones.x; j++)
+            for (int j = 0; j < _dimensions.x; j++)
             {
+                // If the level contains the character 0 means that is not pressed tile
                 if (_level.layout[i][j] != '0')
                 {
                     Vector3 position = new Vector3();
 
                     position.z = -1;
 
-                    if (dimensiones.x % 2 == 0)
+                    // Reposition of each tile considering the iterator to equitative separation between them
+                    // Compares if the dimensions are pair to add 0.5 for a better centered of the board
+                    if (_dimensions.x % 2 == 0)
                     {
-                        position.x = (panelDePrueba.position.x - (dimensiones.x / 2) + 0.5f) + j;
+                        position.x = (_boardPanel.position.x - (_dimensions.x / 2) + 0.5f) + j;
                     }
                     else
                     {
-                        position.x = ((panelDePrueba.position.x - (int)(dimensiones.x / 2))) + j;
+                        position.x = ((_boardPanel.position.x - (int)(_dimensions.x / 2))) + j;
                     }
 
-                    if (dimensiones.y % 2 == 0)
+                    if (_dimensions.y % 2 == 0)
                     {
-                        position.y = (panelDePrueba.position.y + (dimensiones.y / 2) - 0.5f) - i;
+                        position.y = (_boardPanel.position.y + (_dimensions.y / 2) - 0.5f) - i;
                     }
                     else
                     {
-                        position.y = (panelDePrueba.position.y + (int)(dimensiones.y / 2)) - i;
+                        position.y = (_boardPanel.position.y + (int)(_dimensions.y / 2)) - i;
                     }
 
                     ConfigTile(position, j, i);
 
+                    // If the level contains the character 2 means that is the first tile of the path
+                    // so the color will be activated
                     if (_level.layout[i][j] == '2')
                     {
-                        path.Push(new Vector2(j, i));
+                        _path.Push(new Vector2(j, i));
 
-                        board[i, j].GetComponent<Tile>().ActivateColor();
+                        _board[i, j].GetComponent<Tile>().ActivateColor();
 
-                        origin = board[i, j];
+                        _origin = _board[i, j];
                     }
                 }
             }
         }
     }
 
+    /// <summary>
+    /// Instantiates a tile in a specific position and sets its children
+    /// </summary>
+    /// <param name="pos">Real position of the tile in the game space</param>
+    /// <param name="posX">Horizontas position of the tile in the board</param>
+    /// <param name="posY">Vertical position of the tile in the board</param>
     void ConfigTile(Vector3 pos, int posX, int posY)
     {
         // Instantiate GameObjects needed
-        GameObject nTile = Instantiate(tile, pos, Quaternion.identity);
-        GameObject clTile = Instantiate(colorTile, pos, Quaternion.identity);
+        GameObject nTile = Instantiate(_tile, pos, Quaternion.identity);
+        GameObject clTile = Instantiate(_colorTile, pos, Quaternion.identity);
         GameObject pathPivot = new GameObject("PathPivot");
         pathPivot.transform.SetPositionAndRotation(pos, Quaternion.identity);
-        GameObject plPath = Instantiate(playerPath, pos, Quaternion.identity);
+        GameObject plPath = Instantiate(_playerPath, pos, Quaternion.identity);
         GameObject hintPivot = new GameObject("HintPivot");
         hintPivot.transform.SetPositionAndRotation(pos, Quaternion.identity);
-        GameObject hnPath = Instantiate(pathColor, pos, Quaternion.identity);
+        GameObject hnPath = Instantiate(_pathColor, pos, Quaternion.identity);
 
         // Attacht them to parents
-        nTile.transform.SetParent(panelDePrueba);
+        nTile.transform.SetParent(_boardPanel);
         clTile.transform.SetParent(nTile.transform);
         hintPivot.transform.SetParent(nTile.transform);
         pathPivot.transform.SetParent(nTile.transform);
@@ -236,44 +265,47 @@ public class BoardManager : MonoBehaviour
         hnPath.transform.SetPositionAndRotation(hintPivot.transform.position + new Vector3(0.5f, 0, 0), hintPivot.transform.rotation);
 
         // Configure Tile info for later use
-        nTile.transform.GetComponent<Tile>().SetTile(nTile, clTile, pathPivot, hintPivot, new Vector2(posX, posY));
+        nTile.transform.GetComponent<Tile>().SetTile(clTile, pathPivot, hintPivot, new Vector2(posX, posY));
 
         // Save the tile in the array
-        board[posY, posX] = nTile;
+        _board[posY, posX] = nTile;
     }
 
+    /// <summary>
+    /// Calculates the position of the panel board (which contains the board with all the tiles) in Unity units
+    /// </summary>
     void CalculatePosition()
     {
         Vector3 position = new Vector3();
 
-        float dispDistance = GameManager.GetInstance().getResolution().y - (panelInferior + panelSuperior);
+        float dispDistance = GameManager.GetInstance().getResolution().y - (_bottomPanel + _topPanel);
+        
+        dispDistance /= 2; // Calculates the distance to the middle point between the panels
 
-        dispDistance /= 2; // Calculamos la distancia hasta el punto medio entre los dos paneles
+        position.y = (GameManager.GetInstance().getResolution().y - _topPanel) - dispDistance;
 
-        position.y = (GameManager.GetInstance().getResolution().y - panelSuperior) - dispDistance;
-
-        // Ahora calcular la posición en unidades de Unity
-        // Si la posición es mayor de la mitad, está en unidades de unity positivas
+        // Calculates the position in Unity units
+        // If the position is higher than the middle then it is in positive Unity units
         if (position.y > (GameManager.GetInstance().getResolution().y / 2))
         {
             position.y -= (GameManager.GetInstance().getResolution().y / 2);
 
             position.y = PixelToUnityPosition(position.y);
         }
-        // Si no, está en unidades negativas
+        // If not, it is in negative units
         else if (position.y < (GameManager.GetInstance().getResolution().y / 2))
         {
             position.y = (GameManager.GetInstance().getResolution().y / 2) - position.y;
 
             position.y = (PixelToUnityPosition(position.y) * (-1));
         }
-        // Por último, la posición 0, 0, 0
+        // Finally, the 0, 0, 0 position
         else
         {
             position.y = 0;
         }
 
-        panelDePrueba.SetPositionAndRotation(position, panelDePrueba.rotation);
+        _boardPanel.SetPositionAndRotation(position, _boardPanel.rotation);
     }
     #endregion
 
@@ -288,12 +320,12 @@ public class BoardManager : MonoBehaviour
             {
                 Tile tile = ray.collider.gameObject.GetComponent<Tile>();
 
-                if (path.Contains(tile.getPositionInBoard()))
+                if (_path.Contains(tile.getPositionInBoard()))
                 {
-                    while (path.Peek() != tile.getPositionInBoard())
+                    while (_path.Peek() != tile.getPositionInBoard())
                     {
-                        board[(int)path.Peek().y, (int)path.Peek().x].GetComponent<Tile>().ResetTile();
-                        path.Pop();
+                        _board[(int)_path.Peek().y, (int)_path.Peek().x].GetComponent<Tile>().ResetTile();
+                        _path.Pop();
                     }
                 }
                 else
@@ -326,7 +358,7 @@ public class BoardManager : MonoBehaviour
 
     public void TileAdded(Tile t, float degrees)
     {
-        path.Push(t.getPositionInBoard());
+        _path.Push(t.getPositionInBoard());
 
         t.ActivateColor();
         t.RotatePlayerPath(degrees);
@@ -334,13 +366,13 @@ public class BoardManager : MonoBehaviour
 
     public bool CheckTile(Vector2 position)
     {
-        if (position.x >= dimensiones.x || position.x < 0 || position.y >= dimensiones.y || position.y < 0)
+        if (position.x >= _dimensions.x || position.x < 0 || position.y >= _dimensions.y || position.y < 0)
         {
             return false;
         }
-        else if (board[(int)position.y, (int)position.x] != null)
+        else if (_board[(int)position.y, (int)position.x] != null)
         {
-            if (path.Peek() == position)
+            if (_path.Peek() == position)
             {
                 return true;
             }
@@ -360,7 +392,7 @@ public class BoardManager : MonoBehaviour
         float degrees = 0.0f;
         int i;
 
-        for (i = lastHint; i < (lastHint + 4) && i < _level.path.Length; i++)
+        for (i = _lastHint; i < (_lastHint + 4) && i < _level.path.Length; i++)
         {
             if ((int)_level.path[i].x == (int)_level.path[i - 1].x - 1)
             {
@@ -379,24 +411,24 @@ public class BoardManager : MonoBehaviour
                 degrees = 180.0f;
             }
 
-            board[(int)_level.path[i].x, (int)_level.path[i].y].GetComponent<Tile>().RotateHintPath(degrees);
+            _board[(int)_level.path[i].x, (int)_level.path[i].y].GetComponent<Tile>().RotateHintPath(degrees);
         }
 
-        lastHint = i;
+        _lastHint = i;
     }
 
     public void ResetLevel()
     {
-        while (path.Peek() != origin.GetComponent<Tile>().getPositionInBoard())
+        while (_path.Peek() != _origin.GetComponent<Tile>().getPositionInBoard())
         {
-            board[(int)path.Peek().y, (int)path.Peek().x].GetComponent<Tile>().ResetTile();
-            path.Pop();
+            _board[(int)_path.Peek().y, (int)_path.Peek().x].GetComponent<Tile>().ResetTile();
+            _path.Pop();
         }
     }
 
     public bool Ended()
     {
-        if (path.ToArray().Length == _level.path.Length)
+        if (_path.ToArray().Length == _level.path.Length)
         {
             return true;
         }
@@ -408,7 +440,7 @@ public class BoardManager : MonoBehaviour
 
     public bool CanBuyHint()
     {
-        return lastHint != (int)_level.path.Length;
+        return _lastHint != (int)_level.path.Length;
     }
     #endregion
 }
