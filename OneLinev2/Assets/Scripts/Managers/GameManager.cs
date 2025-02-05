@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-
 /// <summary>
 /// GameManager class. Manages all changes between scenes, the levels that will be
 /// played and the challenges. 
@@ -66,7 +65,7 @@ public class GameManager : MonoBehaviour {
     // GAME/SCENE MANAGEMENT
     Vector2 _lastTouchPosition;             // Last position touched
     LevelManager _lm;                       // LevelManager, for communication in-game
-    Random _rnd;                            // Random instance for generating random levels
+    System.Random _rnd;                            // Random instance for generating random levels
     MainMenu _mm;
     int _lastScene;                         // Scene before actual scene
     int _maxDifficulty = 4;                 // Max difficulty in game (data driven)
@@ -143,7 +142,7 @@ public class GameManager : MonoBehaviour {
 #endif
 
             // Initialize random value
-            _rnd = new Random();
+            _rnd = new System.Random();
 
             // Load gameInfo previously generated, data driven information
             _gi = LoadingFiles.ReadGameInfo();
